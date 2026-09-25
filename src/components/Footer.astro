@@ -1,0 +1,206 @@
+---
+import { site, telLink, waLink } from '../site.config';
+const year = new Date().getFullYear();
+const open = site.hours[0];
+const waHref = waLink(`Hi ${site.name}, I'd like to book a consultation.`);
+---
+<footer class="ftr inverse">
+  <span class="ftr__watermark" aria-hidden="true"></span>
+
+  <div class="wrap ftr__in">
+    <!-- ── brand + reach ── -->
+    <div class="ftr__head">
+      <div class="ftr__brand">
+        <a href="/" class="ftr__logo" aria-label={`${site.name} — home`}>
+          <img class="ftr__logo-mark" src="/logo/mark-rev.png" alt="" width="52" height="38" />
+          <img class="ftr__logo-word" src="/logo/wordmark-rev.png" alt={site.name} width="188" height="24" />
+        </a>
+        <p class="ftr__tag">{site.tagline}</p>
+        <div class="ftr__social">
+          <a href={site.social.instagram} class="ftr__soc" rel="noopener" aria-label="Instagram">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
+          </a>
+          <a href={site.social.facebook} class="ftr__soc" rel="noopener" aria-label="Facebook">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 8h2.5V4.5H14A3.5 3.5 0 0 0 10.5 8v2H8v3.5h2.5V21h3.5v-7.5h2.6l.5-3.5H14V8.6c0-.4.2-.6.6-.6z"/></svg>
+          </a>
+        </div>
+      </div>
+
+      <div class="ftr__reach">
+        <span class="eyebrow">Speak to a clinician</span>
+        <a href={telLink} class="ftr__phone" data-ev="call_click" data-loc="footer">{site.phoneDisplay}</a>
+        <p class="ftr__hoursline">{open.days} · {open.open} – {open.close}</p>
+        <div class="ftr__actions">
+          <a href="/contact/" class="btn btn--light" data-ev="book_click" data-loc="footer">Book a consultation</a>
+          <a href={waHref} class="ftr__wa" data-ev="whatsapp_click" data-loc="footer" rel="noopener">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2m0 2a8 8 0 1 1-4.1 14.9l-.3-.2-2.5.7.7-2.4-.2-.3A8 8 0 0 1 12 4m-2.6 4c-.2 0-.5.1-.7.4-.2.3-.8.8-.8 2s.8 2.3.9 2.5c.1.2 1.6 2.6 4 3.5 2 .8 2.4.6 2.8.6.5 0 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1l-.6-.3-1.4-.7c-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 0 1-3.2-2.8c-.1-.2 0-.4.1-.5l.4-.5.2-.4v-.4l-.7-1.6c-.1-.4-.3-.4-.5-.4z"/></svg>
+            WhatsApp
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <hr class="ftr__rule" />
+
+    <!-- ── navigation + details ── -->
+    <div class="ftr__cols">
+      <nav class="ftr__col" aria-label="Treatments">
+        <h2 class="ftr__h">Treatments</h2>
+        <a href="/treatments/#skin" class="ftr__link">Skin</a>
+        <a href="/treatments/#hair" class="ftr__link">Hair</a>
+        <a href="/treatments/#wellness" class="ftr__link">Wellness</a>
+        <a href="/treatments/" class="ftr__link ftr__link--accent">All treatments</a>
+      </nav>
+
+      <nav class="ftr__col" aria-label="Explore">
+        <h2 class="ftr__h">Explore</h2>
+        <a href="/about/" class="ftr__link">About</a>
+        <a href="/results/" class="ftr__link">Results</a>
+        <a href="/journal/" class="ftr__link">Journal</a>
+        <a href="/contact/" class="ftr__link">Contact</a>
+      </nav>
+
+      <div class="ftr__col">
+        <h2 class="ftr__h">Visit</h2>
+        <!-- NAP block. Must match Google Business Profile byte for byte. -->
+        <address class="ftr__addr">
+          {site.address.street}<br />
+          {site.address.locality}, {site.address.region} {site.address.postalCode}
+        </address>
+        <a href={site.mapUrl} class="ftr__link" rel="noopener">Get directions</a>
+        <a href={`mailto:${site.email}`} class="ftr__link">{site.email}</a>
+      </div>
+
+      <div class="ftr__col">
+        <h2 class="ftr__h">Opening hours</h2>
+        {site.hours.map((h) => (
+          <p class="ftr__hours"><span>{h.days}</span><span class="ftr__hours-t">{h.close ? `${h.open} – ${h.close}` : h.open}</span></p>
+        ))}
+      </div>
+    </div>
+
+    <hr class="ftr__rule" />
+
+    <!-- ── legal + back to top ── -->
+    <div class="ftr__base">
+      <div class="ftr__legalwrap">
+        <p class="ftr__legal">
+          © {year} {site.legalName}. All treatments require a consultation.
+          Results vary between individuals. Images on this site are unretouched and dated.
+        </p>
+        <p class="ftr__reg">
+          PRC / DOH registration — TODO
+          <span class="ftr__reg-sep">·</span><a href="/privacy/">Privacy</a>
+          <span class="ftr__reg-sep">·</span><a href="/terms/">Terms</a>
+          <span class="ftr__reg-sep">·</span><a href="/consent/">Treatment consent</a>
+        </p>
+      </div>
+      <a href="#main" class="ftr__totop">
+        Back to top
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6"/></svg>
+      </a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .ftr{
+    position:relative;overflow:hidden;
+    padding-block:clamp(var(--s6),6vw,var(--s7)) var(--s5);
+    margin-bottom:54px;border-top:1px solid rgba(247,244,238,.14)
+  }
+  @media (min-width:900px){ .ftr{margin-bottom:0} }
+  .ftr__in{position:relative;z-index:1}
+
+  /* subtle brand monogram bleeding off the right edge */
+  .ftr__watermark{
+    position:absolute;right:-6%;top:50%;transform:translateY(-50%);
+    width:min(46vw,460px);aspect-ratio:1102/800;
+    background:url('/logo/mark-rev.png') center/contain no-repeat;opacity:.05;pointer-events:none;z-index:0
+  }
+
+  /* ── head ── */
+  .ftr__head{display:grid;gap:var(--s5)}
+  @media (min-width:820px){ .ftr__head{grid-template-columns:1fr auto;align-items:start;gap:var(--s6)} }
+
+  .ftr__logo{display:inline-flex;align-items:center;gap:.6rem;line-height:0;text-decoration:none}
+  .ftr__logo-mark{width:46px;height:auto}
+  .ftr__logo-word{width:172px;height:auto;padding-left:.7rem;border-left:1px solid rgba(247,244,238,.22)}
+  .ftr__tag{
+    margin-top:var(--s3);font-family:'Playfair Display',serif;font-style:italic;
+    font-size:1.2rem;line-height:1.4;color:rgba(247,244,238,.92);letter-spacing:-.01em;max-width:22ch
+  }
+  .ftr__social{display:flex;gap:.6rem;margin-top:var(--s4)}
+  .ftr__soc{
+    width:40px;height:40px;display:grid;place-items:center;color:rgba(247,244,238,.8);
+    border:1px solid rgba(247,244,238,.22);border-radius:50%;
+    transition:border-color .25s,color .25s,background-color .25s
+  }
+  .ftr__soc:hover{color:var(--deep-teal);background:var(--ivory);border-color:var(--ivory)}
+  .ftr__soc svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.6;stroke-linejoin:round}
+  .ftr__soc svg path,.ftr__soc svg circle[fill]{fill:currentColor;stroke:none}
+
+  /* ── reach ── */
+  .ftr__reach{display:grid;gap:.55rem;justify-items:start}
+  @media (min-width:820px){ .ftr__reach{justify-items:end;text-align:right} }
+  .ftr__phone{
+    font-family:'Playfair Display',serif;font-weight:400;
+    font-size:clamp(1.7rem,1rem + 1.8vw,2.2rem);line-height:1.05;letter-spacing:-.01em;
+    color:var(--ivory);text-decoration:none;transition:color .25s
+  }
+  .ftr__phone:hover{color:var(--champagne)}
+  .ftr__hoursline{font-size:.6875rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:rgba(247,244,238,.6)}
+  .ftr__actions{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s2) var(--s3);margin-top:var(--s2)}
+  .ftr__wa{
+    display:inline-flex;align-items:center;gap:.55em;
+    font-size:.6875rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:rgba(247,244,238,.82);text-decoration:none;transition:color .25s
+  }
+  .ftr__wa svg{width:16px;height:16px;fill:currentColor}
+  .ftr__wa:hover{color:var(--ivory)}
+
+  /* ── rules ── */
+  .ftr__rule{border:0;height:1px;background:rgba(247,244,238,.16);margin-block:clamp(var(--s5),5vw,var(--s6))}
+
+  /* ── columns ── */
+  .ftr__cols{display:grid;gap:var(--s5) var(--s4)}
+  @media (min-width:560px){ .ftr__cols{grid-template-columns:1fr 1fr} }
+  @media (min-width:900px){ .ftr__cols{grid-template-columns:1fr 1fr 1.3fr 1fr} }
+  .ftr__col{min-width:0}
+  .ftr__h{
+    font-family:'Instrument Sans',sans-serif;font-size:.625rem;letter-spacing:.22em;
+    text-transform:uppercase;font-weight:700;color:var(--champagne);
+    margin-bottom:var(--s3);line-height:1
+  }
+  .ftr__link{
+    display:block;width:fit-content;padding:.42rem 0;font-size:.8125rem;line-height:1.2;
+    color:rgba(247,244,238,.82);text-decoration:none;transition:color .2s
+  }
+  .ftr__link:hover{color:var(--ivory)}
+  .ftr__link--accent{color:var(--champagne);font-weight:600;margin-top:.2rem}
+  .ftr__link--accent:hover{color:var(--ivory)}
+  .ftr__addr{font-style:normal;font-size:.8125rem;line-height:1.85;color:rgba(247,244,238,.82);margin-bottom:.6rem}
+  .ftr__hours{
+    display:flex;justify-content:space-between;gap:1rem;max-width:230px;
+    font-size:.8125rem;line-height:1.5;color:rgba(247,244,238,.72);padding:.35rem 0
+  }
+  .ftr__hours-t{color:var(--ivory);white-space:nowrap}
+
+  /* ── base ── */
+  .ftr__base{display:flex;flex-wrap:wrap;gap:var(--s3) var(--s5);justify-content:space-between;align-items:flex-end}
+  .ftr__legalwrap{max-width:70ch}
+  .ftr__legal{font-size:.625rem;line-height:1.8;color:rgba(247,244,238,.5)}
+  .ftr__reg{font-size:.625rem;line-height:1.8;color:rgba(247,244,238,.5);margin-top:.5rem}
+  .ftr__reg a{color:rgba(247,244,238,.72);text-decoration:none}
+  .ftr__reg a:hover{color:var(--ivory)}
+  .ftr__reg-sep{margin-inline:.4rem;opacity:.5}
+  .ftr__totop{
+    display:inline-flex;align-items:center;gap:.6em;flex:none;
+    padding:.6rem 1rem;border:1px solid rgba(247,244,238,.22);border-radius:999px;
+    font-size:.625rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+    color:rgba(247,244,238,.78);text-decoration:none;
+    transition:color .25s,background-color .25s,border-color .25s
+  }
+  .ftr__totop:hover{color:var(--deep-teal);background:var(--ivory);border-color:var(--ivory)}
+  .ftr__totop svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+</style>

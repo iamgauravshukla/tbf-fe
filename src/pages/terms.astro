@@ -1,0 +1,65 @@
+---
+import Legal from '../layouts/Legal.astro';
+import { site } from '../site.config';
+---
+<Legal
+  title="Terms of Use | The Better Face"
+  description="Terms governing use of the The Better Face website, appointments, pricing, cancellations and the limits of the information published here."
+  path="/terms/"
+  heading="Terms of use"
+  updated="TODO — date of counsel sign-off"
+>
+  <h2>The information on this site</h2>
+  <p>
+    Everything published here is general information about treatments we offer. It
+    is not a diagnosis, a prescription, or medical advice for your particular case.
+    No treatment is booked or performed without an in-person consultation with a
+    qualified practitioner.
+  </p>
+
+  <h2>Results</h2>
+  <p>
+    Results vary between individuals. Nothing on this site is a guarantee of
+    outcome, and no image, case or testimonial should be read as typical or as a
+    forecast of what will happen to you.
+  </p>
+
+  <h2>Pricing</h2>
+  <p>
+    We do not list treatment prices on this website — cost depends on the treatment,
+    the area and your plan. The price that applies to you is the one quoted in writing
+    at your consultation. Courses are quoted as a whole before anything is booked.
+  </p>
+
+  <h2>Appointments and cancellation</h2>
+  <ul>
+    <li><strong>TODO — state the notice period required to cancel or reschedule.</strong></li>
+    <li><strong>TODO — state the deposit policy, if any, and whether it is refundable.</strong></li>
+    <li><strong>TODO — state the late-arrival policy.</strong></li>
+  </ul>
+
+  <h2>Suitability and refusal</h2>
+  <p>
+    We may decline to treat you where a treatment is not clinically indicated,
+    where a contraindication is present, or where we believe the expected outcome
+    does not justify the procedure. This is a clinical judgement and it is final.
+  </p>
+
+  <h2>Intellectual property</h2>
+  <p>
+    All text, photography, the {site.name} name and the marks used on this site
+    belong to {site.legalName}. Do not reproduce them without written permission.
+  </p>
+
+  <h2>Links out</h2>
+  <p>We are not responsible for the content of sites we link to.</p>
+
+  <h2>Governing law</h2>
+  <p>
+    These terms are governed by the laws of the Republic of the Philippines.
+    <strong> TODO — confirm the venue clause with counsel.</strong>
+  </p>
+
+  <h2>Contact</h2>
+  <p>Questions about these terms: <a href={`mailto:${site.email}`}>{site.email}</a> or {site.phoneDisplay}.</p>
+</Legal>

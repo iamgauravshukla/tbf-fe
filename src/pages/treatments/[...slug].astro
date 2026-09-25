@@ -1,0 +1,329 @@
+---
+import Base from '../../layouts/Base.astro';
+import TreatmentCard from '../../components/TreatmentCard.astro';
+import TreatmentVideo from '../../components/TreatmentVideo.astro';
+import BeforeAfter from '../../components/BeforeAfter.astro';
+import LeadForm from '../../components/LeadForm.astro';
+import { site, waLink, telLink } from '../../site.config';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const items = await getCollection('treatments', ({ data }) => !data.draft);
+  return items.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const d = entry.data;
+const { Content } = await render(entry);
+
+// Same group first (Skin next to Skin, Hair next to Hair), then display order.
+const related = (await getCollection('treatments', ({ data }) => !data.draft))
+  .filter((t) => t.id !== entry.id)
+  .sort((a, b) => {
+    const s = (x: typeof a) => (x.data.group === d.group ? 0 : 1);
+    return s(a) - s(b) || a.data.order - b.data.order;
+  })
+  .slice(0, 3);
+
+const posts = (await getCollection('journal', ({ data }) => !data.draft))
+  .filter((p) => p.data.related.includes(entry.id))
+  .slice(0, 2);
+
+// Full treatment list for the booking dropdown, this treatment pre-selected.
+const treatmentNames = (await getCollection('treatments', ({ data }) => !data.draft))
+  .sort((a, b) => a.data.order - b.data.order)
+  .map((t) => t.data.title);
+
+const peso = (n: number) => '₱' + n.toLocaleString('en-PH');
+const facts = [
+  { k: 'From',     v: d.priceFrom ? peso(d.priceFrom) : 'On consultation' },
+  { k: 'Session',  v: d.duration },
+  { k: 'Course',   v: d.course },
+  { k: 'Downtime', v: d.downtime },
+];
+---
+<Base
+  title={d.seoTitle}
+  description={d.metaDescription}
+  path={`/treatments/${entry.id}/`}
+  ogImage={d.image}
+  schemaType="service"
+  serviceName={d.title}
+  serviceDescription={d.summary}
+  price={d.priceFrom}
+  breadcrumbs={[
+    { name: 'Home', path: '/' },
+    { name: 'Treatments', path: '/treatments/' },
+    { name: d.title, path: `/treatments/${entry.id}/` },
+  ]}
+>
+  <!-- ══════════════ HERO ══════════════ -->
+  <section class="thero">
+    <div class="thero__text">
+      <div class="thero__inner">
+        <nav class="crumbs" aria-label="Breadcrumb" data-reveal>
+          <a href="/">Home</a><span aria-hidden="true">/</span>
+          <a href="/treatments/">Treatments</a><span aria-hidden="true">/</span>
+          <a href={`/treatments/#${d.group.toLowerCase()}`}>{d.group}</a>
+        </nav>
+        <span class="eyebrow" data-reveal>{d.category}</span>
+        <h1 class="thero__h" data-reveal data-reveal-delay="1">{d.title}</h1>
+        <hr class="rule" data-reveal data-reveal-delay="1" />
+        <p class="lede" data-reveal data-reveal-delay="2">{d.summary}</p>
+        <div class="thero__cta" data-reveal data-reveal-delay="3">
+          <a href="#book" class="btn btn--primary" data-ev="book_click" data-loc="treatment">Book {d.title}</a>
+          <a href={waLink(`Hi ${site.name}, I'd like to ask about ${d.title}.`)} class="btn btn--ghost" data-ev="whatsapp_click" data-loc="treatment" rel="noopener">Ask on WhatsApp</a>
+        </div>
+        <p class="disclaimer thero__dis" data-reveal data-reveal-delay="3">
+          All treatments require a consultation. Results vary between individuals.
+        </p>
+      </div>
+    </div>
+
+    <div class="thero__media zoom">
+      {d.image
+        ? <img src={d.image} alt="" width="900" height="1200" fetchpriority="high" decoding="async" />
+        : <div class="thero__ph" aria-hidden="true"></div>}
+    </div>
+  </section>
+
+  <!-- ══════════════ FACTS STRIP ══════════════ -->
+  <section class="facts inverse">
+    <div class="wrap facts__in">
+      {facts.map((f) => (
+        <div class="facts__i">
+          <span class="facts__k">{f.k}</span>
+          <span class="facts__v">{f.v}</span>
+        </div>
+      ))}
+    </div>
+  </section>
+
+  <!-- ══════════════ SUITABILITY ══════════════ -->
+  <section class="section">
+    <div class="wrap suit">
+      <div class="suit__col" data-reveal>
+        <span class="eyebrow">Suitable for</span>
+        <ul class="suit__list suit__list--yes">
+          {d.suitableFor.map((s) => <li>{s}</li>)}
+        </ul>
+      </div>
+      <div class="suit__col" data-reveal data-reveal-delay="1">
+        <span class="eyebrow">Not suitable for</span>
+        <ul class="suit__list suit__list--no">
+          {d.notSuitableFor.map((s) => <li>{s}</li>)}
+        </ul>
+        <p class="small suit__note">
+          If any of these apply to you we will say so at consultation and recommend
+          something else — or nothing.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ BODY ══════════════ -->
+  <section class="section">
+    <div class="wrap tbody">
+      <article class="prose" data-reveal><Content /></article>
+
+      <aside class="aside">
+        <div class="aside__card" data-reveal data-reveal-delay="1">
+          <span class="eyebrow">Book</span>
+          <h2 class="aside__h">Start with a consultation</h2>
+          <p class="small">
+            Forty-five minutes with a clinician. We assess you, explain the options
+            and give you a written plan and price.
+          </p>
+          <a href="#book" class="btn btn--primary aside__btn" data-ev="book_click" data-loc="treatment_aside">Book now</a>
+          <a href={telLink} class="aside__tel" data-ev="call_click" data-loc="treatment_aside">or call {site.phoneDisplay}</a>
+        </div>
+
+        {posts.length > 0 && (
+          <div class="aside__rel" data-reveal data-reveal-delay="2">
+            <span class="eyebrow">Read first</span>
+            {posts.map((p) => (
+              <a href={`/journal/${p.id}/`} class="aside__link">{p.data.title}<i aria-hidden="true">→</i></a>
+            ))}
+          </div>
+        )}
+      </aside>
+    </div>
+  </section>
+
+  <!-- ══════════════ VIDEO ══════════════ -->
+  <TreatmentVideo video={d.video} poster={d.videoPoster ?? d.image} title={d.title} />
+
+  <!-- ══════════════ BEFORE / AFTER ══════════════ -->
+  <BeforeAfter pairs={d.beforeAfter} title={d.title} />
+
+  <!-- ══════════════ BOOK (this treatment pre-selected) ══════════════ -->
+  <section class="tbook inverse" id="book">
+    <div class="wrap tbook__in">
+      <div class="tbook__copy" data-reveal>
+        <span class="eyebrow">Book {d.title}</span>
+        <h2 class="tbook__h">A consultation, not a sales appointment.</h2>
+        <p class="lede">
+          Leave your details and we will call you back — usually the same day. Your
+          enquiry comes through with <strong>{d.title}</strong> already noted, so we
+          come to the call prepared.
+        </p>
+        <ul class="tbook__pts">
+          <li>A written plan and price before you decide</li>
+          <li>Delivered by a licensed clinician</li>
+          <li>We say no when a treatment is not right for you</li>
+        </ul>
+        <div class="tbook__alt">
+          <a href={waLink(`Hi ${site.name}, I'd like to book ${d.title}.`)} class="btn btn--wa" data-ev="whatsapp_click" data-loc="treatment_book" rel="noopener">Message on WhatsApp</a>
+          <p class="tbook__tel"><span>or call <a href={telLink} data-ev="call_click" data-loc="treatment_book">{site.phoneDisplay}</a></span></p>
+        </div>
+      </div>
+
+      <div class="tbook__form light-island" data-reveal data-reveal-delay="1">
+        <h3 class="tbook__ft">Request your consultation</h3>
+        <p class="tbook__fsub">{d.title} is pre-selected — change it below if you like.</p>
+        <LeadForm source={`treatment:${entry.id}`} treatments={treatmentNames} preselect={d.title} compact={true} />
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ RELATED ══════════════ -->
+  <section class="section">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <div>
+          <span class="eyebrow">Also in {d.group}</span>
+          <h2>Often considered alongside</h2>
+        </div>
+        <a href="/treatments/" class="sec-head__link">All treatments<i aria-hidden="true">→</i></a>
+      </div>
+      <div class="grid g-2 g-3 rel">
+        {related.map((t, i) => (
+          <div data-reveal data-reveal-delay={String(i)}>
+            <TreatmentCard
+              href={`/treatments/${t.id}/`}
+              title={t.data.title}
+              summary={t.data.summary}
+              category={t.data.category}
+              priceFrom={t.data.priceFrom}
+              duration={t.data.duration}
+              image={t.data.image}
+            />
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .crumbs{display:flex;flex-wrap:wrap;gap:.5em;font-size:.5625rem;letter-spacing:.2em;
+    text-transform:uppercase;font-weight:600;color:var(--text-muted);margin-bottom:var(--s4)}
+  .crumbs a{color:var(--text-muted);text-decoration:none}
+  .crumbs a:hover{color:var(--deep-teal);text-decoration:underline}
+
+  /* ---------------- HERO ---------------- */
+  .thero{display:grid;background:var(--surface-raised)}
+  @media (min-width:900px){ .thero{grid-template-columns:50fr 50fr;min-height:clamp(500px,70vh,760px)} }
+  .thero__text{display:flex;align-items:center;padding:var(--s6) var(--gutter)}
+  @media (min-width:900px){
+    .thero__text{
+      padding:var(--s7) var(--s6) var(--s7)
+              max(var(--gutter),calc((100vw - var(--page-max)) / 2 + var(--gutter)));
+    }
+  }
+  .thero__inner{max-width:34rem}
+  .thero__h{margin-top:.7rem}
+  .thero__cta{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s4)}
+  .thero__dis{margin-top:var(--s3)}
+  .thero__media{position:relative;min-height:52vh;background:var(--light-teal);overflow:hidden}
+  .thero__media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .thero__ph{width:100%;height:100%;background:linear-gradient(140deg,var(--light-teal),var(--blush))}
+  @media (min-width:900px){ .thero__media{min-height:0} }
+
+  /* ---------------- FACTS ---------------- */
+  .facts__in{display:grid;grid-template-columns:1fr 1fr;padding-block:var(--s2)}
+  @media (min-width:800px){ .facts__in{grid-template-columns:repeat(4,1fr)} }
+  .facts__i{display:grid;gap:.45rem;padding:var(--s3) var(--s3) var(--s3) 0}
+  @media (min-width:800px){
+    .facts__i + .facts__i{padding-left:var(--s4);border-left:1px solid rgba(201,166,107,.4)}
+  }
+  .facts__k{font-size:.5625rem;letter-spacing:.24em;text-transform:uppercase;font-weight:700;color:var(--champagne)}
+  .facts__v{font-family:'Playfair Display',serif;font-size:1.2rem;line-height:1.3;
+    letter-spacing:-.012em;color:var(--ivory)}
+
+  /* ---------------- SUITABILITY ---------------- */
+  .suit{display:grid;gap:var(--s5)}
+  @media (min-width:800px){ .suit{grid-template-columns:1fr 1fr;gap:var(--s6)} }
+  .suit__list{list-style:none;padding:0;margin-top:var(--s3);display:grid}
+  .suit__list li{position:relative;padding:.95rem 0 .95rem 2rem;font-size:.9375rem;line-height:1.7;
+    border-bottom:1px solid var(--line)}
+  .suit__list li:first-child{border-top:1px solid var(--line)}
+  .suit__list li::before{position:absolute;left:0;top:.95rem;font-size:.9rem;line-height:1.7}
+  .suit__list--yes li::before{content:'✓';color:var(--ocean-teal)}
+  .suit__list--no li::before{content:'—';color:#A06A5E}
+  .suit__note{margin-top:var(--s3)}
+
+  /* ---------------- BODY ---------------- */
+  .tbody{display:grid;gap:var(--s5)}
+  @media (min-width:900px){ .tbody{grid-template-columns:minmax(0,1fr) 330px;gap:var(--s6);align-items:start} }
+
+  .prose{max-width:66ch}
+  .prose :global(h2){font-size:1.7rem;margin-top:var(--s5);margin-bottom:var(--s2)}
+  .prose :global(h2:first-child){margin-top:0}
+  .prose :global(h3){margin-top:var(--s4);margin-bottom:.6rem;color:var(--deep-teal)}
+  .prose :global(p){margin-bottom:var(--s2);font-size:.9375rem;line-height:1.85}
+  .prose :global(ul),.prose :global(ol){margin:0 0 var(--s2);padding-left:1.2rem}
+  .prose :global(li){margin-bottom:.45rem}
+  .prose :global(strong){color:var(--deep-teal);font-weight:600}
+
+  .aside{display:grid;gap:var(--s3);position:sticky;top:96px}
+  .aside__card{background:var(--surface-raised);padding:var(--s4);border-top:2px solid var(--accent)}
+  .aside__h{font-size:1.4rem;margin:.6rem 0 .7rem}
+  .aside__btn{width:100%;margin-top:var(--s3)}
+  .aside__tel{display:block;text-align:center;margin-top:var(--s2);font-size:.75rem;
+    color:var(--text-muted);text-decoration:none}
+  .aside__tel:hover{color:var(--deep-teal);text-decoration:underline}
+  .aside__rel{padding-top:var(--s3);border-top:1px solid var(--line)}
+  .aside__link{
+    display:flex;justify-content:space-between;gap:1rem;margin-top:.9rem;
+    font-size:.8125rem;line-height:1.5;color:var(--deep-teal);text-decoration:none;
+    border-bottom:1px solid var(--line-soft);padding-bottom:.9rem
+  }
+  .aside__link i{font-style:normal;color:var(--champagne)}
+  .aside__link:hover{color:var(--ocean-teal)}
+
+  /* ---------------- RELATED ---------------- */
+  .sec-head{display:grid;gap:var(--s3);margin-bottom:var(--s5)}
+  @media (min-width:900px){ .sec-head{grid-template-columns:1fr auto;gap:var(--s5);align-items:end} }
+  .sec-head h2{margin-top:.7rem}
+  .sec-head__link{
+    display:inline-flex;align-items:center;gap:.7em;white-space:nowrap;
+    font-size:.625rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--ocean-teal);text-decoration:none;padding-bottom:.5rem;border-bottom:1px solid var(--accent)
+  }
+  .sec-head__link i{font-style:normal;transition:transform .35s cubic-bezier(.22,.61,.36,1)}
+  .sec-head__link:hover i{transform:translateX(5px)}
+  .rel{gap:var(--s5) var(--s3)}
+
+  /* ---------------- BOOK ---------------- */
+  .tbook{position:relative;overflow:hidden;padding-block:clamp(var(--s5),5vw,var(--s7));scroll-margin-top:80px}
+  .tbook::before{
+    content:'';position:absolute;left:-6%;top:50%;transform:translateY(-50%);
+    width:min(42vw,420px);aspect-ratio:1102/800;
+    background:url('/logo/mark-rev.png') center/contain no-repeat;opacity:.06;pointer-events:none
+  }
+  .tbook__in{position:relative;display:grid;gap:var(--s5)}
+  @media (min-width:900px){ .tbook__in{grid-template-columns:1fr .92fr;gap:var(--s6);align-items:center} }
+  .tbook__h{margin-block:.7rem 1rem}
+  .tbook__pts{list-style:none;padding:0;margin:var(--s4) 0 0;display:grid;gap:.7rem}
+  .tbook__pts li{position:relative;padding-left:1.6rem;font-size:.875rem;line-height:1.6;color:rgba(247,244,238,.86)}
+  .tbook__pts li::before{content:'';position:absolute;left:0;top:.55em;width:8px;height:8px;border-radius:50%;background:var(--champagne)}
+  .tbook__alt{margin-top:var(--s5);display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3)}
+  .tbook__tel{font-size:.8125rem;color:rgba(247,244,238,.78)}
+  .tbook__tel a{color:var(--ivory);font-weight:600;text-decoration:none}
+  .tbook__tel a:hover{text-decoration:underline}
+  .tbook__form{background:var(--surface-raised);padding:var(--s4);border-top:3px solid var(--accent)}
+  @media (min-width:600px){ .tbook__form{padding:var(--s5)} }
+  .tbook__ft{font-family:'Playfair Display',serif;font-weight:400;font-size:1.5rem;color:var(--deep-teal);letter-spacing:-.018em}
+  .tbook__fsub{font-size:.8125rem;line-height:1.7;color:var(--text-muted);margin:.5rem 0 var(--s3)}
+</style>

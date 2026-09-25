@@ -1,0 +1,74 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Team · The Better Face</title><link rel="icon" href="/logo/icon-512.png" type="image/png"><link rel="stylesheet" href="/_astro/site.BM4TF0Dx.css"><link rel="stylesheet" href="/_astro/Admin.DGNFhLca.css"></head> <body class="adm">  <div class="dash" hidden id="dash"> <header class="db-top"> <div class="db-top__l"> <img src="/logo/icon-512.png" alt="" width="34" height="34"> <div> <span class="eyebrow">The Better Face</span> <h1 class="db-top__h">Team</h1> </div> </div> <nav class="db-nav"> <a href="/admin/" class="db-nav__a">Leads</a> <a href="/admin/tasks" class="db-nav__a">Tasks</a> <a href="/admin/users" class="db-nav__a is-active" id="navUsers" hidden>Team</a> </nav> <div class="db-top__r"> <span class="db-user" id="userInfo"></span> <button class="db-btn db-btn--ghost" id="refreshBtn" type="button">Refresh</button> <button class="db-btn db-btn--ghost" id="logoutBtn" type="button">Sign out</button> </div> </header> <main class="db-main"> <section class="db-card"> <h2 class="db-card__h">Add a team member</h2> <form class="db-form" id="newUser"> <div class="db-formrow"> <label>Name<input name="name" required autocomplete="off"></label> <label>Email<input type="email" name="email" required autocomplete="off"></label> </div> <div class="db-formrow"> <label>Role<select name="role" id="roleSel"></select></label> <label>Temporary password<input type="text" name="password" minlength="8" required autocomplete="off" placeholder="min 8 characters"></label> </div> <p class="db-err" id="newErr" hidden></p> <p class="db-ok" id="newOk" hidden>Team member added.</p> <button class="btn btn--primary" type="submit" style="justify-self:start">Create account</button> </form> </section> <section class="db-tablewrap"> <table class="db-table"> <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th aria-label="Actions"></th></tr></thead> <tbody id="rows"></tbody> </table> </section> </main> </div> <p class="db-loading" id="loading">Loading…</p> <script>(function(){const apiBase = "http://localhost:4000";
+
+    const TOKEN = localStorage.getItem('tbf_token');
+    if (!TOKEN) location.replace('/admin/login');
+    let ME = {}; try { ME = JSON.parse(localStorage.getItem('tbf_user') || '{}'); } catch (_) {}
+    // Agents cannot manage the team.
+    if (ME.role !== 'admin' && ME.role !== 'manager') location.replace('/admin/');
+
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    const ROLES = ME.role === 'admin' ? ['agent','manager','admin'] : ['agent'];
+    let users = [];
+
+    async function api(path, opts = {}) {
+      const res = await fetch(apiBase + path, { ...opts, headers: { 'authorization':'Bearer '+TOKEN, ...(opts.body?{'content-type':'application/json'}:{}), ...(opts.headers||{}) } });
+      if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login'); throw new Error('unauth'); }
+      return res.json();
+    }
+    const errText = (e) => ({ email_taken:'That email is already in use.', password_too_short:'Password must be at least 8 characters.', last_admin:'You cannot remove the only admin.', cannot_deactivate_self:'You cannot deactivate yourself.', cannot_change_own_role:'You cannot change your own role.', forbidden:'You do not have permission for that.', name:'Enter a name.', email:'Enter a valid email.' }[e] || 'Something went wrong.');
+
+    $('roleSel').innerHTML = ROLES.map((r) => `<option value="${r}">${r}</option>`).join('');
+
+    function roleControl(u) {
+      const editable = ME.role === 'admin' || u.role === 'agent';
+      if (!editable) return `<span class="db-badge db-badge--${esc(u.role)}">${esc(u.role)}</span>`;
+      const opts = ROLES.map((r) => `<option value="${r}" ${r===u.role?'selected':''}>${r}</option>`).join('');
+      return `<select class="db-owner" data-role="${esc(u.id)}">${opts}</select>`;
+    }
+
+    function render() {
+      $('rows').innerHTML = users.map((u) => {
+        const canEdit = ME.role === 'admin' || u.role === 'agent';
+        return `<tr class="${u.active?'':'db-off'}">
+          <td><strong>${esc(u.name)}</strong>${u.id===ME.id?' <span class="db-badge">you</span>':''}</td>
+          <td>${esc(u.email)}</td>
+          <td>${roleControl(u)}</td>
+          <td>${u.active?'Active':'Disabled'}</td>
+          <td>${canEdit ? `
+            <button class="db-link" data-toggle="${esc(u.id)}">${u.active?'Disable':'Enable'}</button>
+            <button class="db-link" data-reset="${esc(u.id)}">Reset password</button>` : ''}</td>
+        </tr>`;
+      }).join('');
+      $('rows').querySelectorAll('[data-role]').forEach((s) => s.addEventListener('change', () => patchUser(s.dataset.role, { role: s.value })));
+      $('rows').querySelectorAll('[data-toggle]').forEach((b) => b.addEventListener('click', () => {
+        const u = users.find((x) => x.id === b.dataset.toggle); patchUser(u.id, { active: !u.active });
+      }));
+      $('rows').querySelectorAll('[data-reset]').forEach((b) => b.addEventListener('click', () => {
+        const pw = prompt('New temporary password (min 8 characters):'); if (pw) patchUser(b.dataset.reset, { password: pw });
+      }));
+    }
+
+    async function patchUser(id, patch) {
+      const j = await api('/api/users/' + id, { method:'PATCH', body: JSON.stringify(patch) });
+      if (j.ok) load(); else { alert(errText(j.error)); load(); }
+    }
+
+    async function load() { const j = await api('/api/users'); if (j.ok) { users = j.users; render(); } }
+
+    $('newUser').addEventListener('submit', async (e) => {
+      e.preventDefault(); $('newErr').hidden = true; $('newOk').hidden = true;
+      const f = e.target;
+      const j = await api('/api/users', { method:'POST', body: JSON.stringify({ name:f.name.value.trim(), email:f.email.value.trim(), role:f.role.value, password:f.password.value }) });
+      if (j.ok) { f.reset(); $('roleSel').innerHTML = ROLES.map((r) => `<option value="${r}">${r}</option>`).join('');  $('newOk').hidden = false; load(); }
+      else { $('newErr').textContent = errText(j.error); $('newErr').hidden = false; }
+    });
+
+    // shared header
+    if ($('userInfo')) $('userInfo').textContent = ME.name ? `${ME.name} · ${ME.role}` : (ME.email || '');
+    if ($('navUsers')) $('navUsers').hidden = false;
+    $('refreshBtn').addEventListener('click', load);
+    $('logoutBtn').addEventListener('click', () => { localStorage.removeItem('tbf_token'); localStorage.removeItem('tbf_user'); location.replace('/admin/login'); });
+
+    (async () => { try { await load(); $('loading').hidden = true; $('dash').hidden = false; } catch (e) { if (e.message!=='unauth') $('loading').textContent = 'Could not reach the API.'; } })();
+  })();</script> </body> </html>

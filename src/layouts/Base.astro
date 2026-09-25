@@ -1,0 +1,51 @@
+---
+import '../styles/global.css';
+import Head from '../components/Head.astro';
+import Schema from '../components/Schema.astro';
+import Analytics from '../components/Analytics.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { site } from '../site.config';
+
+interface Props {
+  title: string; description: string; path: string;
+  noindex?: boolean; ogImage?: string;
+  schemaType?: 'home' | 'service' | 'article';
+  serviceName?: string; serviceDescription?: string; price?: number | null;
+  breadcrumbs?: { name: string; path: string }[];
+  article?: { title: string; description: string; date: Date; author: string };
+}
+const p = Astro.props;
+---
+<!doctype html>
+<html lang={site.language}>
+  <head>
+    <Head title={p.title} description={p.description} path={p.path} noindex={p.noindex} ogImage={p.ogImage} />
+    <Schema type={p.schemaType} serviceName={p.serviceName} serviceDescription={p.serviceDescription}
+            price={p.price} breadcrumbs={p.breadcrumbs} article={p.article} />
+    <Analytics />
+  </head>
+  <body>
+    <a href="#main" class="visually-hidden">Skip to content</a>
+    <!-- ~380 bytes, inline, no framework. The class is added by script, so
+         anything with [data-reveal] renders visible if this never runs. -->
+    <script is:inline>
+      (function () {
+        var m = window.matchMedia('(prefers-reduced-motion: reduce)');
+        if (m.matches || !('IntersectionObserver' in window)) return;
+        document.documentElement.classList.add('js-reveal');
+        var io = new IntersectionObserver(function (es) {
+          es.forEach(function (e) {
+            if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
+          });
+        }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
+        addEventListener('DOMContentLoaded', function () {
+          document.querySelectorAll('[data-reveal]').forEach(function (el) { io.observe(el); });
+        });
+      })();
+    </script>
+    <Header />
+    <main id="main"><slot /></main>
+    <Footer />
+  </body>
+</html>

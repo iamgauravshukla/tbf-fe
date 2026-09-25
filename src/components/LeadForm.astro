@@ -1,0 +1,115 @@
+---
+import { site } from '../site.config';
+
+interface Props {
+  /** Appears as a hidden field so you can tell campaigns apart in the inbox. */
+  source: string;
+  treatments?: string[];
+  compact?: boolean;
+  /** Pre-selects a treatment in the dropdown (e.g. on a treatment page). */
+  preselect?: string;
+}
+const { source, treatments = [], compact = false, preselect = '' } = Astro.props;
+// Make sure the pre-selected treatment is always an option, even if it was not
+// passed in the list.
+const options = preselect && !treatments.includes(preselect)
+  ? [preselect, ...treatments]
+  : treatments;
+// No endpoint configured yet → render as a disabled preview rather than a
+// form that silently loses leads. See README, "Forms".
+const ready = Boolean(site.formEndpoint);
+---
+<form
+  class:list={['lf', { 'lf--compact': compact }]}
+  action={site.formEndpoint || '#'}
+  method="POST"
+  data-ev="form_submit"
+  data-loc={source}
+>
+  <input type="hidden" name="source" value={source} />
+  <!-- Redirect target after a successful POST. Formspree reads `_next`;
+       Netlify Forms uses an `action` attribute instead. /thank-you/ is where
+       the generate_lead conversion fires, so whatever endpoint you use MUST
+       land there or the conversion never records. -->
+  <input type="hidden" name="_next" value={new URL('/thank-you/', site.url).href} />
+  <!-- honeypot: bots fill it, humans never see it -->
+  <p class="lf__hp"><label>Leave this empty<input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label></p>
+
+  <div class="lf__row">
+    <label class="lf__field">
+      <span class="lf__label">Full name</span>
+      <input type="text" name="name" required autocomplete="name" placeholder="Your name" />
+    </label>
+    <label class="lf__field">
+      <span class="lf__label">Email</span>
+      <input type="email" name="email" required autocomplete="email" placeholder="you@email.com" />
+    </label>
+  </div>
+
+  <label class="lf__field">
+    <span class="lf__label">Mobile</span>
+    <input type="tel" name="phone" required autocomplete="tel" inputmode="tel" placeholder="09XX XXX XXXX" />
+  </label>
+
+  <label class="lf__field">
+    <span class="lf__label">Treatment of interest</span>
+    <select name="treatment" required>
+      <option value="" selected={!preselect}>Please choose</option>
+      {options.map((t) => <option value={t} selected={t === preselect}>{t}</option>)}
+      <option value="Not sure yet" selected={preselect === 'Not sure yet'}>Not sure yet — advise me</option>
+    </select>
+  </label>
+
+  <label class="lf__field">
+    <span class="lf__label">Message <span class="lf__opt">(optional)</span></span>
+    <textarea name="message" rows="2" placeholder="Anything we should know — concerns or questions"></textarea>
+  </label>
+
+  <label class="lf__consent">
+    <input type="checkbox" name="consent" required />
+    <span>I agree to be contacted about my enquiry and have read the <a href="/privacy/">privacy policy</a>.</span>
+  </label>
+
+  <p class="disclaimer">
+    All treatments require a consultation. Results vary between individuals.
+    We will never add you to a marketing list without asking.
+  </p>
+
+  <button type="submit" class="btn btn--primary lf__submit" disabled={!ready}>
+    {ready ? 'Request a consultation' : 'Form endpoint not configured'}
+  </button>
+
+  {!ready && (
+    <p class="lf__warn">
+      Set <code>formEndpoint</code> in <code>src/site.config.ts</code> to activate.
+      Until then this form is disabled so no lead is ever silently lost.
+    </p>
+  )}
+</form>
+
+<style>
+  .lf{display:grid;gap:var(--s2);max-width:520px}
+  .lf__row{display:grid;gap:var(--s2)}
+  @media (min-width:520px){ .lf__row{grid-template-columns:1fr 1fr} }
+  .lf__field{display:grid;gap:.4rem}
+  .lf__label{font-size:.6875rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--deep-teal)}
+  .lf__opt{font-weight:400;letter-spacing:.04em;text-transform:none;color:var(--text-muted)}
+  .lf input[type=text],.lf input[type=tel],.lf input[type=email],.lf select,.lf textarea{
+    font-family:inherit;font-size:.9375rem;color:var(--charcoal);
+    background:var(--surface-raised);border:1px solid var(--line);border-radius:0;
+    padding:.85rem .9rem;width:100%;min-height:48px;
+  }
+  /* deliberately small — the message is optional, not the main ask */
+  .lf textarea{min-height:52px;resize:vertical}
+  .lf :is(input,select,textarea):focus-visible{border-color:var(--ocean-teal);outline:2px solid rgba(22,124,136,.28);outline-offset:0}
+  .lf__consent{display:flex;gap:.65rem;align-items:flex-start;font-size:.75rem;line-height:1.7;color:var(--text-muted)}
+  .lf__consent input{margin-top:.25rem;width:16px;height:16px;flex:none;accent-color:var(--deep-teal)}
+  .lf__submit{width:100%;margin-top:.2rem}
+  .lf__submit[disabled]{opacity:.45;cursor:not-allowed}
+  .lf__hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+  .lf__warn{font-size:.6875rem;line-height:1.7;color:#8A5A2B;background:#FBF3E7;border-left:2px solid var(--champagne);padding:.7rem .8rem}
+  .lf__warn code{font-family:ui-monospace,monospace;font-size:.95em}
+
+  /* The form is always placed on a light card — including on the dark landing
+     hero, where the card carries .light-island. No dark-background variant. */
+</style>

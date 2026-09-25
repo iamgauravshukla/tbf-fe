@@ -1,0 +1,157 @@
+---
+// Before / after. Two modes:
+//   1. Real consented pairs supplied → an interactive drag-to-reveal slider.
+//   2. None supplied (the default) → the photography STANDARD as a placeholder.
+//
+// Fabricated or borrowed before/after imagery is a regulatory risk in the
+// Philippines (FDA/DOH advertising rules) and is restricted by Meta in paid
+// ads. This component never invents results — it ships the standard until the
+// clinic supplies consented, dated, unretouched pairs. Same stance as /results/.
+interface Pair { before: string; after: string; caption?: string; date?: string; }
+interface Props { pairs?: Pair[]; title: string; }
+const { pairs = [], title } = Astro.props;
+const has = pairs.length > 0;
+---
+<section class="ba section">
+  <div class="wrap">
+    <div class="sec-head" data-reveal>
+      <div>
+        <span class="eyebrow">Before &amp; after</span>
+        <h2>Real results, shown honestly</h2>
+      </div>
+      {has && <a href="/results/" class="sec-head__link">More results<i aria-hidden="true">→</i></a>}
+    </div>
+
+    {has ? (
+      <div class="ba__grid">
+        {pairs.map((p, i) => (
+          <figure class="ba__item" data-reveal data-reveal-delay={String(Math.min(i, 3))}>
+            <div class="ba__slider frame" style={`--pos:50%`}>
+              <img class="ba__img ba__img--after" src={p.after} alt={`${title} — after`} width="800" height="1000" loading="lazy" decoding="async" />
+              <div class="ba__clip">
+                <img class="ba__img ba__img--before" src={p.before} alt={`${title} — before`} width="800" height="1000" loading="lazy" decoding="async" />
+              </div>
+              <span class="ba__tag ba__tag--b">Before</span>
+              <span class="ba__tag ba__tag--a">After</span>
+              <span class="ba__handle" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 7l-5 5 5 5M15 7l5 5-5 5"/></svg></span>
+              <input class="ba__range" type="range" min="0" max="100" value="50"
+                     aria-label={`Reveal the ${title} before and after`} />
+            </div>
+            {(p.caption || p.date) && (
+              <figcaption class="ba__cap">
+                {p.caption && <span>{p.caption}</span>}
+                {p.date && <span class="ba__date">{p.date}</span>}
+              </figcaption>
+            )}
+          </figure>
+        ))}
+      </div>
+    ) : (
+      <div class="ba__standard" data-reveal>
+        <div class="ba__note">
+          <span class="eyebrow">Our photography standard</span>
+          <p class="ba__lead">
+            We publish before-and-after images only when we can stand behind every one of them.
+            That is a higher bar than most clinics set, and it is why this space is deliberately empty
+            until it is met.
+          </p>
+          <ul class="ba__rules">
+            <li><strong>Written consent</strong> for every image, freely given and revocable.</li>
+            <li><strong>Identical conditions</strong> — same lighting, angle, distance and lens, every time.</li>
+            <li><strong>No retouching.</strong> No smoothing, no filters, no favourable crops.</li>
+            <li><strong>Dated,</strong> so you can see how long a result actually took to hold.</li>
+          </ul>
+          <p class="small ba__disc">
+            Aesthetic before/after imagery is regulated in the Philippines and results vary between
+            individuals. We would rather show you real cases at your consultation than publish one we
+            cannot evidence.
+          </p>
+        </div>
+        <a href="/contact/" class="ba__cta" data-ev="book_click" data-loc="treatment_ba">
+          <span class="eyebrow">See real cases</span>
+          <span class="ba__cta-h">Ask to see {title} results in your consultation</span>
+          <span class="ba__cta-m">Book a consultation<i aria-hidden="true">→</i></span>
+        </a>
+      </div>
+    )}
+  </div>
+</section>
+
+{has && (
+  <script is:inline>
+    (function () {
+      document.querySelectorAll('.ba__slider').forEach(function (s) {
+        var r = s.querySelector('.ba__range');
+        if (!r) return;
+        function set() { s.style.setProperty('--pos', r.value + '%'); }
+        r.addEventListener('input', set);
+        set();
+      });
+    })();
+  </script>
+)}
+
+<style>
+  /* --- interactive slider (only when real pairs exist) --- */
+  .ba__grid{display:grid;gap:var(--s4)}
+  @media (min-width:760px){ .ba__grid{grid-template-columns:repeat(2,1fr)} }
+  .ba__item{margin:0}
+  .ba__slider{position:relative;aspect-ratio:4/5;overflow:hidden;background:var(--light-teal);
+    --pos:50%;touch-action:pan-y}
+  .ba__img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .ba__clip{position:absolute;inset:0;width:var(--pos);overflow:hidden}
+  .ba__clip .ba__img{width:100vw;max-width:none}
+  @media (min-width:760px){ .ba__clip .ba__img{width:calc(50vw - var(--s6))} }
+  .ba__tag{
+    position:absolute;top:var(--s2);z-index:3;padding:.4rem .7rem;
+    font-size:.5625rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+    background:var(--ivory);color:var(--deep-teal)
+  }
+  .ba__tag--b{left:var(--s2)}
+  .ba__tag--a{right:var(--s2)}
+  .ba__handle{
+    position:absolute;top:50%;left:var(--pos);z-index:3;transform:translate(-50%,-50%);
+    width:44px;height:44px;display:grid;place-items:center;border-radius:50%;
+    background:var(--ivory);box-shadow:0 2px 12px rgba(11,79,89,.4);pointer-events:none
+  }
+  .ba__handle svg{width:20px;height:20px;fill:none;stroke:var(--deep-teal);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .ba__slider::before{content:'';position:absolute;top:0;bottom:0;left:var(--pos);z-index:2;
+    width:2px;transform:translateX(-1px);background:var(--ivory);pointer-events:none}
+  .ba__range{
+    position:absolute;inset:0;z-index:4;width:100%;height:100%;margin:0;opacity:0;cursor:ew-resize
+  }
+  .ba__range:focus-visible + *{outline:2px solid var(--ocean-teal)}
+  .ba__cap{display:flex;justify-content:space-between;gap:1rem;margin-top:var(--s2);
+    font-size:.8125rem;color:var(--text-muted)}
+  .ba__date{font-size:.6875rem;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--champagne)}
+
+  /* --- documented placeholder (the default) --- */
+  .ba__standard{display:grid;gap:var(--s4)}
+  @media (min-width:900px){ .ba__standard{grid-template-columns:1.4fr .9fr;gap:var(--s6);align-items:stretch} }
+  .ba__note{background:var(--surface-raised);border:1px solid var(--line);border-top:3px solid var(--accent);padding:var(--s5)}
+  .ba__lead{font-size:1.02rem;line-height:1.75;color:var(--charcoal);margin-top:var(--s3);max-width:52ch}
+  .ba__rules{list-style:none;padding:0;margin:var(--s4) 0 0;display:grid;gap:0}
+  .ba__rules li{position:relative;padding:.9rem 0 .9rem 1.9rem;font-size:.9375rem;line-height:1.65;
+    color:var(--text-muted);border-top:1px solid var(--line-soft)}
+  .ba__rules li:first-child{border-top:0}
+  .ba__rules li::before{content:'';position:absolute;left:0;top:1.35em;width:7px;height:7px;border-radius:50%;background:var(--champagne)}
+  .ba__rules strong{color:var(--deep-teal);font-weight:600}
+  .ba__disc{margin-top:var(--s4)}
+
+  .ba__cta{
+    display:flex;flex-direction:column;justify-content:flex-end;gap:.7rem;
+    padding:var(--s5);text-decoration:none;background:var(--deep-teal);color:var(--ivory);
+    position:relative;overflow:hidden;transition:background-color .3s
+  }
+  .ba__cta::before{content:'';position:absolute;right:-18%;top:-8%;width:80%;aspect-ratio:1102/800;
+    background:url('/logo/mark-rev.png') center/contain no-repeat;opacity:.08;pointer-events:none}
+  .ba__cta:hover{background:#0a464f}
+  .ba__cta > *{position:relative}
+  .ba__cta .eyebrow{color:var(--champagne)}
+  .ba__cta-h{font-family:'Playfair Display',serif;font-size:1.4rem;line-height:1.2;letter-spacing:-.018em}
+  .ba__cta-m{margin-top:var(--s2);padding-top:.85rem;border-top:1px solid rgba(201,166,107,.55);
+    font-size:.625rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--champagne);
+    display:inline-flex;align-items:center;gap:.6em}
+  .ba__cta-m i{font-style:normal;transition:transform .35s cubic-bezier(.22,.61,.36,1)}
+  .ba__cta:hover .ba__cta-m i{transform:translateX(5px)}
+</style>

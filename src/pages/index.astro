@@ -1,0 +1,472 @@
+---
+import Base from '../layouts/Base.astro';
+import TreatmentSlider from '../components/TreatmentSlider.astro';
+import TreatmentVideo from '../components/TreatmentVideo.astro';
+import Testimonials from '../components/Testimonials.astro';
+import LeadForm from '../components/LeadForm.astro';
+import { site, waLink, telLink } from '../site.config';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('journal', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
+  .slice(0, 3);
+
+const treatmentNames = (await getCollection('treatments', ({ data }) => !data.draft))
+  .sort((a, b) => a.data.order - b.data.order)
+  .map((t) => t.data.title);
+
+// Three things the hero can promise because the rest of the page evidences them.
+const trust = ['Licensed clinicians', 'Transparent pricing', 'Consultation first'];
+
+// The brand words, run as a quiet marquee between the hero and the page.
+const marquee = ['Skin', 'Wellness', 'Confidence', 'Results', 'Care', 'Science'];
+
+const steps = [
+  { n: '01', t: 'Consult', d: 'We look at your skin properly and listen before recommending anything. If a treatment is not right for you, we say so.' },
+  { n: '02', t: 'Treat',   d: 'A plan built around one face — adjusted at every session rather than run from a protocol.' },
+  { n: '03', t: 'Care',    d: 'Aftercare, review and long-term skin health. The plan does not end when the session does.' },
+];
+
+const proof = [
+  { t: 'Qualified practitioners', d: 'Every treatment is delivered by a licensed clinician, not a technician.' },
+  { t: 'Transparent pricing',     d: 'You get a clear, written price at consultation — nothing added at the counter.' },
+  { t: 'Unretouched results',     d: 'Every result image is dated, consented and untouched.' },
+  { t: 'Honest declines',         d: 'We turn down treatments that are not indicated. It costs us bookings.' },
+];
+
+// TODO — replace with real, consented reviews from Google Business Profile.
+const testimonials = [
+  { quote: 'She told me the treatment I asked for was wrong for my skin, and explained why. That is the reason I stayed.', name: 'Client', meta: '14 months' },
+  { quote: 'The consultation was the first time anyone actually looked at my skin before recommending anything. I left with a plan, not a receipt.', name: 'Client', meta: '8 months' },
+  { quote: 'The price they quoted me was exactly what I paid. Nothing added at the counter, and no pressure to book more than I needed.', name: 'Client', meta: '6 months' },
+  { quote: 'They turned down a treatment I asked for and sent me to someone better placed for it. I trust them completely now.', name: 'Client', meta: '1 year' },
+];
+
+const open = site.hours[0];
+const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
+
+const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+const readTime = (body?: string) => Math.max(1, Math.round((body ?? '').trim().split(/\s+/).length / 200));
+---
+<Base
+  title={`${site.name} | Premium Skin, Hair & Wellness Clinic`}
+  description={site.description}
+  path="/"
+  schemaType="home"
+>
+  <!-- ══════════════ HERO ══════════════ -->
+  <section class="hero">
+    <div class="hero__text">
+      <div class="hero__inner">
+        <span class="eyebrow" data-reveal>Skin · Hair · Wellness</span>
+        <h1 class="display hero__h" data-reveal data-reveal-delay="1">
+          The better skin.<br /><em>The better you.</em>
+        </h1>
+        <hr class="rule" data-reveal data-reveal-delay="2" />
+        <p class="lede hero__lede" data-reveal data-reveal-delay="2">
+          Clinical expertise delivered through a premium wellness experience —
+          personalised treatment plans, in a calm room to have them in.
+        </p>
+        <div class="hero__cta" data-reveal data-reveal-delay="3">
+          <a href="#book" class="btn btn--primary" data-ev="book_click" data-loc="hero">Book a consultation<i aria-hidden="true">→</i></a>
+          <a href="/treatments/" class="btn btn--ghost">View treatments</a>
+        </div>
+        <ul class="hero__trust" data-reveal data-reveal-delay="3">
+          {trust.map((t) => <li>{t}</li>)}
+        </ul>
+        <p class="disclaimer hero__dis" data-reveal data-reveal-delay="3">
+          All treatments require a consultation. Results vary between individuals.
+        </p>
+      </div>
+    </div>
+
+    <div class="hero__media frame">
+      <img src="/img/f-care.jpg" alt="" width="900" height="1200" fetchpriority="high" decoding="async" />
+      <div class="hero__cap">
+        <span>Metro Manila</span>
+        <span class="hero__cap-hours">{hoursLine}</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ MARQUEE ══════════════ -->
+  <section class="marq" aria-hidden="true">
+    <div class="marq__track">
+      {Array.from({ length: 3 }).map(() => (
+        <span class="marq__set">
+          {marquee.map((w) => <><span class="marq__w">{w}</span><span class="marq__dot"></span></>)}
+        </span>
+      ))}
+    </div>
+  </section>
+
+  <!-- ══════════════ STATEMENT ══════════════ -->
+  <section class="section stmt">
+    <div class="wrap stmt__grid">
+      <figure class="stmt__img stmt__img--a zoom" data-reveal data-reveal-delay="1">
+        <img src="/img/t-lobby.jpg" alt="The reception at The Better Face" width="520" height="520" loading="lazy" decoding="async" />
+      </figure>
+      <div class="stmt__in">
+        <span class="eyebrow" data-reveal>The idea</span>
+        <p class="stmt__p" data-reveal data-reveal-delay="1">
+          We sit deliberately between two worlds — the rigour of a clinic and the
+          calm of a wellness space — because our clients want the <em>results</em> of one
+          and the <em>experience</em> of the other.
+        </p>
+        <a href="/about/" class="stmt__link" data-reveal data-reveal-delay="2">About the clinic<i aria-hidden="true">→</i></a>
+      </div>
+      <figure class="stmt__img stmt__img--b zoom" data-reveal data-reveal-delay="2">
+        <img src="/img/t-care.jpg" alt="A treatment in progress at The Better Face" width="520" height="520" loading="lazy" decoding="async" />
+      </figure>
+    </div>
+  </section>
+
+  <!-- ══════════════ TREATMENTS (Skin / Hair) ══════════════ -->
+  <section class="section" id="treatments">
+    <TreatmentSlider />
+  </section>
+
+  <!-- ══════════════ PROOF (contained) ══════════════ -->
+  <section class="section proof">
+    <div class="wrap">
+      <div class="proof__box" data-reveal>
+        <div class="proof__media zoom frame">
+          <img src="/img/f-expert.jpg" alt="A practitioner treating a client at The Better Face" width="900" height="1100" loading="lazy" decoding="async" />
+        </div>
+        <div class="proof__panel inverse">
+          <div class="proof__inner">
+            <span class="eyebrow">Why people stay</span>
+            <h2 class="proof__h">Science meets confidence.</h2>
+            <hr class="rule" />
+            <p class="lede proof__lede">Four things you can hold us to, on every visit.</p>
+            <ul class="proof__list">
+              {proof.map((p, i) => (
+                <li class="proof__item">
+                  <span class="numeral proof__n">{String(i + 1).padStart(2, '0')}</span>
+                  <strong>{p.t}</strong>
+                  <span class="proof__d">{p.d}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ HOW IT WORKS ══════════════ -->
+  <section class="section">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <div>
+          <span class="eyebrow">How it works</span>
+          <h2>Consult. Treat. Care.</h2>
+        </div>
+        <p class="lede sec-head__p">
+          Three stages, and none of them is a sales appointment. The first is where
+          we tell you what is realistic.
+        </p>
+      </div>
+      <ol class="grid g-3 steps">
+        {steps.map((s, i) => (
+          <li class="step" data-reveal data-reveal-delay={String(i)}>
+            <span class="step__n" aria-hidden="true">{s.n}</span>
+            <h3 class="step__t">{s.t}</h3>
+            <p class="step__d">{s.d}</p>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+
+  <!-- ══════════════ CLINIC WALKAROUND VIDEO ══════════════ -->
+  <TreatmentVideo
+    video={site.clinicVideo}
+    poster={site.clinicVideoPoster}
+    title="the clinic"
+    eyebrow="Step inside"
+    heading="A look around the clinic"
+    subcopy="A calm, considered space, built deliberately between a clinic and a wellness room. Take a walk around before you ever set foot inside."
+    soonTitle="Clinic walkaround — filming soon"
+    soonSub="Come in for a consultation and see the space for yourself."
+    playLabel="Play the walkaround"
+  />
+
+  <!-- ══════════════ TESTIMONIALS ══════════════ -->
+  <Testimonials items={testimonials} />
+
+  <!-- ══════════════ JOURNAL ══════════════ -->
+  <section class="section">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <div>
+          <span class="eyebrow">Journal</span>
+          <h2>Worth reading before you book</h2>
+        </div>
+        <a href="/journal/" class="sec-head__link">All articles<i aria-hidden="true">→</i></a>
+      </div>
+      <div class="grid g-3 jgrid">
+        {posts.map((p, i) => (
+          <a class="jcard" href={`/journal/${p.id}/`} data-reveal data-reveal-delay={String(i)}>
+            <span class="jcard__meta">
+              <span class="numeral">{String(i + 1).padStart(2, '0')}</span>
+              <span class="jcard__date">{fmt(p.data.date)}</span>
+              <span class="jcard__time">{readTime(p.body)} min read</span>
+            </span>
+            <h3 class="jcard__t">{p.data.title}</h3>
+            <p class="jcard__d">{p.data.metaDescription}</p>
+            <span class="jcard__by">{p.data.author}<em>{p.data.authorRole}</em></span>
+            <span class="jcard__more">Read<i aria-hidden="true">→</i></span>
+          </a>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ BOOKING ══════════════ -->
+  <section class="band inverse" id="book">
+    <div class="wrap band__in">
+      <div class="band__copy" data-reveal>
+        <span class="eyebrow">Book a consultation</span>
+        <h2 class="band__h">A consultation, not a sales appointment.</h2>
+        <p class="lede">
+          Forty-five minutes with a clinician who will tell you what will work, what will not,
+          and what it costs. You are not committed to anything.
+        </p>
+        <ul class="band__pts">
+          <li>A written plan and price before you decide</li>
+          <li>Licensed clinicians, never a sales counter</li>
+          <li>We say no when a treatment is not right for you</li>
+        </ul>
+        <div class="band__alt">
+          <a href={waLink(`Hi ${site.name}, I'd like to book a consultation.`)} class="btn btn--wa" data-ev="whatsapp_click" data-loc="band" rel="noopener">Message on WhatsApp</a>
+          <p class="band__tel">
+            <span>or call <a href={telLink} data-ev="call_click" data-loc="band">{site.phoneDisplay}</a></span>
+            <span class="band__hours">{hoursLine}</span>
+          </p>
+        </div>
+      </div>
+
+      <div class="band__form light-island" data-reveal data-reveal-delay="1">
+        <h3 class="band__ft">Request your consultation</h3>
+        <p class="band__fsub">Leave your details and we will call you back — usually the same day.</p>
+        <LeadForm source="home_booking" treatments={treatmentNames} compact={true} />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ---------------- HERO ---------------- */
+  .hero{display:grid;background:var(--surface-raised)}
+  @media (min-width:900px){
+    .hero{grid-template-columns:48fr 52fr;min-height:clamp(560px,70vh,780px)}
+  }
+  .hero__text{
+    position:relative;display:flex;align-items:center;
+    padding:var(--s5) var(--gutter) var(--s6);
+    background:
+      radial-gradient(70% 55% at 0% 0%,rgba(220,238,239,.55),transparent 70%),
+      linear-gradient(180deg,#fff 0%,var(--ivory) 100%);
+  }
+  @media (min-width:900px){
+    .hero__text{
+      padding:var(--s5) var(--s6) var(--s5)
+              max(var(--gutter),calc((100vw - var(--page-max)) / 2 + var(--gutter)));
+    }
+  }
+  .hero__inner{max-width:34rem}
+  /* a touch smaller than the global display, so the hero clears the fold */
+  .hero__h{margin-bottom:0;font-size:clamp(2.35rem,1.4rem + 2.6vw,3.4rem);line-height:1.08}
+  .hero__h em{font-style:italic;color:var(--ocean-teal)}
+  .hero__lede{margin-top:0}
+  .hero__cta{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}
+  .hero__dis{margin-top:var(--s3)}
+
+  /* stacked, not inline: the text column is ~440px and three inline items wrap
+     unevenly. A short vertical list reads as a checklist. */
+  .hero__trust{
+    list-style:none;padding:0;margin-top:var(--s3);
+    display:flex;flex-wrap:wrap;gap:.5rem 1.1rem;
+    font-size:.6875rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--deep-teal)
+  }
+  .hero__trust li{display:inline-flex;align-items:center;gap:.6em}
+  .hero__trust li::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--champagne);flex:none}
+
+  /* the image is absolutely positioned so it fills the cell by object-fit and
+     never dictates the hero's height by its own 3:4 aspect ratio. */
+  .hero__media{position:relative;min-height:56vh;background:var(--light-teal);overflow:hidden}
+  .hero__media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%}
+  @media (min-width:900px){ .hero__media{min-height:0} }
+  .hero__cap{
+    position:absolute;left:0;bottom:0;z-index:2;display:flex;
+    background:var(--ivory);color:var(--deep-teal);
+    font-size:var(--f-micro);font-weight:700;letter-spacing:.24em;text-transform:uppercase
+  }
+  .hero__cap span{padding:.7rem 1.1rem}
+  .hero__cap-hours{border-left:1px solid var(--line);color:var(--text-muted);letter-spacing:.14em;font-weight:600}
+  @media (max-width:480px){ .hero__cap-hours{display:none} }
+
+  /* ---------------- MARQUEE ---------------- */
+  .marq{background:var(--deep-teal);color:var(--ivory);overflow:hidden;padding-block:var(--s3)}
+  .marq__track{display:flex;width:max-content;animation:marq 34s linear infinite}
+  .marq__set{display:flex;align-items:center;flex:none}
+  .marq__w{
+    font-size:.6875rem;font-weight:700;letter-spacing:.36em;text-transform:uppercase;
+    padding-inline:var(--s4)
+  }
+  .marq__dot{width:5px;height:5px;border-radius:50%;background:var(--champagne);flex:none}
+  @keyframes marq{from{transform:translateX(0)}to{transform:translateX(calc(-100% / 3))}}
+  @media (prefers-reduced-motion:reduce){
+    .marq__track{animation:none;justify-content:center;width:100%;flex-wrap:wrap;gap:.5rem}
+  }
+
+  /* ---------------- STATEMENT ---------------- */
+  .stmt{overflow:hidden}
+  .stmt__grid{display:grid;gap:var(--s5);align-items:center}
+  .stmt__in{max-width:56rem;margin-inline:auto;text-align:center;order:-1}
+  .stmt__p{
+    font-family:'Playfair Display',serif;font-weight:400;
+    font-size:clamp(1.4rem,1rem + 1.8vw,2.5rem);line-height:1.34;letter-spacing:-.018em;
+    color:var(--deep-teal);margin:var(--s4) auto 0;max-width:26ch;text-wrap:balance
+  }
+  .stmt__p em{font-style:italic;color:var(--ocean-teal)}
+  .stmt__link{
+    display:inline-flex;align-items:center;gap:.7em;margin-top:var(--s5);
+    font-size:.625rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--ocean-teal);text-decoration:none;
+    padding-bottom:.5rem;border-bottom:1px solid var(--accent)
+  }
+  .stmt__link i{font-style:normal;transition:transform .35s cubic-bezier(.22,.61,.36,1)}
+  .stmt__link:hover i{transform:translateX(5px)}
+
+  /* the two plates: a quiet pair on mobile, flanking and offset on desktop */
+  .stmt__img{margin:0;background:var(--light-teal)}
+  .stmt__img img{width:100%;aspect-ratio:1;object-fit:cover}
+  .stmt__img--b img{object-position:100% 50%}
+  @media (max-width:899px){
+    .stmt__grid{grid-template-columns:1fr 1fr;gap:var(--s3)}
+    .stmt__in{grid-column:1 / -1}
+    .stmt__img{margin-top:var(--s2)}
+  }
+  @media (min-width:900px){
+    .stmt__grid{grid-template-columns:minmax(200px,1fr) minmax(0,2.2fr) minmax(200px,1fr);gap:var(--s6);min-height:520px}
+    .stmt__in{order:0}
+    .stmt__img{width:100%;max-width:300px}
+    .stmt__img img{aspect-ratio:4/5}
+    .stmt__img--a{justify-self:start;align-self:end;transform:translateY(12%)}
+    .stmt__img--b{justify-self:end;align-self:start;transform:translateY(-12%)}
+  }
+
+  /* ---------------- PROOF (contained) ---------------- */
+  .proof__box{
+    display:grid;background:var(--deep-teal);overflow:hidden;
+    box-shadow:0 40px 80px -50px rgba(11,79,89,.55)
+  }
+  @media (min-width:860px){ .proof__box{grid-template-columns:.82fr 1.18fr;align-items:stretch} }
+  .proof__media{position:relative;min-height:300px;background:var(--ocean-teal)}
+  .proof__media img{width:100%;height:100%;object-fit:cover;min-height:300px}
+  @media (min-width:860px){ .proof__media{min-height:0} .proof__media img{min-height:100%} }
+  .proof__panel{padding:var(--s5) var(--gutter)}
+  @media (min-width:600px){ .proof__panel{padding:var(--s6)} }
+  @media (min-width:860px){ .proof__panel{padding:var(--s7) var(--s6)} }
+  .proof__inner{max-width:40rem}
+  .proof__h{margin-top:.7rem}
+  .proof__lede{margin-top:0}
+  .proof__list{list-style:none;padding:0;margin-top:var(--s4);display:grid;gap:0 var(--s4)}
+  @media (min-width:560px){ .proof__list{grid-template-columns:1fr 1fr} }
+  .proof__item{display:grid;gap:.35rem;padding:var(--s3) 0 var(--s4);border-top:1px solid rgba(201,166,107,.4)}
+  .proof__n{margin-bottom:.4rem}
+  .proof__item strong{font-size:.9375rem;font-weight:600;color:var(--ivory);letter-spacing:-.005em}
+  .proof__d{font-size:.8125rem;line-height:1.75;color:rgba(247,244,238,.72)}
+
+  /* ---------------- SHARED SECTION HEAD ---------------- */
+  .sec-head{display:grid;gap:var(--s3);margin-bottom:var(--s6)}
+  @media (min-width:900px){
+    .sec-head{grid-template-columns:1fr auto;gap:var(--s5);align-items:end}
+  }
+  .sec-head h2{margin-top:.7rem}
+  .sec-head__p{margin-bottom:.2rem;max-width:34ch}
+  .sec-head__link{
+    display:inline-flex;align-items:center;gap:.7em;white-space:nowrap;
+    font-size:.625rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--ocean-teal);text-decoration:none;padding-bottom:.5rem;border-bottom:1px solid var(--accent)
+  }
+  .sec-head__link i{font-style:normal;transition:transform .35s cubic-bezier(.22,.61,.36,1)}
+  .sec-head__link:hover i{transform:translateX(5px)}
+
+  /* ---------------- STEPS ---------------- */
+  .steps{gap:var(--s5);list-style:none;padding:0;margin:0;counter-reset:step}
+  .step{position:relative;padding-top:var(--s4);border-top:1px solid var(--line)}
+  .step::before{
+    content:'';position:absolute;top:-4px;left:0;width:7px;height:7px;border-radius:50%;
+    background:var(--champagne)
+  }
+  .step__n{
+    font-family:'Playfair Display',serif;font-size:3rem;color:var(--champagne);
+    line-height:1;letter-spacing:-.02em;display:block;transition:color .3s
+  }
+  .step:hover .step__n{color:var(--ocean-teal)}
+  .step__t{margin:var(--s3) 0 .6rem;color:var(--deep-teal);font-family:'Playfair Display',serif;font-weight:400;font-size:1.45rem;letter-spacing:-.018em}
+  .step__d{font-size:.875rem;line-height:1.85;color:var(--text-muted)}
+  @media (min-width:900px){
+    .steps{gap:var(--s6)}
+    .step{padding-top:var(--s5)}
+  }
+
+  /* ---------------- JOURNAL ---------------- */
+  .jgrid{gap:var(--s4)}
+  .jcard{
+    display:flex;flex-direction:column;height:100%;
+    padding:var(--s4);background:var(--surface-raised);border:1px solid var(--line);
+    text-decoration:none;color:inherit;
+    transition:border-color .3s,box-shadow .4s,transform .4s cubic-bezier(.22,.61,.36,1)
+  }
+  .jcard:hover{border-color:var(--accent);box-shadow:0 24px 44px -30px rgba(11,79,89,.4);transform:translateY(-4px)}
+  .jcard__meta{display:flex;align-items:baseline;gap:.9em;flex-wrap:wrap}
+  .jcard__date{font-size:var(--f-micro);letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:var(--deep-teal)}
+  .jcard__time{font-size:var(--f-micro);letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--text-muted)}
+  .jcard__t{
+    font-family:'Playfair Display',serif;font-weight:400;font-size:1.5rem;
+    color:var(--deep-teal);margin:var(--s3) 0 .6rem;letter-spacing:-.018em;line-height:1.2;
+    transition:color .25s
+  }
+  .jcard:hover .jcard__t{color:var(--ocean-teal)}
+  .jcard__d{font-size:.8125rem;line-height:1.8;color:var(--text-muted);flex:1}
+  .jcard__by{display:grid;font-size:.75rem;color:var(--deep-teal);font-weight:600;margin-top:var(--s3);line-height:1.5}
+  .jcard__by em{font-style:normal;font-weight:400;font-size:.6875rem;color:var(--text-muted)}
+  .jcard__more{
+    margin-top:1rem;font-size:.625rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--ocean-teal);display:inline-flex;align-items:center;gap:.6em
+  }
+  .jcard__more i{font-style:normal;transition:transform .35s cubic-bezier(.22,.61,.36,1)}
+  .jcard:hover .jcard__more i{transform:translateX(5px)}
+  @media (prefers-reduced-motion:reduce){ .jcard:hover{transform:none} }
+
+  /* ---------------- BOOKING BAND ---------------- */
+  .band{position:relative;overflow:hidden;padding-block:clamp(var(--s5),5vw,var(--s7));scroll-margin-top:80px}
+  /* watermark centred in the band and fully inside it — never clipped by the
+     footer edge below. */
+  .band::before{
+    content:'';position:absolute;left:-5%;top:50%;transform:translateY(-50%);
+    width:min(42vw,420px);aspect-ratio:1102/800;
+    background:url('/logo/mark-rev.png') center/contain no-repeat;opacity:.06;pointer-events:none
+  }
+  .band__in{position:relative;display:grid;gap:var(--s5)}
+  @media (min-width:900px){ .band__in{grid-template-columns:1fr .92fr;gap:var(--s7);align-items:center} }
+  .band__h{margin-block:.7rem 1rem}
+  .band__pts{list-style:none;padding:0;margin:var(--s4) 0 0;display:grid;gap:.7rem}
+  .band__pts li{position:relative;padding-left:1.6rem;font-size:.875rem;line-height:1.6;color:rgba(247,244,238,.86)}
+  .band__pts li::before{content:'';position:absolute;left:0;top:.55em;width:8px;height:8px;border-radius:50%;background:var(--champagne)}
+  .band__alt{margin-top:var(--s5);display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3)}
+  .band__tel{font-size:.8125rem;color:rgba(247,244,238,.78);display:grid;gap:.15rem}
+  .band__tel a{color:var(--ivory);font-weight:600;text-decoration:none}
+  .band__tel a:hover{text-decoration:underline}
+  .band__hours{font-size:.6875rem;letter-spacing:.12em;text-transform:uppercase;color:rgba(247,244,238,.6)}
+
+  /* the lead form on its own ivory plate — the conversion point of the page */
+  .band__form{background:var(--surface-raised);padding:var(--s4);border-top:3px solid var(--accent)}
+  @media (min-width:600px){ .band__form{padding:var(--s5)} }
+  .band__ft{font-family:'Playfair Display',serif;font-weight:400;font-size:1.5rem;color:var(--deep-teal);letter-spacing:-.018em}
+  .band__fsub{font-size:.8125rem;line-height:1.7;color:var(--text-muted);margin:.5rem 0 var(--s3)}
+</style>

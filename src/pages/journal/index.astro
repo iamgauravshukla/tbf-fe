@@ -1,0 +1,127 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('journal', ({ data }) => !data.draft))
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const [lead, ...rest] = posts;
+const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+const mins = (p: (typeof posts)[number]) =>
+  Math.max(1, Math.ceil((p.body ? p.body.trim().split(/\s+/).length : 0) / 200));
+---
+<Base
+  title="Journal | Skin & Hair Guides | The Better Face"
+  description="Plain-language guides to treatments, skin and hair concerns, and aftercare — written by the clinical team at The Better Face. Read before you book."
+  path="/journal/"
+  breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Journal', path: '/journal/' }]}
+>
+  <section class="phero">
+    <div class="wrap phero__in">
+      <span class="eyebrow" data-reveal>Journal</span>
+      <h1 data-reveal data-reveal-delay="1">Written to be useful<br />before you book.</h1>
+      <hr class="rule" data-reveal data-reveal-delay="2" />
+      <p class="lede" data-reveal data-reveal-delay="2">
+        Guides from the people who deliver the treatments. No trend pieces, no
+        product placement — just what we find ourselves explaining in consultations.
+      </p>
+    </div>
+  </section>
+
+  {lead && (
+    <section class="section--tight">
+      <div class="wrap">
+        <a href={`/journal/${lead.id}/`} class="lead" data-reveal>
+          <div class="lead__meta">
+            <span class="eyebrow">Latest</span>
+            <span class="lead__date">{fmt(lead.data.date)} · {mins(lead)} min read</span>
+          </div>
+          <div class="lead__body">
+            <h2 class="lead__t">{lead.data.title}</h2>
+            <p class="lede lead__d">{lead.data.metaDescription}</p>
+            <span class="lead__by">{lead.data.author} · {lead.data.authorRole}</span>
+            <span class="lead__more">Read the guide<i aria-hidden="true">→</i></span>
+          </div>
+        </a>
+      </div>
+    </section>
+  )}
+
+  {rest.length > 0 && (
+    <section class="section--tight">
+      <div class="wrap">
+        <h2 class="allh" data-reveal>More from the clinic</h2>
+        <div class="grid g-2 g-3 jlist">
+          {rest.map((p, i) => (
+            <a href={`/journal/${p.id}/`} class="jcard" data-reveal data-reveal-delay={String(Math.min(i, 3))}>
+              <span class="jcard__date">{fmt(p.data.date)} · {mins(p)} min</span>
+              <h3 class="jcard__t">{p.data.title}</h3>
+              <p class="jcard__d">{p.data.metaDescription}</p>
+              <span class="jcard__by">{p.data.author}</span>
+              <span class="jcard__more">Read<i aria-hidden="true">→</i></span>
+            </a>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  <section class="section--tight inverse">
+    <div class="wrap band" data-reveal>
+      <div>
+        <span class="eyebrow">Next step</span>
+        <h2 class="band__h">Questions a guide cannot answer?</h2>
+        <p class="lede">Bring them to a consultation. Forty-five minutes, no obligation.</p>
+      </div>
+      <div class="band__cta">
+        <p class="disclaimer">All treatments require a consultation. Results vary between individuals.</p>
+        <a href="/contact/" class="btn btn--light" data-ev="book_click" data-loc="journal_index">Book a consultation</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .phero{background:var(--surface-raised);border-bottom:1px solid var(--line);
+    padding-block:clamp(var(--s6),8vw,var(--s8))}
+  .phero__in{max-width:46rem}
+
+  .lead{display:grid;gap:var(--s3);text-decoration:none;color:inherit;
+    padding-top:var(--s3);border-top:2px solid var(--accent)}
+  @media (min-width:900px){ .lead{grid-template-columns:200px minmax(0,1fr);gap:var(--s6)} }
+  .lead__meta{display:grid;gap:.6rem;align-content:start}
+  .lead__date{font-size:.5625rem;letter-spacing:.2em;text-transform:uppercase;
+    font-weight:600;color:var(--text-muted)}
+  .lead__body{max-width:44rem}
+  .lead__t{font-size:clamp(1.8rem,1.2rem + 2.2vw,3rem);transition:color .25s}
+  .lead:hover .lead__t{color:var(--ocean-teal)}
+  .lead__d{margin-top:var(--s3)}
+  .lead__by{display:block;margin-top:var(--s3);font-size:.6875rem;font-weight:600;color:var(--deep-teal)}
+  .lead__more{display:inline-flex;align-items:center;gap:.6em;margin-top:var(--s3);
+    font-size:.625rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ocean-teal)}
+  .lead__more i{font-style:normal;transition:transform .35s cubic-bezier(.22,.61,.36,1)}
+  .lead:hover .lead__more i{transform:translateX(5px)}
+
+  .allh{margin-bottom:var(--s5)}
+  .jlist{gap:var(--s5) var(--s3)}
+  .jcard{display:flex;flex-direction:column;height:100%;padding-top:var(--s3);
+    border-top:1px solid var(--line);text-decoration:none;color:inherit;transition:border-top-color .3s}
+  .jcard:hover{border-top-color:var(--accent)}
+  .jcard__date{font-size:.5625rem;letter-spacing:.24em;text-transform:uppercase;
+    font-weight:700;color:var(--champagne)}
+  .jcard__t{font-family:'Playfair Display',serif;font-weight:400;font-size:1.45rem;
+    color:var(--deep-teal);margin:var(--s2) 0 .6rem;letter-spacing:-.018em;line-height:1.2;
+    transition:color .25s}
+  .jcard:hover .jcard__t{color:var(--ocean-teal)}
+  .jcard__d{font-size:.8125rem;line-height:1.8;color:var(--text-muted);flex:1}
+  .jcard__by{font-size:.6875rem;color:var(--deep-teal);font-weight:600;margin-top:var(--s3)}
+  .jcard__more{margin-top:.8rem;font-size:.625rem;font-weight:700;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--ocean-teal);display:inline-flex;align-items:center;gap:.6em}
+  .jcard__more i{font-style:normal;transition:transform .35s cubic-bezier(.22,.61,.36,1)}
+  .jcard:hover .jcard__more i{transform:translateX(5px)}
+
+  .band{display:grid;gap:var(--s4)}
+  @media (min-width:900px){ .band{grid-template-columns:1.15fr .85fr;gap:var(--s6);align-items:center} }
+  .band__h{margin-block:.7rem .9rem}
+  .band__cta{display:grid;gap:var(--s2);justify-items:start}
+</style>

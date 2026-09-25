@@ -1,0 +1,26 @@
+---
+// Shared dashboard top bar. Each page wires #userInfo / #navUsers / #logoutBtn /
+// #refreshBtn in its own script (the auth token lives in localStorage).
+import { site } from '../../site.config';
+interface Props { active: 'leads' | 'tasks' | 'team'; heading: string }
+const { active, heading } = Astro.props;
+---
+<header class="db-top">
+  <div class="db-top__l">
+    <img src="/logo/icon-512.png" alt="" width="34" height="34" />
+    <div>
+      <span class="eyebrow">{site.name}</span>
+      <h1 class="db-top__h">{heading}</h1>
+    </div>
+  </div>
+  <nav class="db-nav">
+    <a href="/admin/" class:list={['db-nav__a', { 'is-active': active === 'leads' }]}>Leads</a>
+    <a href="/admin/tasks" class:list={['db-nav__a', { 'is-active': active === 'tasks' }]}>Tasks</a>
+    <a href="/admin/users" class:list={['db-nav__a', { 'is-active': active === 'team' }]} id="navUsers" hidden>Team</a>
+  </nav>
+  <div class="db-top__r">
+    <span class="db-user" id="userInfo"></span>
+    <button class="db-btn db-btn--ghost" id="refreshBtn" type="button">Refresh</button>
+    <button class="db-btn db-btn--ghost" id="logoutBtn" type="button">Sign out</button>
+  </div>
+</header>

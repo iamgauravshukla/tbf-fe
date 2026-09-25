@@ -1,0 +1,83 @@
+---
+// JSON-LD. Google reads this to build the Maps panel and rich results.
+// LocalBusiness is the one that matters most for "[treatment] near me".
+import { site } from '../site.config';
+
+interface Props {
+  type?: 'home' | 'service' | 'article';
+  serviceName?: string;
+  serviceDescription?: string;
+  price?: number | null;
+  breadcrumbs?: { name: string; path: string }[];
+  article?: { title: string; description: string; date: Date; author: string };
+}
+const { type = 'home', serviceName, serviceDescription, price, breadcrumbs = [], article } = Astro.props;
+
+// MedicalBusiness is a subtype of LocalBusiness — more specific, and the right
+// one for a clinic with qualified practitioners.
+const business = {
+  '@context': 'https://schema.org',
+  '@type': ['MedicalBusiness', 'HealthAndBeautyBusiness'],
+  '@id': `${site.url}/#business`,
+  name: site.name,
+  legalName: site.legalName,
+  description: site.description,
+  url: site.url,
+  telephone: site.phoneE164,
+  email: site.email,
+  image: new URL('/logo/logo-vertical.png', site.url).href,
+  logo: new URL('/logo/logo-vertical.png', site.url).href,
+  slogan: site.tagline,
+  address: {
+    '@type': 'PostalAddress',
+    streetAddress: site.address.street,
+    addressLocality: site.address.locality,
+    addressRegion: site.address.region,
+    postalCode: site.address.postalCode,
+    addressCountry: site.address.country,
+  },
+  geo: { '@type': 'GeoCoordinates', latitude: site.geo.lat, longitude: site.geo.lng },
+  hasMap: site.mapUrl,
+  openingHoursSpecification: site.hoursSpec.map((h) => ({
+    '@type': 'OpeningHoursSpecification',
+    dayOfWeek: h.days,
+    opens: h.opens,
+    closes: h.closes,
+  })),
+  sameAs: [site.social.facebook, site.social.instagram].filter(Boolean),
+  // NOTE: aggregateRating is deliberately omitted. Do not add it until you
+  // have real, verifiable reviews on the site — marking up ratings you cannot
+  // evidence is a manual-action risk, not a shortcut.
+};
+
+const serviceLd = type === 'service' && serviceName ? {
+  '@context': 'https://schema.org',
+  '@type': 'MedicalProcedure',
+  name: serviceName,
+  description: serviceDescription,
+  provider: { '@id': `${site.url}/#business` },
+  ...(price ? { offers: { '@type': 'Offer', price, priceCurrency: 'PHP', availability: 'https://schema.org/InStock' } } : {}),
+} : null;
+
+const articleLd = type === 'article' && article ? {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: article.title,
+  description: article.description,
+  datePublished: article.date.toISOString(),
+  author: { '@type': 'Person', name: article.author },
+  publisher: { '@id': `${site.url}/#business` },
+} : null;
+
+const crumbLd = breadcrumbs.length ? {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: breadcrumbs.map((b, i) => ({
+    '@type': 'ListItem', position: i + 1, name: b.name,
+    item: new URL(b.path, site.url).href,
+  })),
+} : null;
+
+const blocks = [business, serviceLd, articleLd, crumbLd].filter(Boolean);
+---
+{blocks.map((b) => <script type="application/ld+json" set:html={JSON.stringify(b)} />)}

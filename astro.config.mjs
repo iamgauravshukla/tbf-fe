@@ -1,0 +1,19 @@
+import { defineConfig } from 'astro/config';
+import sitemap from '@astrojs/sitemap';
+
+export default defineConfig({
+  site: 'https://thebetterface.com',   // keep in sync with src/site.config.ts
+  // Ad landing pages, the conversion page and 404 are noindex — keeping them out
+  // of the sitemap as well stops Search Console reporting them as errors.
+  integrations: [
+    sitemap({
+      filter: (page) =>
+        !page.includes('/lp/') &&
+        !page.includes('/thank-you/') &&
+        !page.includes('/admin') &&
+        !page.includes('/404'),
+    }),
+  ],
+  build: { inlineStylesheets: 'auto' },
+  compressHTML: true,
+});

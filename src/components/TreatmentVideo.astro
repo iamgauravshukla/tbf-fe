@@ -1,0 +1,144 @@
+---
+// Treatment walkthrough video — click-to-play facade (no third-party script
+// loads until the visitor asks for it, so the page stays fast and cookie-free).
+// When no `video` is set the section still renders, as a documented placeholder,
+// so every treatment page carries the slot ready for footage.
+interface Props {
+  video?: string;
+  poster?: string;
+  title: string;
+  /** Copy overrides so the same facade serves the homepage clinic walkaround. */
+  eyebrow?: string;
+  heading?: string;
+  subcopy?: string;
+  soonTitle?: string;
+  soonSub?: string;
+  playLabel?: string;
+}
+const {
+  video, poster, title,
+  eyebrow = 'Watch',
+  heading = `See ${title} for yourself`,
+  subcopy = 'A short walkthrough of the treatment, the room and what a session actually feels like — so nothing on the day is a surprise.',
+  soonTitle = 'Treatment walkthrough — filming soon',
+  soonSub = 'Ask to watch it in the room at your consultation.',
+  playLabel = 'Play walkthrough',
+} = Astro.props;
+
+function toEmbed(url?: string): { type: 'iframe' | 'file'; src: string } | null {
+  if (!url) return null;
+  if (/\.(mp4|webm|mov)(\?|#|$)/i.test(url)) return { type: 'file', src: url };
+  let m = url.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{6,})/);
+  if (m) return { type: 'iframe', src: `https://www.youtube-nocookie.com/embed/${m[1]}?autoplay=1&rel=0` };
+  m = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (m) return { type: 'iframe', src: `https://player.vimeo.com/video/${m[1]}?autoplay=1&title=0&byline=0` };
+  return { type: 'iframe', src: url };
+}
+const embed = toEmbed(video);
+const posterSrc = poster;
+---
+<section class="tv section">
+  <div class="wrap tv__in">
+    <div class="tv__head" data-reveal>
+      <span class="eyebrow">{eyebrow}</span>
+      <h2 class="tv__h">{heading}</h2>
+      <p class="lede tv__lede">{subcopy}</p>
+    </div>
+
+    <figure class="tv__frame frame" data-reveal data-reveal-delay="1">
+      {embed ? (
+        <div class="tv__player" data-embed-type={embed.type} data-embed-src={embed.src}>
+          {posterSrc
+            ? <img class="tv__poster" src={posterSrc} alt="" width="1280" height="720" loading="lazy" decoding="async" />
+            : <div class="tv__poster tv__poster--ph" aria-hidden="true"></div>}
+          <button type="button" class="tv__play" aria-label={playLabel} data-ev="video_play" data-loc="treatment">
+            <span class="tv__play-ring"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg></span>
+            <span class="tv__play-label">{playLabel}</span>
+          </button>
+        </div>
+      ) : (
+        <div class="tv__player tv__player--soon">
+          {posterSrc
+            ? <img class="tv__poster" src={posterSrc} alt="" width="1280" height="720" loading="lazy" decoding="async" />
+            : <div class="tv__poster tv__poster--ph" aria-hidden="true"></div>}
+          <div class="tv__soon">
+            <span class="tv__soon-ic" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg></span>
+            <span class="tv__soon-t">{soonTitle}</span>
+            <span class="tv__soon-s">{soonSub}</span>
+          </div>
+        </div>
+      )}
+    </figure>
+  </div>
+</section>
+
+{embed && (
+  <script is:inline>
+    (function () {
+      document.querySelectorAll('.tv__player[data-embed-src]').forEach(function (p) {
+        var btn = p.querySelector('.tv__play');
+        if (!btn) return;
+        btn.addEventListener('click', function () {
+          var type = p.getAttribute('data-embed-type');
+          var src = p.getAttribute('data-embed-src');
+          var el;
+          if (type === 'file') {
+            el = document.createElement('video');
+            el.src = src; el.controls = true; el.autoplay = true; el.playsInline = true;
+            el.className = 'tv__media';
+          } else {
+            el = document.createElement('iframe');
+            el.src = src; el.className = 'tv__media';
+            el.setAttribute('allow', 'accelerometer; autoplay; encrypted-media; fullscreen; picture-in-picture');
+            el.setAttribute('allowfullscreen', '');
+            el.setAttribute('title', 'Treatment walkthrough');
+          }
+          p.innerHTML = '';
+          p.appendChild(el);
+        });
+      });
+    })();
+  </script>
+)}
+
+<style>
+  .tv__in{max-width:940px;margin-inline:auto}
+  .tv__head{text-align:center;max-width:44rem;margin:0 auto var(--s5)}
+  .tv__h{margin-top:.7rem}
+  .tv__lede{margin:var(--s3) auto 0}
+
+  .tv__frame{margin:0;background:var(--deep-teal)}
+  .tv__player{position:relative;aspect-ratio:16/9;overflow:hidden;background:var(--deep-teal)}
+  .tv__poster{width:100%;height:100%;object-fit:cover}
+  .tv__poster--ph{background:linear-gradient(140deg,var(--deep-teal),var(--ocean-teal))}
+  .tv__player::after{content:'';position:absolute;inset:0;background:rgba(11,79,89,.34);pointer-events:none}
+  .tv__media{position:absolute;inset:0;width:100%;height:100%;border:0}
+
+  /* play button */
+  .tv__play{
+    position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:var(--s2);
+    background:transparent;border:0;cursor:pointer;color:var(--ivory)
+  }
+  .tv__play-ring{
+    width:78px;height:78px;display:grid;place-items:center;border-radius:50%;
+    background:rgba(247,244,238,.14);border:1px solid rgba(247,244,238,.6);
+    backdrop-filter:blur(2px);transition:transform .35s cubic-bezier(.22,.61,.36,1),background-color .3s,border-color .3s
+  }
+  .tv__play-ring svg{width:26px;height:26px;fill:var(--ivory);margin-left:3px}
+  .tv__play:hover .tv__play-ring{transform:scale(1.08);background:var(--champagne);border-color:var(--champagne)}
+  .tv__play:hover .tv__play-ring svg{fill:var(--deep-teal)}
+  .tv__play-label{font-size:.625rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase}
+  .tv__play:focus-visible{outline:2px solid var(--champagne);outline-offset:-6px}
+
+  /* coming-soon placeholder */
+  .tv__soon{
+    position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;
+    align-items:center;justify-content:center;gap:.7rem;text-align:center;padding:var(--s3);color:var(--ivory)
+  }
+  .tv__soon-ic{width:64px;height:64px;display:grid;place-items:center;border-radius:50%;
+    background:rgba(247,244,238,.1);border:1px solid rgba(247,244,238,.4)}
+  .tv__soon-ic svg{width:22px;height:22px;fill:rgba(247,244,238,.85);margin-left:2px}
+  .tv__soon-t{font-family:'Playfair Display',serif;font-size:1.25rem;letter-spacing:-.01em}
+  .tv__soon-s{font-size:.8125rem;color:rgba(247,244,238,.7)}
+</style>

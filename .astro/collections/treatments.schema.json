@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "seoTitle": {
+      "type": "string"
+    },
+    "metaDescription": {
+      "type": "string",
+      "maxLength": 158
+    },
+    "group": {
+      "type": "string",
+      "enum": [
+        "Skin",
+        "Hair",
+        "Wellness"
+      ]
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "Aesthetics",
+        "Dermatology",
+        "Laser",
+        "Body",
+        "Wellness",
+        "Hair Removal",
+        "Hair Restoration",
+        "Scalp"
+      ]
+    },
+    "summary": {
+      "type": "string"
+    },
+    "priceFrom": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "duration": {
+      "type": "string"
+    },
+    "course": {
+      "type": "string"
+    },
+    "downtime": {
+      "type": "string"
+    },
+    "suitableFor": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notSuitableFor": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "order": {
+      "default": 50,
+      "type": "number"
+    },
+    "image": {
+      "type": "string"
+    },
+    "video": {
+      "type": "string"
+    },
+    "videoPoster": {
+      "type": "string"
+    },
+    "beforeAfter": {
+      "default": [],
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "before": {
+            "type": "string"
+          },
+          "after": {
+            "type": "string"
+          },
+          "caption": {
+            "type": "string"
+          },
+          "date": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "before",
+          "after"
+        ]
+      }
+    },
+    "draft": {
+      "default": false,
+      "type": "boolean"
+    },
+    "$schema": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "seoTitle",
+    "metaDescription",
+    "group",
+    "category",
+    "summary",
+    "priceFrom",
+    "duration",
+    "course",
+    "downtime",
+    "suitableFor",
+    "notSuitableFor"
+  ]
+}

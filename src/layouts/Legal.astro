@@ -1,0 +1,45 @@
+---
+// Shared shell for the three legal pages. The content in those pages is a
+// drafting scaffold, not legal advice — every one carries a review notice and
+// must be signed off by the clinic's counsel before launch.
+import Base from './Base.astro';
+
+interface Props { title: string; description: string; path: string; heading: string; updated: string; }
+const { title, description, path, heading, updated } = Astro.props;
+---
+<Base title={title} description={description} path={path}
+      breadcrumbs={[{ name: 'Home', path: '/' }, { name: heading, path }]}>
+  <section class="section">
+    <div class="wrap lg">
+      <span class="eyebrow">Legal</span>
+      <h1>{heading}</h1>
+      <hr class="rule" />
+      <p class="micro">Last updated {updated}</p>
+
+      <div class="lg__notice">
+        <strong>Pre-launch notice.</strong> This document is a drafting scaffold prepared
+        to the structure the Philippine Data Privacy Act of 2012 (RA 10173) and DOH /
+        FDA clinic advertising rules require. It is not legal advice. Have the clinic's
+        counsel review and amend it, then delete this notice.
+      </div>
+
+      <div class="prose"><slot /></div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .lg{max-width:46rem}
+  .lg__notice{
+    margin:var(--s4) 0 var(--s5);padding:var(--s3);font-size:.8125rem;line-height:1.75;
+    color:#8A5A2B;background:#FBF3E7;border-left:2px solid var(--champagne)
+  }
+  .lg__notice strong{color:#6E4419}
+  .prose :global(h2){font-size:1.3rem;margin-top:var(--s5);margin-bottom:var(--s2)}
+  .prose :global(h2:first-child){margin-top:0}
+  .prose :global(h3){margin-top:var(--s4);margin-bottom:.5rem;color:var(--deep-teal)}
+  .prose :global(p){margin-bottom:var(--s2);font-size:.9375rem}
+  .prose :global(ul){margin:0 0 var(--s2);padding-left:1.2rem}
+  .prose :global(li){margin-bottom:.45rem;font-size:.9375rem;line-height:1.8}
+  .prose :global(strong){color:var(--deep-teal);font-weight:600}
+</style>

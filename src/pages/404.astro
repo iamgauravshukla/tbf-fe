@@ -1,0 +1,37 @@
+---
+import Base from '../layouts/Base.astro';
+import { site, telLink } from '../site.config';
+---
+<Base
+  title="Page not found | The Better Face"
+  description="That page does not exist. Browse treatments or book a consultation."
+  path="/404/"
+  noindex={true}
+>
+  <section class="section nf">
+    <div class="wrap nf__in">
+      <span class="eyebrow">404</span>
+      <h1>That page is not here.</h1>
+      <hr class="rule rule--center" />
+      <p class="lede nf__p">
+        It may have moved, or the link may be wrong. The treatments are all one
+        click away.
+      </p>
+      <div class="nf__cta">
+        <a href="/treatments/" class="btn btn--primary">View treatments</a>
+        <a href="/" class="btn btn--ghost">Back to home</a>
+      </div>
+      <p class="small nf__tel">
+        Or call us on <a href={telLink} data-ev="call_click" data-loc="404">{site.phoneDisplay}</a>.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .nf{text-align:center}
+  .nf__in{max-width:36rem;margin-inline:auto}
+  .nf__p{margin:0 auto var(--s4)}
+  .nf__cta{display:flex;flex-wrap:wrap;gap:var(--s2);justify-content:center}
+  .nf__tel{margin-top:var(--s3)}
+</style>

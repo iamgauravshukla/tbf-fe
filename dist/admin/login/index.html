@@ -1,0 +1,41 @@
+<!DOCTYPE html><html lang="en"> <head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Sign in · The Better Face</title><link rel="icon" href="/logo/icon-512.png" type="image/png"><link rel="stylesheet" href="/_astro/site.BM4TF0Dx.css"><link rel="stylesheet" href="/_astro/Admin.DGNFhLca.css"><style>.login[data-astro-cid-xeimgta2]{min-height:100vh;padding:var(--s4);place-items:center;display:grid}.login__card[data-astro-cid-xeimgta2]{background:var(--surface-raised);border:1px solid var(--line);border-top:3px solid var(--accent);width:100%;max-width:24rem;padding:clamp(var(--s4),5vw,var(--s6));gap:.6rem;display:grid;box-shadow:0 40px 80px -50px #0b4f5980}.login__mark[data-astro-cid-xeimgta2]{width:48px;height:48px;margin-bottom:.4rem}.login__h[data-astro-cid-xeimgta2]{color:var(--deep-teal);letter-spacing:-.018em;margin-top:.3rem;font-family:Playfair Display,serif;font-size:1.9rem;font-weight:400}.login__sub[data-astro-cid-xeimgta2]{color:var(--text-muted);margin-bottom:var(--s2);font-size:.8125rem}.login__field[data-astro-cid-xeimgta2]{gap:.4rem;margin-top:.3rem;display:grid}.login__field[data-astro-cid-xeimgta2] span[data-astro-cid-xeimgta2]{letter-spacing:.14em;text-transform:uppercase;color:var(--deep-teal);font-size:.6875rem;font-weight:600}.login__field[data-astro-cid-xeimgta2] input[data-astro-cid-xeimgta2]{color:var(--charcoal);background:var(--surface-raised);border:1px solid var(--line);border-radius:0;min-height:46px;padding:.8rem .9rem;font-family:inherit;font-size:.9375rem}.login__field[data-astro-cid-xeimgta2] input[data-astro-cid-xeimgta2]:focus-visible{border-color:var(--ocean-teal);outline-offset:0;outline:2px solid #167c8847}.login__err[data-astro-cid-xeimgta2]{color:#a0392e;background:#fbecea;border-left:2px solid #a0392e;margin-top:.4rem;padding:.6rem .8rem;font-size:.8125rem}.login__btn[data-astro-cid-xeimgta2]{width:100%;margin-top:var(--s2)}.login__back[data-astro-cid-xeimgta2]{color:var(--text-muted);text-align:center;margin-top:.6rem;font-size:.75rem;text-decoration:none}.login__back[data-astro-cid-xeimgta2]:hover{color:var(--deep-teal)}
+</style></head> <body class="adm">  <main class="login" data-astro-cid-xeimgta2> <form class="login__card" id="loginForm" novalidate data-astro-cid-xeimgta2> <img class="login__mark" src="/logo/icon-512.png" alt="" width="52" height="52" data-astro-cid-xeimgta2> <span class="eyebrow" data-astro-cid-xeimgta2>The Better Face</span> <h1 class="login__h" data-astro-cid-xeimgta2>Team dashboard</h1> <p class="login__sub" data-astro-cid-xeimgta2>Sign in to manage enquiries and appointments.</p> <label class="login__field" data-astro-cid-xeimgta2> <span data-astro-cid-xeimgta2>Email</span> <input type="email" name="email" autocomplete="username" required data-astro-cid-xeimgta2> </label> <label class="login__field" data-astro-cid-xeimgta2> <span data-astro-cid-xeimgta2>Password</span> <input type="password" name="password" autocomplete="current-password" required data-astro-cid-xeimgta2> </label> <p class="login__err" id="err" role="alert" hidden data-astro-cid-xeimgta2></p> <button type="submit" class="btn btn--primary login__btn" id="submit" data-astro-cid-xeimgta2>Sign in</button> <a href="/" class="login__back" data-astro-cid-xeimgta2>&larr; Back to the site</a> </form> </main> <script>(function(){const apiBase = "http://localhost:4000";
+
+    if (localStorage.getItem('tbf_token')) location.replace('/admin/');
+
+    const form = document.getElementById('loginForm');
+    const err = document.getElementById('err');
+    const submit = document.getElementById('submit');
+    const showErr = (m) => { err.textContent = m; err.hidden = false; };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      err.hidden = true;
+      submit.disabled = true;
+      submit.textContent = 'Signing in…';
+      try {
+        const res = await fetch(apiBase + '/api/auth/login', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ email: form.email.value.trim(), password: form.password.value }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) {
+          showErr(
+            data.error === 'invalid_credentials' ? 'That email or password is not right.'
+            : data.error === 'auth_not_configured' ? 'The dashboard login is not set up yet (ADMIN_EMAIL / ADMIN_PASSWORD).'
+            : data.error === 'too_many_attempts' ? 'Too many attempts. Try again in a few minutes.'
+            : 'Sign in failed. Please try again.');
+          return;
+        }
+        localStorage.setItem('tbf_token', data.token);
+        localStorage.setItem('tbf_user', JSON.stringify(data.user || {}));
+        location.replace('/admin/');
+      } catch {
+        showErr('Could not reach the server. Is the API running?');
+      } finally {
+        submit.disabled = false;
+        submit.textContent = 'Sign in';
+      }
+    });
+  })();</script>  </body> </html>

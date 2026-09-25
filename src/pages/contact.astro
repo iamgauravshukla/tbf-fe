@@ -1,0 +1,204 @@
+---
+import Base from '../layouts/Base.astro';
+import LeadForm from '../components/LeadForm.astro';
+import { site, waLink, telLink } from '../site.config';
+import { getCollection } from 'astro:content';
+
+const labels = (await getCollection('treatments', ({ data }) => !data.draft))
+  .sort((a, b) => a.data.order - b.data.order)
+  .map((t) => t.data.title);
+
+const steps = [
+  { n: '01', t: 'Assessment', d: 'Skin or scalp history, current routine, previous treatments, and what you actually want to change.' },
+  { n: '02', t: 'Options',    d: 'What will work, what will not, and what each path costs — including doing nothing.' },
+  { n: '03', t: 'Plan',       d: 'A written plan and price. You take it away and decide in your own time.' },
+];
+---
+<Base
+  title="Book a Consultation | The Better Face"
+  description="Book a consultation at The Better Face. Call, WhatsApp or send an enquiry — we reply within one working day. All treatments require a consultation."
+  path="/contact/"
+  breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Book a consultation', path: '/contact/' }]}
+>
+  <!-- ══════════════ HERO + FORM ══════════════ -->
+  <section class="chero">
+    <div class="chero__text">
+      <div class="chero__inner">
+        <span class="eyebrow" data-reveal>Book</span>
+        <h1 class="chero__h" data-reveal data-reveal-delay="1">A consultation,<br />not a sales appointment.</h1>
+        <hr class="rule" data-reveal data-reveal-delay="2" />
+        <p class="lede" data-reveal data-reveal-delay="2">
+          Forty-five minutes with a clinician. We assess you, explain what is
+          realistic, and give you a written plan and price. You are not committed
+          to anything.
+        </p>
+
+        <div class="direct" data-reveal data-reveal-delay="3">
+          <a href={telLink} class="direct__tel" data-ev="call_click" data-loc="contact">{site.phoneDisplay}</a>
+          <div class="direct__row">
+            <a href={waLink(`Hi ${site.name}, I'd like to book a consultation.`)} class="btn btn--wa" data-ev="whatsapp_click" data-loc="contact" rel="noopener">Message on WhatsApp</a>
+            <a href={`mailto:${site.email}`} class="direct__mail">{site.email}</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="chero__form">
+      <div class="fcard" id="enquiry" data-reveal data-reveal-delay="1">
+        <span class="eyebrow">Enquiry</span>
+        <h2 class="fcard__h">Send us a message</h2>
+        <p class="small fcard__p">We reply within one working day, during opening hours.</p>
+        <LeadForm source="contact" treatments={labels} />
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ VISIT ══════════════ -->
+  <section class="visit inverse">
+    <div class="visit__media zoom">
+      <img src="/img/f-space.jpg" alt="Reception at The Better Face" width="900" height="1200" loading="lazy" decoding="async" />
+    </div>
+    <div class="visit__body">
+      <div class="visit__inner">
+        <span class="eyebrow" data-reveal>Visit</span>
+        <h2 class="visit__h" data-reveal data-reveal-delay="1">Come and see the room.</h2>
+        <hr class="rule" data-reveal data-reveal-delay="1" />
+
+        <!-- NAP block. Must match Google Business Profile byte for byte. -->
+        <div class="nap" data-reveal data-reveal-delay="2">
+          <div class="nap__col">
+            <span class="nap__k">Address</span>
+            <address class="nap__addr">
+              {site.address.street}<br />
+              {site.address.locality}, {site.address.region} {site.address.postalCode}
+            </address>
+            <a href={site.mapUrl} class="nap__link" rel="noopener">Get directions<i aria-hidden="true">→</i></a>
+          </div>
+          <div class="nap__col">
+            <span class="nap__k">Hours</span>
+            {site.hours.map((h) => (
+              <p class="nap__h">{h.days}<span>{h.close ? `${h.open} – ${h.close}` : h.open}</span></p>
+            ))}
+            <a href={telLink} class="nap__link" data-ev="call_click" data-loc="contact_visit">{site.phoneDisplay}<i aria-hidden="true">→</i></a>
+          </div>
+        </div>
+
+        <p class="visit__note" data-reveal data-reveal-delay="3">
+          Parking, access and the nearest landmark — <strong>TODO, add these once
+          the address is final.</strong> They are the two things people call to ask.
+        </p>
+
+        <a href="#enquiry" class="btn btn--light visit__btn" data-ev="book_click" data-loc="contact_visit">Send an enquiry</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ WHAT HAPPENS ══════════════ -->
+  <section class="section">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <div>
+          <span class="eyebrow">Before you arrive</span>
+          <h2>What happens at a consultation</h2>
+        </div>
+        <p class="lede sec-head__p">
+          Nothing is booked on the day unless you want it to be. Most people leave
+          with a plan and think about it.
+        </p>
+      </div>
+      <div class="grid g-3 steps">
+        {steps.map((s, i) => (
+          <div class="step" data-reveal data-reveal-delay={String(i)}>
+            <span class="step__n">{s.n}</span>
+            <h3 class="step__t">{s.t}</h3>
+            <p class="step__d">{s.d}</p>
+          </div>
+        ))}
+      </div>
+      <p class="disclaimer steps__d">
+        All treatments require a consultation. Results vary between individuals.
+        Consultation fees and treatment pricing are confirmed in writing before booking.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ---------------- HERO ---------------- */
+  .chero{display:grid;background:var(--surface-raised)}
+  @media (min-width:960px){ .chero{grid-template-columns:48fr 52fr} }
+  .chero__text{display:flex;align-items:center;padding:var(--s6) var(--gutter)}
+  @media (min-width:960px){
+    .chero__text{
+      padding:var(--s8) var(--s6) var(--s8)
+              max(var(--gutter),calc((100vw - var(--page-max)) / 2 + var(--gutter)));
+    }
+  }
+  .chero__inner{max-width:33rem}
+  .chero__h{margin-top:.8rem}
+
+  .direct{margin-top:var(--s5);padding-top:var(--s4);border-top:1px solid var(--accent)}
+  .direct__tel{display:inline-block;font-family:'Playfair Display',serif;
+    font-size:clamp(1.8rem,1.3rem + 1.8vw,2.6rem);letter-spacing:-.018em;
+    color:var(--deep-teal);text-decoration:none}
+  .direct__tel:hover{color:var(--ocean-teal)}
+  .direct__row{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3);margin-top:var(--s3)}
+  .direct__mail{font-size:.8125rem;color:var(--ocean-teal)}
+
+  .chero__form{background:var(--surface-sunken);display:flex;align-items:center;
+    padding:var(--s6) var(--gutter)}
+  @media (min-width:960px){ .chero__form{padding:var(--s8) var(--s6)} }
+  .fcard{background:var(--surface-raised);padding:clamp(var(--s4),4vw,var(--s5));
+    width:100%;max-width:34rem;border-top:2px solid var(--accent)}
+  .fcard__h{font-size:1.7rem;margin-top:.7rem}
+  .fcard__p{margin:.6rem 0 var(--s4)}
+
+  /* ---------------- VISIT ---------------- */
+  .visit{display:grid}
+  @media (min-width:960px){ .visit{grid-template-columns:46fr 54fr} }
+  .visit__media{min-height:52vh;background:var(--ocean-teal)}
+  .visit__media img{width:100%;height:100%;object-fit:cover}
+  @media (min-width:960px){ .visit__media{min-height:0} }
+  .visit__body{display:flex;align-items:center;padding:var(--s6) var(--gutter)}
+  @media (min-width:960px){
+    .visit__body{
+      padding:var(--s8) max(var(--gutter),calc((100vw - var(--page-max)) / 2 + var(--gutter)))
+              var(--s8) var(--s6);
+    }
+  }
+  .visit__inner{max-width:34rem;width:100%}
+  .visit__h{margin-top:.7rem}
+
+  .nap{display:grid;gap:var(--s4);margin-top:var(--s4)}
+  @media (min-width:560px){ .nap{grid-template-columns:1fr 1fr;gap:var(--s5)} }
+  .nap__k{display:block;font-size:.5625rem;letter-spacing:.24em;text-transform:uppercase;
+    font-weight:700;color:var(--champagne);margin-bottom:var(--s2)}
+  .nap__addr{font-style:normal;font-size:.9375rem;line-height:1.85;color:rgba(247,244,238,.88)}
+  .nap__h{font-size:.9375rem;line-height:1.85;color:rgba(247,244,238,.88);
+    display:flex;justify-content:space-between;gap:1rem;max-width:260px}
+  .nap__h span{color:var(--ivory);font-weight:600}
+  .nap__link{display:inline-flex;align-items:center;gap:.6em;margin-top:var(--s3);
+    font-size:.625rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--champagne);text-decoration:none}
+  .nap__link i{font-style:normal;transition:transform .35s cubic-bezier(.22,.61,.36,1)}
+  .nap__link:hover{color:var(--ivory)}
+  .nap__link:hover i{transform:translateX(5px)}
+  .visit__note{margin-top:var(--s5);padding-top:var(--s3);border-top:1px solid rgba(201,166,107,.4);
+    font-size:.8125rem;line-height:1.8;color:rgba(247,244,238,.72)}
+  .visit__note strong{color:var(--champagne);font-weight:600}
+  .visit__btn{margin-top:var(--s4)}
+  .fcard{scroll-margin-top:96px}
+
+  /* ---------------- STEPS ---------------- */
+  .sec-head{display:grid;gap:var(--s3);margin-bottom:var(--s6)}
+  @media (min-width:900px){ .sec-head{grid-template-columns:1fr auto;gap:var(--s5);align-items:end} }
+  .sec-head h2{margin-top:.7rem}
+  .sec-head__p{max-width:34ch;margin-bottom:.2rem}
+  .steps{gap:var(--s5)}
+  .step{padding-top:var(--s3);border-top:1px solid var(--accent)}
+  .step__n{font-family:'Playfair Display',serif;font-size:2.4rem;color:var(--champagne);
+    line-height:1;letter-spacing:-.02em;display:block}
+  .step__t{margin:var(--s3) 0 .6rem;color:var(--deep-teal)}
+  .step__d{font-size:.875rem;line-height:1.85;color:var(--text-muted)}
+  .steps__d{margin-top:var(--s5)}
+</style>

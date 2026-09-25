@@ -1,0 +1,152 @@
+---
+// Skin / Hair treatments — a CONTAINED grid, not a horizontal scroll rail.
+//
+// Tabs are radio inputs and CSS `:has()` — no JavaScript, so the panels switch
+// even if scripting fails. Everything sits inside the page margin: nothing
+// bleeds off the edge, which reads calmer and more premium than a rail that
+// runs out of the viewport.
+import TreatmentCard from './TreatmentCard.astro';
+import { getCollection } from 'astro:content';
+
+const all = (await getCollection('treatments', ({ data }) => !data.draft))
+  .sort((a, b) => a.data.order - b.data.order);
+
+const GROUPS = ['Skin', 'Hair', 'Wellness'] as const;
+const rails = GROUPS
+  .map((g) => ({ g, items: all.filter((t) => t.data.group === g) }))
+  .filter((r) => r.items.length > 0);
+---
+<div class="ts wrap">
+  {rails.map((r, i) => (
+    <input class="ts__radio visually-hidden" type="radio" name="ts-group"
+           id={`ts-${r.g.toLowerCase()}`} checked={i === 0} />
+  ))}
+
+  <div class="ts__head">
+    <div class="ts__intro" data-reveal>
+      <span class="eyebrow">What we treat</span>
+      <h2 class="ts__h">Treatments, explained honestly</h2>
+    </div>
+
+    <div class="ts__controls" data-reveal data-reveal-delay="1">
+      <div class="ts__tabs" role="group" aria-label="Treatment category">
+        {rails.map((r) => (
+          <label class="ts__tab" for={`ts-${r.g.toLowerCase()}`}>
+            {r.g}<span class="ts__tabn">{r.items.length}</span>
+          </label>
+        ))}
+      </div>
+    </div>
+  </div>
+
+  {rails.map((r) => (
+    <div class="ts__panel" data-group={r.g.toLowerCase()}>
+      <div class="ts__grid" style={`--cols:${Math.min(r.items.length, 4)}`}>
+        {r.items.map((t, i) => (
+          <div class="ts__item" data-reveal data-reveal-delay={String(Math.min(i, 3))}>
+            <TreatmentCard
+              href={`/treatments/${t.id}/`}
+              title={t.data.title}
+              summary={t.data.summary}
+              category={t.data.category}
+              priceFrom={t.data.priceFrom}
+              duration={t.data.duration}
+              image={t.data.image}
+              chrome={true}
+            />
+          </div>
+        ))}
+      </div>
+
+      <a href="/treatments/" class="ts__all" data-reveal>
+        <span class="ts__all-main">
+          <span class="eyebrow">Everything</span>
+          <span class="ts__allh">See the full {r.g.toLowerCase()} menu</span>
+          <span class="ts__allsub">Every treatment, what it does, who it suits, and — the part most clinics leave out — who it does not.</span>
+        </span>
+        <span class="ts__allm">All treatments<i aria-hidden="true">→</i></span>
+      </a>
+    </div>
+  ))}
+</div>
+
+<style>
+  .ts{position:relative}
+
+  .ts__head{display:grid;gap:var(--s4);margin-bottom:var(--s5)}
+  @media (min-width:900px){
+    .ts__head{grid-template-columns:1fr auto;align-items:end;gap:var(--s5)}
+  }
+  .ts__h{margin-top:.7rem}
+  .ts__controls{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3) var(--s4)}
+
+  /* --- tabs: radio + :has(), no script — now pill toggles --- */
+  .ts__tabs{display:flex;gap:var(--s2)}
+  .ts__tab{
+    cursor:pointer;position:relative;padding:.6rem 1.2rem;
+    font-size:.75rem;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--text-muted);border:1px solid var(--line);border-radius:999px;
+    display:inline-flex;align-items:center;gap:.55em;
+    transition:color .25s,border-color .25s,background-color .25s
+  }
+  .ts__tabn{font-family:'Playfair Display',serif;font-size:.8125rem;letter-spacing:.02em;color:var(--champagne)}
+  .ts__tab:hover{color:var(--deep-teal);border-color:var(--accent)}
+
+  .ts__panel{display:none}
+  .ts:has(#ts-skin:checked) .ts__panel[data-group="skin"],
+  .ts:has(#ts-hair:checked) .ts__panel[data-group="hair"],
+  .ts:has(#ts-wellness:checked) .ts__panel[data-group="wellness"]{display:block}
+  .ts:has(#ts-skin:checked) .ts__tab[for="ts-skin"],
+  .ts:has(#ts-hair:checked) .ts__tab[for="ts-hair"],
+  .ts:has(#ts-wellness:checked) .ts__tab[for="ts-wellness"]{
+    color:var(--ivory);background:var(--deep-teal);border-color:var(--deep-teal)
+  }
+  /* keyboard: the input is what actually receives focus */
+  .ts:has(#ts-skin:focus-visible) .ts__tab[for="ts-skin"],
+  .ts:has(#ts-hair:focus-visible) .ts__tab[for="ts-hair"],
+  .ts:has(#ts-wellness:focus-visible) .ts__tab[for="ts-wellness"]{
+    outline:2px solid var(--ocean-teal);outline-offset:3px
+  }
+
+  /* --- contained grid: as many columns as the group has cards (max 4), so a
+         row is always full and no lone card is ever left dangling --- */
+  .ts__grid{display:grid;gap:var(--s3)}
+  @media (min-width:560px){ .ts__grid{grid-template-columns:repeat(2,1fr)} }
+  @media (min-width:1000px){ .ts__grid{grid-template-columns:repeat(var(--cols,4),1fr)} }
+  .ts__item{display:flex}
+  .ts__item > *{width:100%}
+
+  /* --- full-width CTA strip below the grid --- */
+  .ts__all{
+    position:relative;overflow:hidden;margin-top:var(--s3);
+    display:flex;flex-direction:column;align-items:flex-start;gap:var(--s3);
+    padding:var(--s4) var(--s4);text-decoration:none;
+    background:var(--deep-teal);color:var(--ivory);transition:background-color .3s;
+  }
+  @media (min-width:700px){
+    .ts__all{flex-direction:row;align-items:center;justify-content:space-between;gap:var(--s5);padding:var(--s4) var(--s5)}
+  }
+  .ts__all::before{
+    content:'';position:absolute;right:-4%;top:50%;transform:translateY(-50%);
+    width:min(34%,300px);aspect-ratio:1102/800;
+    background:url('/logo/mark-rev.png') center/contain no-repeat;opacity:.09;
+    transition:opacity .5s,transform 1.1s cubic-bezier(.22,.61,.36,1);pointer-events:none;
+  }
+  .ts__all:hover{background:#0a464f}
+  .ts__all:hover::before{opacity:.13;transform:translateY(-50%) scale(1.04)}
+  .ts__all > *{position:relative}
+  .ts__all-main{display:grid;gap:.45rem;max-width:60ch}
+  .ts__allh{font-family:'Playfair Display',serif;font-size:clamp(1.4rem,1rem + 1.2vw,1.85rem);line-height:1.15;letter-spacing:-.018em}
+  .ts__allsub{font-size:.875rem;line-height:1.6;color:rgba(247,244,238,.72)}
+  .ts__allm{
+    flex:none;white-space:nowrap;
+    font-size:.625rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--champagne);display:inline-flex;align-items:center;gap:.6em;
+    padding-top:.85rem;border-top:1px solid rgba(201,166,107,.55)
+  }
+  @media (min-width:700px){
+    .ts__allm{padding-top:0;border-top:0;padding-left:var(--s5);border-left:1px solid rgba(201,166,107,.4)}
+  }
+  .ts__allm i{font-style:normal;transition:transform .35s cubic-bezier(.22,.61,.36,1)}
+  .ts__all:hover .ts__allm i{transform:translateX(5px)}
+</style>

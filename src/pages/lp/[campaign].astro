@@ -1,0 +1,164 @@
+---
+// One template, many ad landing pages. Add an entry to src/campaigns.ts and a
+// new page exists at build time — no developer required.
+import Landing from '../../layouts/Landing.astro';
+import LeadForm from '../../components/LeadForm.astro';
+import { campaigns } from '../../campaigns';
+import { site, waLink, telLink } from '../../site.config';
+
+export function getStaticPaths() {
+  return campaigns.map((c) => ({ params: { campaign: c.slug }, props: { c } }));
+}
+const { c } = Astro.props;
+---
+<Landing
+  title={c.title}
+  description={c.metaDescription}
+  path={`/lp/${c.slug}/`}
+  waMessage={c.waMessage}
+>
+  <!-- ---------- HERO + FORM ABOVE THE FOLD ---------- -->
+  <section class="lph inverse">
+    <div class="wrap lph__in">
+      <div class="lph__copy">
+        <span class="eyebrow">{site.name}</span>
+        <h1 class="lph__h">{c.headline}</h1>
+        <hr class="rule" />
+        <p class="lede">{c.subhead}</p>
+
+        <ul class="ticks">
+          <li>Qualified, licensed practitioners</li>
+          <li>Written plan and price at consultation</li>
+          <li>Transparent pricing — nothing added at the counter</li>
+        </ul>
+
+        {c.availability && <p class="avail">{c.availability}</p>}
+
+        <div class="lph__alt">
+          <a href={telLink} class="btn btn--light" data-ev="call_click" data-loc={`landing:${c.slug}`}>Call {site.phoneDisplay}</a>
+          <a href={waLink(c.waMessage)} class="btn btn--outline-light" data-ev="whatsapp_click" data-loc={`landing:${c.slug}`} rel="noopener">WhatsApp us</a>
+        </div>
+      </div>
+
+      <div class="lph__form">
+        <div class="fcard light-island">
+          <h2 class="fcard__h">Request a consultation</h2>
+          <p class="small fcard__p">We reply within one working day. No treatment is booked without a consultation first.</p>
+          <LeadForm
+            source={`landing:${c.slug}`}
+            treatments={c.treatmentLabels}
+          />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- WHY ---------- -->
+  <section class="section--tight">
+    <div class="wrap">
+      <div class="grid g-2 g-4">
+        {c.bullets.map((b) => (
+          <div class="bl">
+            <h3 class="bl__t">{b.t}</h3>
+            <p class="bl__d">{b.d}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ---------- PRICE ---------- -->
+  <section class="section--tight sunken">
+    <div class="wrap price">
+      <div>
+        <span class="eyebrow">What it costs</span>
+        <h2 class="price__h">{c.priceLine}</h2>
+        <p class="disclaimer">
+          All treatments require a consultation. Results vary between individuals.
+          A course is quoted in writing before anything is booked.
+        </p>
+      </div>
+      <img src={c.image} alt="" width="440" height="330" loading="lazy" decoding="async" class="price__img" />
+    </div>
+  </section>
+
+  <!-- ---------- FAQ ---------- -->
+  <section class="section--tight">
+    <div class="wrap faq">
+      <h2 class="faq__h">Questions people actually ask</h2>
+      {c.faqs.map((f) => (
+        <details class="faq__i">
+          <summary>{f.q}</summary>
+          <p>{f.a}</p>
+        </details>
+      ))}
+    </div>
+  </section>
+
+  <!-- ---------- CLOSING CTA ---------- -->
+  <section class="section--tight inverse">
+    <div class="wrap close">
+      <h2 class="close__h">One consultation. A straight answer.</h2>
+      <p class="lede close__p">
+        Forty-five minutes with a clinician who will tell you what will work, what
+        will not, and what it costs. You are not committed to anything.
+      </p>
+      <div class="close__cta">
+        <a href={telLink} class="btn btn--light" data-ev="call_click" data-loc={`landing_foot:${c.slug}`}>Call {site.phoneDisplay}</a>
+        <a href={waLink(c.waMessage)} class="btn btn--outline-light" data-ev="whatsapp_click" data-loc={`landing_foot:${c.slug}`} rel="noopener">WhatsApp us</a>
+      </div>
+      <p class="disclaimer close__d">All treatments require a consultation. Results vary between individuals.</p>
+    </div>
+  </section>
+</Landing>
+
+<style>
+  .lph{padding-block:clamp(var(--s5),6vw,var(--s6))}
+  .lph__in{display:grid;gap:var(--s5)}
+  @media (min-width:900px){ .lph__in{grid-template-columns:1.05fr .95fr;gap:var(--s6);align-items:start} }
+  .lph__h{font-size:clamp(1.9rem,1.2rem + 2.6vw,2.9rem)}
+  .lph__copy{max-width:36rem}
+
+  .ticks{list-style:none;padding:0;margin:var(--s3) 0 0;display:grid;gap:.55rem}
+  .ticks li{position:relative;padding-left:1.6rem;font-size:.875rem;line-height:1.65;color:rgba(247,244,238,.88)}
+  .ticks li::before{content:'✓';position:absolute;left:0;color:var(--champagne);font-size:.9rem}
+
+  .avail{margin-top:var(--s3);font-size:.75rem;letter-spacing:.12em;text-transform:uppercase;
+    font-weight:600;color:var(--champagne);border-top:1px solid rgba(201,166,107,.4);padding-top:var(--s2)}
+
+  .lph__alt{display:none;gap:var(--s2);margin-top:var(--s4);flex-wrap:wrap}
+  @media (min-width:900px){ .lph__alt{display:flex} }
+
+  .fcard{background:var(--surface-raised);padding:clamp(var(--s3),3vw,var(--s4))}
+  .fcard__h{font-size:1.5rem;color:var(--deep-teal)}
+  .fcard__p{margin:.5rem 0 var(--s3)}
+
+  .bl{padding-top:var(--s3);border-top:1px solid var(--line)}
+  .bl__t{color:var(--deep-teal);margin-bottom:.5rem}
+  .bl__d{font-size:.8125rem;line-height:1.8;color:var(--text-muted)}
+
+  .price{display:grid;gap:var(--s4);align-items:center}
+  @media (min-width:800px){ .price{grid-template-columns:1.25fr .75fr;gap:var(--s6)} }
+  .price__h{font-size:clamp(1.3rem,1rem + 1.2vw,1.8rem);margin:.6rem 0 var(--s2);max-width:24ch}
+  .price__img{width:100%;aspect-ratio:4/3;object-fit:cover}
+
+  .faq{max-width:46rem}
+  .faq__h{margin-bottom:var(--s3)}
+  .faq__i{border-top:1px solid var(--line)}
+  .faq__i:last-of-type{border-bottom:1px solid var(--line)}
+  .faq__i summary{
+    cursor:pointer;list-style:none;padding:var(--s3) 2rem var(--s3) 0;position:relative;
+    font-weight:600;font-size:.9375rem;color:var(--deep-teal)
+  }
+  .faq__i summary::-webkit-details-marker{display:none}
+  .faq__i summary::after{content:'+';position:absolute;right:.2rem;top:50%;transform:translateY(-50%);
+    font-size:1.2rem;color:var(--champagne);line-height:1}
+  .faq__i[open] summary::after{content:'–'}
+  .faq__i p{padding-bottom:var(--s3);font-size:.875rem;line-height:1.8;color:var(--text-muted)}
+
+  .close{text-align:center;max-width:44rem;margin-inline:auto}
+  .close__h{font-size:clamp(1.6rem,1.2rem + 1.6vw,2.2rem)}
+  .close__p{margin:var(--s2) auto 0}
+  .close__cta{display:flex;flex-wrap:wrap;gap:var(--s2);justify-content:center;margin-top:var(--s4)}
+  .close__d{margin:var(--s3) auto 0}
+</style>

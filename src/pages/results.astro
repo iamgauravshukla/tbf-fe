@@ -1,0 +1,149 @@
+---
+// ============================================================================
+// RESULTS / BEFORE-AND-AFTER
+//
+// This page ships as a documented placeholder ON PURPOSE.
+//
+// In the Philippines, advertising of aesthetic and medical procedures — and
+// before/after imagery in particular — falls under FDA and DOH advertising
+// rules, and clinic advertising is also covered by DTI fair-trade rules. Meta
+// separately restricts before/after imagery in paid ads regardless of local law.
+//
+// Publishing a gallery before your regulatory adviser has signed off is a real
+// risk to the clinic, not a theoretical one. So the grid below is deliberately
+// empty and the page instead states what we can evidence. Turn it on by filling
+// `cases` once you have: (1) written, specific, revocable photographic consent
+// per client, (2) sign-off that the imagery is compliant, (3) standardised
+// capture — same lighting, same distance, same lens, no retouching.
+// ============================================================================
+import Base from '../layouts/Base.astro';
+
+const cases: { treatment: string; sessions: string; interval: string; before: string; after: string; note: string }[] = [];
+
+const standards = [
+  { t: 'Written consent, per image', d: 'Specific, revocable, and on file. A signed treatment form is not consent to publish a photograph.' },
+  { t: 'Identical capture conditions', d: 'Same lighting, same distance, same lens, same angle. A flattering second photo is not a result.' },
+  { t: 'No retouching, ever', d: 'No smoothing, no colour grading, no filters. If it needed editing it does not go up.' },
+  { t: 'Dated and attributed', d: 'Every pair carries the treatment, the number of sessions and the interval between the two photographs.' },
+];
+---
+<Base
+  title="Results & Our Photography Standards | The Better Face"
+  description="How we photograph and publish results: written consent, identical capture conditions, no retouching, every image dated. What we can and cannot promise."
+  path="/results/"
+  breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Results', path: '/results/' }]}
+>
+  <section class="phero">
+    <div class="wrap phero__in">
+      <span class="eyebrow">Results</span>
+      <h1>We would rather show you fewer photographs than misleading ones.</h1>
+      <hr class="rule" />
+      <p class="lede">
+        Before-and-after imagery is the easiest thing in this industry to fake and
+        the hardest to trust. Here is the standard every image on this site has to
+        meet before it is published.
+      </p>
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="wrap">
+      <div class="grid g-2 g-4">
+        {standards.map((s) => (
+          <div class="st">
+            <h3>{s.t}</h3>
+            <p>{s.d}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="cat-head">
+        <h2>Treatment results</h2>
+      </div>
+
+      {cases.length === 0 ? (
+        <div class="empty">
+          <p class="empty__h">This gallery is not live yet.</p>
+          <p class="empty__p">
+            We are completing consent and compliance review before publishing
+            before-and-after imagery. Until that is done, ask to see results in
+            person at your consultation — we will show you cases relevant to your
+            skin, with the client's permission.
+          </p>
+          <a href="/contact/" class="btn btn--primary" data-ev="book_click" data-loc="results">Book a consultation</a>
+          <p class="disclaimer empty__d">
+            DEVELOPER NOTE — populate <code>cases</code> in <code>src/pages/results.astro</code>
+            only after regulatory sign-off. See the comment at the top of that file.
+          </p>
+        </div>
+      ) : (
+        <div class="grid g-2 g-3">
+          {cases.map((c) => (
+            <figure class="case">
+              <div class="case__pair">
+                <img src={c.before} alt={`Before ${c.treatment}`} width="400" height="500" loading="lazy" />
+                <img src={c.after} alt={`After ${c.treatment}`} width="400" height="500" loading="lazy" />
+              </div>
+              <figcaption>
+                <strong>{c.treatment}</strong>
+                <span>{c.sessions} · photographs {c.interval} apart · unretouched</span>
+                <p>{c.note}</p>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      )}
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="wrap honest">
+      <span class="eyebrow">What we cannot promise</span>
+      <h2>Someone else's result is not a forecast of yours.</h2>
+      <p class="lede">
+        Skin type, age, sun exposure, hormones and how closely aftercare is followed
+        all change the outcome. A photograph shows what happened to one person.
+        Your clinician will tell you, at consultation, what is realistic for you —
+        including when the honest answer is "less than you are hoping for".
+      </p>
+      <p class="disclaimer">
+        All treatments require a consultation. Results vary between individuals.
+        No result shown on this site is guaranteed or typical.
+      </p>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .phero{background:var(--surface-raised);border-bottom:1px solid var(--line);padding-block:clamp(var(--s5),7vw,var(--s7))}
+  .phero__in{max-width:48rem}
+
+  .st{padding-top:var(--s3);border-top:1px solid var(--line)}
+  .st h3{color:var(--deep-teal);margin-bottom:.5rem}
+  .st p{font-size:.8125rem;line-height:1.8;color:var(--text-muted)}
+
+  .cat-head{padding-bottom:var(--s2);border-bottom:1px solid rgba(11,79,89,.16);margin-bottom:var(--s4)}
+
+  .empty{background:var(--surface-raised);border:1px solid var(--line);
+    padding:clamp(var(--s4),5vw,var(--s6));text-align:center}
+  .empty__h{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--deep-teal);margin-inline:auto}
+  .empty__p{margin:var(--s2) auto var(--s4);max-width:52ch;font-size:.9375rem;line-height:1.8;color:var(--text-muted)}
+  .empty__d{margin:var(--s4) auto 0;max-width:56ch}
+  .empty__d code{font-family:ui-monospace,monospace;color:var(--deep-teal)}
+
+  .case{margin:0;background:var(--surface-raised);border:1px solid var(--line)}
+  .case__pair{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line)}
+  .case__pair img{width:100%;aspect-ratio:4/5;object-fit:cover}
+  .case figcaption{padding:var(--s3)}
+  .case figcaption strong{display:block;font-size:.875rem;color:var(--deep-teal)}
+  .case figcaption span{display:block;font-size:.6875rem;color:var(--text-muted);margin:.3rem 0 .6rem}
+  .case figcaption p{font-size:.8125rem;line-height:1.75;color:var(--text-muted)}
+
+  .honest{max-width:46rem}
+  .honest h2{margin:.5rem 0 var(--s2)}
+  .honest .disclaimer{margin-top:var(--s3)}
+</style>

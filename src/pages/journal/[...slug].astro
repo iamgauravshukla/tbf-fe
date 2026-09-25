@@ -1,0 +1,232 @@
+---
+import Base from '../../layouts/Base.astro';
+import TreatmentCard from '../../components/TreatmentCard.astro';
+import { site, waLink } from '../../site.config';
+import { getCollection, getEntry, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = (await getCollection('journal', ({ data }) => !data.draft))
+    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+  return posts.map((entry, i) => ({
+    params: { slug: entry.id },
+    props: { entry, next: posts[i + 1] ?? posts[0] },
+  }));
+}
+
+const { entry, next } = Astro.props;
+const d = entry.data;
+const { Content, headings } = await render(entry);
+
+// Related treatments come from frontmatter — this is what builds the internal
+// link from education content to the commercial page.
+const related = (
+  await Promise.all(d.related.map((slug) => getEntry('treatments', slug)))
+).filter(Boolean);
+
+const toc = headings.filter((h) => h.depth === 2);
+const fmt = (x: Date) => x.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+
+// Reading time from the raw body — honest rather than decorative.
+const words = entry.body ? entry.body.trim().split(/\s+/).length : 0;
+const mins = Math.max(1, Math.ceil(words / 200));
+---
+<Base
+  title={d.seoTitle}
+  description={d.metaDescription}
+  path={`/journal/${entry.id}/`}
+  schemaType="article"
+  article={{ title: d.title, description: d.metaDescription, date: d.date, author: d.author }}
+  breadcrumbs={[
+    { name: 'Home', path: '/' },
+    { name: 'Journal', path: '/journal/' },
+    { name: d.title, path: `/journal/${entry.id}/` },
+  ]}
+>
+  <article>
+    <!-- ══════════════ TITLE ══════════════ -->
+    <header class="ahero">
+      <div class="wrap ahero__in">
+        <nav class="crumbs" aria-label="Breadcrumb" data-reveal>
+          <a href="/">Home</a><span aria-hidden="true">/</span>
+          <a href="/journal/">Journal</a>
+        </nav>
+        <span class="eyebrow" data-reveal>Journal · {mins} min read</span>
+        <h1 class="ahero__h" data-reveal data-reveal-delay="1">{d.title}</h1>
+        <hr class="rule rule--center" data-reveal data-reveal-delay="1" />
+        <p class="lede ahero__lede" data-reveal data-reveal-delay="2">{d.metaDescription}</p>
+        <div class="byline" data-reveal data-reveal-delay="3">
+          <span class="byline__n">{d.author}</span>
+          <span class="byline__r">{d.authorRole}</span>
+          <time datetime={d.date.toISOString()} class="byline__d">{fmt(d.date)}</time>
+        </div>
+      </div>
+    </header>
+
+    <!-- ══════════════ BODY ══════════════ -->
+    <div class="section--tight">
+      <div class="wrap abody">
+        <aside class="toc">
+          {toc.length > 1 && (
+            <nav class="toc__in" aria-label="On this page">
+              <span class="eyebrow">Contents</span>
+              {toc.map((h) => <a href={`#${h.slug}`} class="toc__l">{h.text}</a>)}
+            </nav>
+          )}
+        </aside>
+
+        <div class="prose" data-reveal><Content /></div>
+
+        <aside class="aside">
+          <div class="aside__card" data-reveal data-reveal-delay="1">
+            <span class="eyebrow">Book</span>
+            <h2 class="aside__h">Ask us in person</h2>
+            <p class="small">
+              A consultation is the fastest way to find out whether any of this
+              applies to you.
+            </p>
+            <a href="/contact/" class="btn btn--primary aside__btn" data-ev="book_click" data-loc="journal_aside">Book a consultation</a>
+            <a href={waLink(`Hi ${site.name}, I read "${d.title}" and have a question.`)} class="aside__wa" data-ev="whatsapp_click" data-loc="journal_aside" rel="noopener">or ask on WhatsApp</a>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- ══════════════ AUTHOR ══════════════ -->
+    <div class="section--tight sunken">
+      <div class="wrap author" data-reveal>
+        <div class="author__body">
+          <span class="eyebrow">Written by</span>
+          <h2 class="author__n">{d.author}</h2>
+          <p class="author__r">{d.authorRole}</p>
+          <p class="small author__b">
+            Part of the clinical team at {site.name}. Articles here are written by
+            the people who deliver the treatments — not by an agency — and are
+            reviewed before publication.
+            <strong>TODO — replace with this author's real biography and PRC number.</strong>
+          </p>
+        </div>
+        <a href={`/journal/${next.id}/`} class="nextup">
+          <span class="eyebrow">Read next</span>
+          <span class="nextup__t">{next.data.title}</span>
+          <span class="nextup__m">Continue<i aria-hidden="true">→</i></span>
+        </a>
+      </div>
+    </div>
+  </article>
+
+  <!-- ══════════════ RELATED TREATMENTS ══════════════ -->
+  {related.length > 0 && (
+    <section class="section">
+      <div class="wrap">
+        <div class="sec-head" data-reveal>
+          <div>
+            <span class="eyebrow">Mentioned above</span>
+            <h2>Treatments in this article</h2>
+          </div>
+          <a href="/treatments/" class="sec-head__link">All treatments<i aria-hidden="true">→</i></a>
+        </div>
+        <div class="grid g-2 g-3 rel">
+          {related.map((t: any, i: number) => (
+            <div data-reveal data-reveal-delay={String(i)}>
+              <TreatmentCard
+                href={`/treatments/${t.id}/`}
+                title={t.data.title}
+                summary={t.data.summary}
+                category={t.data.category}
+                priceFrom={t.data.priceFrom}
+                duration={t.data.duration}
+                image={t.data.image}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+</Base>
+
+<style>
+  .crumbs{display:flex;flex-wrap:wrap;justify-content:center;gap:.5em;font-size:.5625rem;
+    letter-spacing:.2em;text-transform:uppercase;font-weight:600;color:var(--text-muted);margin-bottom:var(--s4)}
+  .crumbs a{color:var(--text-muted);text-decoration:none}
+  .crumbs a:hover{color:var(--deep-teal);text-decoration:underline}
+
+  /* ---------------- TITLE ---------------- */
+  .ahero{background:var(--surface-raised);border-bottom:1px solid var(--line);
+    padding-block:clamp(var(--s6),8vw,var(--s8))}
+  .ahero__in{max-width:44rem;margin-inline:auto;text-align:center}
+  .ahero__h{font-size:clamp(2.1rem,1.3rem + 2.8vw,3.4rem);margin-top:.8rem}
+  .ahero__lede{margin-inline:auto}
+  .byline{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;
+    gap:.6em var(--s3);margin-top:var(--s5)}
+  .byline__n{font-size:.8125rem;font-weight:700;color:var(--deep-teal)}
+  .byline__r{font-size:.6875rem;color:var(--text-muted)}
+  .byline__d{font-size:.5625rem;letter-spacing:.2em;text-transform:uppercase;font-weight:600;
+    color:var(--champagne)}
+
+  /* ---------------- BODY ---------------- */
+  .abody{display:grid;gap:var(--s5)}
+  @media (min-width:1100px){
+    .abody{grid-template-columns:200px minmax(0,1fr) 300px;gap:var(--s5);align-items:start}
+  }
+  .toc{display:none}
+  @media (min-width:1100px){ .toc{display:block;position:sticky;top:104px} }
+  .toc__l{display:block;margin-top:.85rem;font-size:.75rem;line-height:1.5;
+    color:var(--text-muted);text-decoration:none;padding-left:.9rem;border-left:1px solid var(--line)}
+  .toc__l:hover{color:var(--deep-teal);border-left-color:var(--accent)}
+
+  .prose{max-width:68ch;margin-inline:auto}
+  .prose :global(> p:first-of-type){font-size:1.125rem;line-height:1.75;color:#3C4A50}
+  .prose :global(h2){font-size:clamp(1.5rem,1.2rem + .9vw,1.9rem);margin-top:var(--s5);
+    margin-bottom:var(--s2);scroll-margin-top:110px}
+  .prose :global(h2:first-child){margin-top:0}
+  .prose :global(h3){margin-top:var(--s4);margin-bottom:.6rem;color:var(--deep-teal)}
+  .prose :global(p){margin-bottom:var(--s2);font-size:.9375rem;line-height:1.9}
+  .prose :global(ul),.prose :global(ol){margin:0 0 var(--s2);padding-left:1.3rem}
+  .prose :global(li){margin-bottom:.5rem;line-height:1.85}
+  .prose :global(strong){color:var(--deep-teal);font-weight:600}
+  .prose :global(blockquote){border-left:2px solid var(--accent);padding-left:var(--s3);
+    margin:var(--s4) 0;font-family:'Playfair Display',serif;font-style:italic;
+    font-size:1.25rem;line-height:1.55;color:var(--deep-teal)}
+
+  .aside{display:grid;gap:var(--s3)}
+  @media (min-width:1100px){ .aside{position:sticky;top:104px} }
+  .aside__card{background:var(--surface-raised);padding:var(--s4);border-top:2px solid var(--accent)}
+  .aside__h{font-size:1.35rem;margin:.6rem 0 .7rem}
+  .aside__btn{width:100%;margin-top:var(--s3)}
+  .aside__wa{display:block;text-align:center;margin-top:var(--s2);font-size:.75rem;
+    color:var(--text-muted);text-decoration:none}
+  .aside__wa:hover{color:var(--deep-teal);text-decoration:underline}
+
+  /* ---------------- AUTHOR / NEXT ---------------- */
+  .author{display:grid;gap:var(--s5)}
+  @media (min-width:800px){ .author{grid-template-columns:1.1fr .9fr;gap:var(--s6);align-items:center} }
+  .author__n{font-size:1.8rem;margin-top:.7rem}
+  .author__r{font-size:.6875rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;
+    color:var(--ocean-teal);margin-top:.5rem}
+  .author__b{margin-top:var(--s3)}
+  .author__b strong{color:#8A5A2B}
+
+  .nextup{display:block;padding:var(--s4);background:var(--deep-teal);color:var(--ivory);text-decoration:none}
+  .nextup .eyebrow{color:var(--champagne)}
+  .nextup__t{display:block;font-family:'Playfair Display',serif;font-size:1.55rem;
+    line-height:1.2;letter-spacing:-.018em;margin-top:.8rem}
+  .nextup__m{display:inline-flex;align-items:center;gap:.6em;margin-top:var(--s3);
+    padding-top:.9rem;border-top:1px solid rgba(201,166,107,.55);
+    font-size:.625rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--champagne)}
+  .nextup__m i{font-style:normal;transition:transform .35s cubic-bezier(.22,.61,.36,1)}
+  .nextup:hover .nextup__m i{transform:translateX(5px)}
+
+  /* ---------------- RELATED ---------------- */
+  .sec-head{display:grid;gap:var(--s3);margin-bottom:var(--s5)}
+  @media (min-width:900px){ .sec-head{grid-template-columns:1fr auto;gap:var(--s5);align-items:end} }
+  .sec-head h2{margin-top:.7rem}
+  .sec-head__link{
+    display:inline-flex;align-items:center;gap:.7em;white-space:nowrap;
+    font-size:.625rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;
+    color:var(--ocean-teal);text-decoration:none;padding-bottom:.5rem;border-bottom:1px solid var(--accent)
+  }
+  .sec-head__link i{font-style:normal;transition:transform .35s cubic-bezier(.22,.61,.36,1)}
+  .sec-head__link:hover i{transform:translateX(5px)}
+  .rel{gap:var(--s5) var(--s3)}
+</style>

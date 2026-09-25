@@ -1,0 +1,325 @@
+---
+import { site, waLink, telLink } from '../site.config';
+import { getCollection } from 'astro:content';
+
+// Treatments, grouped for the dropdown. Same source and order as the rest of
+// the site, so the menu always matches the menu.
+const all = (await getCollection('treatments', ({ data }) => !data.draft))
+  .sort((a, b) => a.data.order - b.data.order);
+const GROUPS = ['Skin', 'Hair', 'Wellness'] as const;
+const rails = GROUPS
+  .map((g) => ({ g, items: all.filter((t) => t.data.group === g) }))
+  .filter((r) => r.items.length > 0);
+
+const navRest = [
+  { label: 'About', href: '/about/' },
+  { label: 'Results', href: '/results/' },
+  { label: 'Journal', href: '/journal/' },
+];
+const path = Astro.url.pathname;
+const waHref = waLink(`Hi ${site.name}, I'd like to ask about a treatment.`);
+---
+<header class="hdr">
+  <div class="wrap hdr__in">
+    <a href="/" class="hdr__logo" aria-label={`${site.name} — home`}>
+      <img class="hdr__mark" src="/logo/icon-512.png" alt="" width="40" height="40" />
+      <img class="hdr__word" src="/logo/wordmark.png" alt="" width="200" height="26" />
+    </a>
+
+    <nav class="hdr__nav" aria-label="Main">
+      <!-- Treatments = a full-width mega dropdown, revealed on hover/focus, no JS. -->
+      <div class="hdr__item hdr__item--menu">
+        <a href="/treatments/"
+           class:list={['hdr__link', 'hdr__link--menu', { 'is-active': path.startsWith('/treatments/') }]}
+           aria-haspopup="true">
+          Treatments
+          <svg class="hdr__caret" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+        </a>
+
+        <div class="hdr__mega">
+          <div class="wrap hdr__mega-in">
+            <div class="hdr__mega-cols">
+              {rails.map((r) => (
+                <div class="hdr__mega-col">
+                  <a href={`/treatments/#${r.g.toLowerCase()}`} class="hdr__mega-h">
+                    {r.g}<span class="hdr__mega-n">{r.items.length}</span>
+                  </a>
+                  <ul class="hdr__mega-list">
+                    {r.items.map((t) => (
+                      <li>
+                        <a href={`/treatments/${t.id}/`} class="hdr__mega-link">{t.data.title}</a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+
+            <a href="/treatments/" class="hdr__mega-cta">
+              <span class="eyebrow">Not sure where to start?</span>
+              <span class="hdr__mega-cta-h">Browse the full menu</span>
+              <span class="hdr__mega-cta-m">All treatments<i aria-hidden="true">→</i></span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      {navRest.map((n) => (
+        <a href={n.href} class:list={['hdr__link', { 'is-active': path.startsWith(n.href) }]}>{n.label}</a>
+      ))}
+    </nav>
+
+    <div class="hdr__cta">
+      <a href={telLink} class="hdr__tel" data-ev="call_click" data-loc="header">{site.phoneDisplay}</a>
+      <a href="/contact/" class="btn btn--primary hdr__book" data-ev="book_click" data-loc="header">Book a consultation</a>
+
+      <!-- Mobile menu. <details> so it opens and closes with no script and
+           stays keyboard-operable; the panel drops below the sticky bar. -->
+      <details class="mnav">
+        <summary class="mnav__btn">
+          <span class="visually-hidden">Menu</span>
+          <span class="mnav__bar mnav__bar--a" aria-hidden="true"></span>
+          <span class="mnav__bar mnav__bar--b" aria-hidden="true"></span>
+        </summary>
+        <nav class="mnav__panel" aria-label="Main (mobile)">
+          <!-- Treatments = a nested accordion of the categorised menu. -->
+          <details class="mnav__acc">
+            <summary class="mnav__link mnav__acc-sum">
+              <span class="numeral">01</span>Treatments
+              <svg class="mnav__chev" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
+            </summary>
+            <div class="mnav__acc-body">
+              {rails.map((r) => (
+                <div class="mnav__cat">
+                  <a href={`/treatments/#${r.g.toLowerCase()}`} class="mnav__cat-h">{r.g}</a>
+                  {r.items.map((t) => (
+                    <a href={`/treatments/${t.id}/`} class="mnav__cat-link">{t.data.title}</a>
+                  ))}
+                </div>
+              ))}
+              <a href="/treatments/" class="mnav__cat-all">All treatments<i aria-hidden="true">→</i></a>
+            </div>
+          </details>
+
+          {navRest.map((n, i) => (
+            <a href={n.href} class:list={['mnav__link', { 'is-active': path.startsWith(n.href) }]}>
+              <span class="numeral">{String(i + 2).padStart(2, '0')}</span>{n.label}
+            </a>
+          ))}
+
+          <div class="mnav__foot">
+            <a href={telLink} class="mnav__tel" data-ev="call_click" data-loc="menu">{site.phoneDisplay}</a>
+            <a href={waHref} class="mnav__wa" data-ev="whatsapp_click" data-loc="menu" rel="noopener">WhatsApp</a>
+            <p class="mnav__hours">{site.hours[0].days} · {site.hours[0].open} – {site.hours[0].close}</p>
+          </div>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+
+<!-- ~220 bytes. Marks the bar once the page has scrolled so it can pick up a
+     hairline shadow and shrink slightly. Without script the bar just stays flat. -->
+<script is:inline>
+  (function () {
+    var h = document.querySelector('.hdr'); if (!h) return;
+    var t = false;
+    function f () { h.classList.toggle('is-scrolled', window.scrollY > 12); t = false; }
+    addEventListener('scroll', function () { if (!t) { t = true; requestAnimationFrame(f); } }, { passive: true });
+    f();
+  })();
+</script>
+
+<!-- Mobile action bar. Click-to-call and one-tap WhatsApp, per the ad
+     landing-page requirements. Hidden on desktop where the header carries it. -->
+<div class="mobar" role="group" aria-label="Contact The Better Face">
+  <a href={telLink} class="mobar__btn" data-ev="call_click" data-loc="mobile_bar">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11.4 11.4 0 0 0 3.6.58 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1 11.4 11.4 0 0 0 .57 3.6 1 1 0 0 1-.25 1z"/></svg>
+    Call
+  </a>
+  <a href={waHref} class="mobar__btn mobar__btn--wa" data-ev="whatsapp_click" data-loc="mobile_bar" rel="noopener">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2m0 2a8 8 0 1 1-4.1 14.9l-.3-.2-2.5.7.7-2.4-.2-.3A8 8 0 0 1 12 4m-2.6 4c-.2 0-.5.1-.7.4-.2.3-.8.8-.8 2s.8 2.3.9 2.5c.1.2 1.6 2.6 4 3.5 2 .8 2.4.6 2.8.6.5 0 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1l-.6-.3-1.4-.7c-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 0 1-3.2-2.8c-.1-.2 0-.4.1-.5l.4-.5.2-.4v-.4l-.7-1.6c-.1-.4-.3-.4-.5-.4z"/></svg>
+    WhatsApp
+  </a>
+  <a href="/contact/" class="mobar__btn mobar__btn--book" data-ev="book_click" data-loc="mobile_bar">Book</a>
+</div>
+
+<style>
+  .hdr{
+    position:sticky;top:0;z-index:50;
+    background:rgba(255,255,255,.9);
+    -webkit-backdrop-filter:saturate(160%) blur(14px);backdrop-filter:saturate(160%) blur(14px);
+    border-bottom:1px solid var(--line);
+    transition:box-shadow .35s,border-color .35s;
+  }
+  .hdr.is-scrolled{border-bottom-color:transparent;box-shadow:0 1px 0 var(--line),0 14px 34px -22px rgba(11,79,89,.35)}
+  .hdr__in{display:flex;align-items:center;justify-content:space-between;gap:var(--s3);min-height:72px;transition:min-height .3s}
+  @media (min-width:900px){ .hdr.is-scrolled .hdr__in{min-height:64px} }
+  .hdr__logo{display:flex;align-items:center;gap:.6rem;line-height:0;text-decoration:none}
+  .hdr__mark{width:34px;height:34px;flex:none}
+  .hdr__word{width:150px;height:auto;padding-left:.6rem;border-left:1px solid var(--line)}
+  .hdr__nav{display:none;gap:var(--s4);align-items:center}
+  .hdr__item{display:flex;align-items:center}
+  .hdr__link{
+    position:relative;display:inline-flex;align-items:center;gap:.4em;
+    font-size:.7rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;
+    color:var(--charcoal);text-decoration:none;padding-block:.5rem;transition:color .25s;
+  }
+  .hdr__link::after{
+    content:'';position:absolute;left:0;right:0;bottom:0;height:1px;background:var(--champagne);
+    transform:scaleX(0);transform-origin:left;transition:transform .35s cubic-bezier(.22,.61,.36,1);
+  }
+  .hdr__link:hover,.hdr__link.is-active{color:var(--deep-teal)}
+  .hdr__link:hover::after,.hdr__link.is-active::after{transform:scaleX(1)}
+  .hdr__caret{width:11px;height:11px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;transition:transform .3s;opacity:.7}
+  .hdr__item--menu:hover .hdr__caret,.hdr__item--menu:focus-within .hdr__caret{transform:rotate(180deg)}
+  /* invisible bridge from the label down to the panel, so the pointer never
+     crosses a dead gap that would close the menu on the way there. It belongs
+     to the label (always hoverable), unlike the panel which is disabled while
+     hidden. */
+  .hdr__link--menu::before{
+    content:'';position:absolute;left:-24px;right:-24px;top:100%;height:26px;
+  }
+
+  /* --- treatments mega dropdown (full-width, no JS) --- */
+  .hdr__mega{
+    position:absolute;left:0;right:0;top:100%;z-index:40;
+    background:var(--surface-raised);
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    box-shadow:0 30px 50px -30px rgba(11,79,89,.35);
+    opacity:0;visibility:hidden;transform:translateY(8px);pointer-events:none;
+    transition:opacity .25s cubic-bezier(.22,.61,.36,1),transform .25s cubic-bezier(.22,.61,.36,1),visibility .25s;
+  }
+  .hdr__item--menu:hover .hdr__mega,
+  .hdr__item--menu:focus-within .hdr__mega{
+    opacity:1;visibility:visible;transform:translateY(0);pointer-events:auto;
+  }
+  .hdr__mega-in{display:grid;gap:var(--s5);padding-block:var(--s5)}
+  @media (min-width:1040px){ .hdr__mega-in{grid-template-columns:1fr auto;gap:var(--s6);align-items:start} }
+  .hdr__mega-cols{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:var(--s5)}
+  .hdr__mega-h{
+    display:inline-flex;align-items:baseline;gap:.5em;padding-bottom:.7rem;margin-bottom:.4rem;
+    border-bottom:1px solid var(--accent);
+    font-size:.625rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--deep-teal);text-decoration:none
+  }
+  .hdr__mega-h:hover{color:var(--ocean-teal)}
+  .hdr__mega-n{font-family:'Playfair Display',serif;font-size:.8125rem;letter-spacing:.02em;color:var(--champagne)}
+  .hdr__mega-list{list-style:none;padding:0;margin:0;display:grid}
+  .hdr__mega-link{
+    display:block;padding:.42rem 0;font-size:.8125rem;line-height:1.35;
+    color:var(--text-muted);text-decoration:none;transition:color .2s
+  }
+  .hdr__mega-link:hover{color:var(--deep-teal)}
+
+  .hdr__mega-cta{
+    display:flex;flex-direction:column;justify-content:flex-end;gap:.4rem;
+    min-width:220px;padding:var(--s4);text-decoration:none;
+    background:var(--deep-teal);color:var(--ivory);
+  }
+  .hdr__mega-cta .eyebrow{color:var(--champagne)}
+  .hdr__mega-cta-h{font-family:'Playfair Display',serif;font-size:1.35rem;line-height:1.2;letter-spacing:-.018em}
+  .hdr__mega-cta-m{
+    margin-top:.4rem;padding-top:.7rem;border-top:1px solid rgba(201,166,107,.5);
+    font-size:.625rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--champagne);
+    display:inline-flex;align-items:center;gap:.6em
+  }
+  .hdr__mega-cta-m i{font-style:normal;transition:transform .35s cubic-bezier(.22,.61,.36,1)}
+  .hdr__mega-cta:hover .hdr__mega-cta-m i{transform:translateX(5px)}
+
+  .hdr__cta{display:flex;align-items:center;gap:var(--s3)}
+  .hdr__tel{display:none;font-size:.8125rem;font-weight:600;color:var(--deep-teal);text-decoration:none;letter-spacing:.02em}
+  .hdr__tel:hover{color:var(--ocean-teal)}
+  .hdr__book{display:none;padding:.85rem 1.4rem;font-size:.6875rem}
+
+  @media (min-width:900px){
+    .hdr__mark{width:38px;height:38px}
+    .hdr__word{width:184px}
+    .hdr__nav{display:flex}
+    .hdr__tel,.hdr__book{display:inline-flex}
+  }
+  @media (prefers-reduced-motion:reduce){
+    .hdr__mega{transition:opacity .2s,visibility .2s;transform:none}
+    .hdr__item--menu:hover .hdr__mega,.hdr__item--menu:focus-within .hdr__mega{transform:none}
+  }
+
+  /* --- mobile menu --- */
+  .mnav{position:static}
+  .mnav__btn{
+    list-style:none;cursor:pointer;position:relative;display:block;
+    width:44px;height:44px;margin-right:-10px;
+  }
+  .mnav__btn::-webkit-details-marker{display:none}
+  /* two bars pinned to the button centre; open state rotates them into an X */
+  .mnav__bar{
+    position:absolute;left:11px;top:50%;width:22px;height:1.5px;margin-top:-.75px;
+    background:var(--deep-teal);transition:transform .3s cubic-bezier(.22,.61,.36,1)
+  }
+  .mnav__bar--a{transform:translateY(-3.5px)}
+  .mnav__bar--b{transform:translateY(3.5px)}
+  .mnav[open] .mnav__bar--a{transform:rotate(45deg)}
+  .mnav[open] .mnav__bar--b{transform:rotate(-45deg)}
+  .mnav__btn:focus-visible{outline:2px solid var(--ocean-teal);outline-offset:2px}
+  .mnav__panel{
+    position:absolute;left:0;right:0;top:100%;
+    max-height:calc(100vh - 72px);overflow-y:auto;
+    background:var(--surface-raised);border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+    padding:var(--s2) var(--gutter) var(--s4);
+    box-shadow:0 24px 40px -28px rgba(11,79,89,.35);
+  }
+  .mnav__link{
+    display:flex;align-items:baseline;gap:1rem;padding:.9rem 0;
+    font-family:'Playfair Display',serif;font-size:1.5rem;letter-spacing:-.018em;
+    color:var(--deep-teal);text-decoration:none;border-bottom:1px solid var(--line-soft);
+  }
+  .mnav__link.is-active{color:var(--ocean-teal)}
+
+  /* mobile treatments accordion */
+  .mnav__acc{border-bottom:1px solid var(--line-soft)}
+  .mnav__acc-sum{list-style:none;cursor:pointer;border-bottom:0;justify-content:flex-start}
+  .mnav__acc-sum::-webkit-details-marker{display:none}
+  .mnav__chev{width:16px;height:16px;margin-left:auto;fill:none;stroke:var(--champagne);stroke-width:2;
+    stroke-linecap:round;stroke-linejoin:round;transition:transform .3s;align-self:center}
+  .mnav__acc[open] .mnav__chev{transform:rotate(180deg)}
+  .mnav__acc-body{padding:0 0 var(--s3) calc(1rem + 1.2ch)}
+  .mnav__cat{padding:var(--s2) 0;border-top:1px solid var(--line-soft)}
+  .mnav__cat:first-child{border-top:0}
+  .mnav__cat-h{
+    display:block;font-size:.625rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+    color:var(--champagne);text-decoration:none;margin-bottom:.3rem
+  }
+  .mnav__cat-link{display:block;padding:.4rem 0;font-size:.9375rem;color:var(--deep-teal);text-decoration:none}
+  .mnav__cat-link:active{color:var(--ocean-teal)}
+  .mnav__cat-all{
+    display:inline-flex;align-items:center;gap:.5em;margin-top:var(--s2);
+    font-size:.625rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ocean-teal);text-decoration:none
+  }
+  .mnav__cat-all i{font-style:normal}
+
+  .mnav__foot{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem var(--s3);padding-top:var(--s3)}
+  .mnav__tel{font-size:.9375rem;font-weight:600;color:var(--deep-teal);text-decoration:none}
+  .mnav__wa{
+    font-size:.6875rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+    color:#1F9E55;text-decoration:none;
+  }
+  .mnav__hours{width:100%;font-size:.75rem;color:var(--text-muted)}
+  @media (min-width:900px){ .mnav{display:none} }
+
+  /* --- mobile action bar --- */
+  .mobar{
+    position:fixed;left:0;right:0;bottom:0;z-index:60;display:grid;
+    grid-template-columns:1fr 1fr 1.2fr;
+    background:var(--surface-raised);border-top:1px solid var(--line);
+    padding-bottom:env(safe-area-inset-bottom);
+  }
+  .mobar__btn{
+    display:flex;align-items:center;justify-content:center;gap:.5em;
+    min-height:54px;text-decoration:none;
+    font-size:.6875rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+    color:var(--deep-teal);border-right:1px solid var(--line);
+  }
+  .mobar__btn svg{width:16px;height:16px;fill:currentColor}
+  .mobar__btn--wa{color:#1F9E55}
+  .mobar__btn--book{background:var(--deep-teal);color:var(--ivory);border-right:0}
+  @media (min-width:900px){ .mobar{display:none} }
+</style>

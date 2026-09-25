@@ -1,0 +1,191 @@
+---
+import Base from '../layouts/Base.astro';
+import { site, telLink } from '../site.config';
+
+// TODO — replace with the real team. Names, PRC numbers and photographs are the
+// single strongest local-SEO and trust signal a clinic has; a placeholder here
+// is the biggest remaining gap on the site.
+const team = [
+  { name: 'TODO — Lead Clinician', role: 'Aesthetic Physician', reg: 'PRC No. TODO', img: '/img/t-clinician.jpg',
+    bio: 'Short biography: training, years in practice, the treatments they personally deliver, and one thing they believe about skin.' },
+  { name: 'TODO — Dermatology', role: 'Consultant Dermatologist', reg: 'PRC No. TODO', img: '/img/t-coat.jpg',
+    bio: 'Short biography. Keep it specific — where they trained, what they treat most, what they refuse to do.' },
+  { name: 'TODO — Wellness', role: 'Registered Nurse', reg: 'PRC No. TODO', img: '/img/t-care.jpg',
+    bio: 'Short biography. The person most clients spend the most time with.' },
+];
+
+const values = [
+  { n: '01', t: 'Clinical first', d: 'Every plan is a clinical decision. Nothing is sold from a counter, and no one on the team is paid on treatment volume.' },
+  { n: '02', t: 'Calm, not clinical-feeling', d: 'The rigour of a clinic, the experience of a wellness space. We built the room deliberately.' },
+  { n: '03', t: 'Plain language', d: 'If we cannot explain why a treatment is right for you in a sentence you understand, we have not thought about it hard enough.' },
+  { n: '04', t: 'Honest limits', d: 'We say no to treatments that are not indicated, and we refer out when someone else is better placed.' },
+];
+---
+<Base
+  title="About The Better Face | Skin, Hair & Wellness Clinic"
+  description="Who we are, how we work and why we say no. Qualified practitioners delivering clinical skin and hair care through a calm, considered experience."
+  path="/about/"
+  breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'About', path: '/about/' }]}
+>
+  <!-- ══════════════ HERO ══════════════ -->
+  <section class="ahero">
+    <div class="ahero__text">
+      <div class="ahero__inner">
+        <span class="eyebrow" data-reveal>About</span>
+        <h1 class="ahero__h" data-reveal data-reveal-delay="1">Science meets confidence.</h1>
+        <hr class="rule" data-reveal data-reveal-delay="2" />
+        <p class="lede" data-reveal data-reveal-delay="2">
+          {site.name} sits deliberately between two worlds — the rigour of a clinic
+          and the calm of a wellness space — because our clients want the results
+          of one and the experience of the other.
+        </p>
+      </div>
+    </div>
+    <div class="ahero__media zoom">
+      <img src="/img/f-space.jpg" alt="The treatment space at The Better Face" width="900" height="1200" fetchpriority="high" decoding="async" />
+    </div>
+  </section>
+
+  <!-- ══════════════ STATEMENT ══════════════ -->
+  <section class="section stmt">
+    <div class="wrap stmt__in">
+      <span class="eyebrow" data-reveal>What we are for</span>
+      <p class="stmt__p" data-reveal data-reveal-delay="1">
+        Everything we treat is assessed first. Everything we recommend, we can
+        explain. And when a treatment is not right for someone, we say so — which
+        costs us bookings and keeps us honest.
+      </p>
+    </div>
+  </section>
+
+  <!-- ══════════════ VALUES ══════════════ -->
+  <section class="section">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <div>
+          <span class="eyebrow">How we work</span>
+          <h2>Four things we do not compromise on.</h2>
+        </div>
+      </div>
+      <div class="grid g-2 g-4 vals">
+        {values.map((v, i) => (
+          <div class="val" data-reveal data-reveal-delay={String(Math.min(i, 3))}>
+            <span class="val__n">{v.n}</span>
+            <h3 class="val__t">{v.t}</h3>
+            <p class="val__d">{v.d}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ TEAM ══════════════ -->
+  <section class="section">
+    <div class="wrap">
+      <div class="sec-head" data-reveal>
+        <div>
+          <span class="eyebrow">The team</span>
+          <h2>Who will actually treat you</h2>
+        </div>
+        <p class="lede sec-head__p">
+          Every treatment is delivered by a licensed clinician. Registration
+          numbers are published because you should be able to check them.
+        </p>
+      </div>
+      <div class="grid g-3 team">
+        {team.map((m, i) => (
+          <article class="tm" data-reveal data-reveal-delay={String(i)}>
+            <div class="tm__media zoom">
+              <img src={m.img} alt="" width="520" height="650" loading="lazy" decoding="async" />
+            </div>
+            <h3 class="tm__n">{m.name}</h3>
+            <p class="tm__r">{m.role}</p>
+            <p class="tm__reg">{m.reg}</p>
+            <p class="tm__b">{m.bio}</p>
+          </article>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ CTA ══════════════ -->
+  <section class="section inverse">
+    <div class="wrap band" data-reveal>
+      <div>
+        <span class="eyebrow">Visit</span>
+        <h2 class="band__h">Come and see the room before you book a treatment.</h2>
+        <p class="lede">A consultation costs you forty-five minutes and commits you to nothing.</p>
+      </div>
+      <div class="band__cta">
+        <p class="disclaimer">All treatments require a consultation. Results vary between individuals.</p>
+        <a href="/contact/" class="btn btn--light" data-ev="book_click" data-loc="about">Book a consultation</a>
+        <a href={telLink} class="band__tel" data-ev="call_click" data-loc="about">or call {site.phoneDisplay}</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  /* ---------------- HERO ---------------- */
+  .ahero{display:grid;background:var(--surface-raised)}
+  @media (min-width:900px){ .ahero{grid-template-columns:48fr 52fr;min-height:clamp(480px,70vh,760px)} }
+  .ahero__text{
+    display:flex;align-items:center;padding:var(--s5) var(--gutter) var(--s6);
+    background:
+      radial-gradient(70% 55% at 0% 0%,rgba(220,238,239,.55),transparent 70%),
+      linear-gradient(180deg,#fff 0%,var(--ivory) 100%);
+  }
+  @media (min-width:900px){
+    .ahero__text{
+      padding:var(--s5) var(--s6) var(--s5)
+              max(var(--gutter),calc((100vw - var(--page-max)) / 2 + var(--gutter)));
+    }
+  }
+  .ahero__inner{max-width:34rem}
+  .ahero__h{margin-top:.8rem}
+  .ahero__media{position:relative;min-height:52vh;background:var(--light-teal);overflow:hidden}
+  .ahero__media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  @media (min-width:900px){ .ahero__media{min-height:0} }
+
+  /* ---------------- STATEMENT ---------------- */
+  .stmt__in{max-width:54rem;margin-inline:auto;text-align:center}
+  .stmt__p{
+    font-family:'Playfair Display',serif;font-weight:400;
+    font-size:clamp(1.4rem,1rem + 1.8vw,2.4rem);line-height:1.36;letter-spacing:-.018em;
+    color:var(--deep-teal);margin:var(--s4) auto 0;max-width:27ch;text-wrap:balance
+  }
+
+  /* ---------------- SECTION HEAD ---------------- */
+  .sec-head{display:grid;gap:var(--s3);margin-bottom:var(--s6)}
+  @media (min-width:900px){ .sec-head{grid-template-columns:1fr auto;gap:var(--s5);align-items:end} }
+  .sec-head h2{margin-top:.7rem}
+  .sec-head__p{max-width:34ch;margin-bottom:.2rem}
+
+  /* ---------------- VALUES ---------------- */
+  .vals{gap:var(--s5) var(--s3)}
+  .val{padding-top:var(--s3);border-top:1px solid rgba(11,79,89,.2)}
+  .val__n{font-family:'Playfair Display',serif;font-size:1.7rem;color:var(--champagne);
+    line-height:1;display:block}
+  .val__t{margin:var(--s3) 0 .6rem;color:var(--deep-teal)}
+  .val__d{font-size:.8125rem;line-height:1.85;color:var(--text-muted)}
+
+  /* ---------------- TEAM ---------------- */
+  .team{gap:var(--s5) var(--s3)}
+  .tm__media{aspect-ratio:4/5;background:var(--light-teal);margin-bottom:var(--s3)}
+  .tm__media img{width:100%;height:100%;object-fit:cover}
+  .tm__n{font-family:'Playfair Display',serif;font-weight:400;font-size:1.45rem;
+    color:var(--deep-teal);letter-spacing:-.018em}
+  .tm__r{font-size:.6875rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;
+    color:var(--ocean-teal);margin-top:.5rem}
+  .tm__reg{font-size:.625rem;letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-top:.35rem}
+  .tm__b{font-size:.8125rem;line-height:1.85;color:var(--text-muted);margin-top:var(--s2);
+    padding-top:var(--s2);border-top:1px solid var(--line)}
+
+  /* ---------------- BAND ---------------- */
+  .band{display:grid;gap:var(--s4)}
+  @media (min-width:900px){ .band{grid-template-columns:1.15fr .85fr;gap:var(--s6);align-items:center} }
+  .band__h{margin-block:.7rem .9rem}
+  .band__cta{display:grid;gap:var(--s2);justify-items:start}
+  .band__tel{font-size:.8125rem;color:rgba(247,244,238,.78);text-decoration:none}
+  .band__tel:hover{color:var(--ivory);text-decoration:underline}
+</style>

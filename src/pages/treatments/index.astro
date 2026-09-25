@@ -1,0 +1,138 @@
+---
+import Base from '../../layouts/Base.astro';
+import TreatmentCard from '../../components/TreatmentCard.astro';
+import { getCollection } from 'astro:content';
+
+const all = (await getCollection('treatments', ({ data }) => !data.draft))
+  .sort((a, b) => a.data.order - b.data.order);
+
+const GROUPS = [
+  {
+    key: 'Skin',
+    blurb: 'Pigmentation, texture, laxity and tone. Assessed first, then treated with the device or protocol that matches your skin — not the one we happen to own.',
+    image: '/img/f-skin.jpg',
+  },
+  {
+    key: 'Hair',
+    blurb: 'Scalp health and hair restoration. The scalp is assessed before anything is prescribed, and a regrowth plan is built around the cause, not a product.',
+    image: '/img/f-brand.jpg',
+  },
+  {
+    key: 'Wellness',
+    blurb: 'Body contouring, IV wellness and recovery. Every drip and device is screened for suitability first, and nothing is run to a fixed menu.',
+    image: '/img/t-product.jpg',
+  },
+] as const;
+
+const groups = GROUPS
+  .map((g) => ({ ...g, items: all.filter((t) => t.data.group === g.key) }))
+  .filter((g) => g.items.length > 0);
+---
+<Base
+  title="Treatments | Skin, Hair & Wellness | The Better Face"
+  description="Every treatment across skin, hair and wellness — what each does, who it suits, who it does not, and what it costs. Consultation required."
+  path="/treatments/"
+  breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Treatments', path: '/treatments/' }]}
+>
+  <section class="phero">
+    <div class="wrap phero__in">
+      <span class="eyebrow" data-reveal>Treatments</span>
+      <h1 data-reveal data-reveal-delay="1">Everything we do,<br />and who it is for.</h1>
+      <hr class="rule" data-reveal data-reveal-delay="2" />
+      <p class="lede" data-reveal data-reveal-delay="2">
+        Each page tells you what the treatment does, how many sessions it usually takes,
+        what it costs, and — the part most clinics leave out — who it is not right for.
+        Every treatment starts with a consultation.
+      </p>
+      <nav class="jump" aria-label="Treatment categories" data-reveal data-reveal-delay="3">
+        {groups.map((g) => (
+          <a href={`#${g.key.toLowerCase()}`} class="jump__l">
+            {g.key}<span>{g.items.length}</span>
+          </a>
+        ))}
+      </nav>
+    </div>
+  </section>
+
+  {groups.map((g, i) => (
+    <section class="section" id={g.key.toLowerCase()}>
+      <div class="wrap">
+        <div class="gh" data-reveal>
+          <div class="gh__media zoom">
+            <img src={g.image} alt="" width="560" height="700" loading="lazy" decoding="async" />
+          </div>
+          <div class="gh__body">
+            <span class="eyebrow">{String(i + 1).padStart(2, '0')} — Category</span>
+            <h2 class="gh__h">{g.key}</h2>
+            <hr class="rule" />
+            <p class="lede">{g.blurb}</p>
+            <p class="gh__n">{g.items.length} treatment{g.items.length === 1 ? '' : 's'}</p>
+          </div>
+        </div>
+
+        <div class="grid g-2 g-4 gh__grid">
+          {g.items.map((t, j) => (
+            <div data-reveal data-reveal-delay={String(Math.min(j, 3))}>
+              <TreatmentCard
+                href={`/treatments/${t.id}/`}
+                title={t.data.title}
+                summary={t.data.summary}
+                category={t.data.category}
+                priceFrom={t.data.priceFrom}
+                duration={t.data.duration}
+                image={t.data.image}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  ))}
+
+  <section class="section inverse">
+    <div class="wrap band" data-reveal>
+      <div>
+        <span class="eyebrow">Not sure which one</span>
+        <h2 class="band__h">That is what the consultation is for.</h2>
+        <p class="lede">
+          Come in and we will tell you what will work on your skin or scalp —
+          including when the answer is none of the above.
+        </p>
+      </div>
+      <div class="band__cta">
+        <p class="disclaimer">All treatments require a consultation. Results vary between individuals.</p>
+        <a href="/contact/" class="btn btn--light" data-ev="book_click" data-loc="treatments_index">Book a consultation</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .phero{background:var(--surface-raised);border-bottom:1px solid var(--line);
+    padding-block:clamp(var(--s6),7vw,var(--s7));display:flex;flex-direction:column;justify-content:center;
+    min-height:clamp(420px,64vh,600px)}
+  .phero__in{max-width:48rem}
+
+  .jump{display:flex;flex-wrap:wrap;gap:var(--s4);margin-top:var(--s5)}
+  .jump__l{
+    display:inline-flex;align-items:baseline;gap:.6em;padding-bottom:.6rem;
+    font-size:.8125rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--deep-teal);text-decoration:none;border-bottom:1px solid var(--accent);
+  }
+  .jump__l span{font-size:.5625rem;letter-spacing:.1em;color:var(--text-muted)}
+  .jump__l:hover{color:var(--ocean-teal)}
+
+  .gh{display:grid;gap:var(--s4);margin-bottom:var(--s6)}
+  @media (min-width:800px){ .gh{grid-template-columns:.42fr .58fr;gap:var(--s6);align-items:center} }
+  .gh__media img{width:100%;aspect-ratio:4/3;object-fit:cover}
+  @media (min-width:800px){ .gh__media img{aspect-ratio:5/4} }
+  .gh__h{margin-top:.7rem;font-size:clamp(2rem,1.4rem + 2.2vw,3rem)}
+  .gh__n{font-size:.625rem;letter-spacing:.24em;text-transform:uppercase;font-weight:700;
+    color:var(--text-muted);margin-top:var(--s3)}
+  .gh__grid{gap:var(--s5) var(--s3)}
+
+  .band{display:grid;gap:var(--s4)}
+  @media (min-width:900px){ .band{grid-template-columns:1.15fr .85fr;gap:var(--s6);align-items:center} }
+  .band__h{margin-block:.7rem .9rem}
+  .band__cta{display:grid;gap:var(--s2);justify-items:start}
+</style>

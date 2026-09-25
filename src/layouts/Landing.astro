@@ -1,0 +1,64 @@
+---
+// Ad landing pages: no global nav, one path through the page, noindex.
+// Removing the nav is deliberate — every link out of a paid landing page is a
+// way to lose the click you just bought.
+import '../styles/global.css';
+import Head from '../components/Head.astro';
+import Schema from '../components/Schema.astro';
+import Analytics from '../components/Analytics.astro';
+import { site, waLink, telLink } from '../site.config';
+
+interface Props { title: string; description: string; path: string; waMessage: string; }
+const { title, description, path, waMessage } = Astro.props;
+---
+<!doctype html>
+<html lang={site.language}>
+  <head>
+    <Head title={title} description={description} path={path} noindex={true} />
+    <Schema type="home" />
+    <Analytics />
+  </head>
+  <body>
+    <header class="lp-hdr">
+      <div class="wrap lp-hdr__in">
+        <img src="/logo/wordmark.png" alt={site.name} width="176" height="23" />
+        <a href={telLink} class="lp-hdr__tel" data-ev="call_click" data-loc="landing">{site.phoneDisplay}</a>
+      </div>
+    </header>
+
+    <main><slot /></main>
+
+    <footer class="lp-ftr">
+      <div class="wrap">
+        <p class="disclaimer">
+          All treatments require a consultation. Results vary between individuals.
+          Images are unretouched and dated. © {new Date().getFullYear()} {site.legalName}.
+          <a href="/privacy/">Privacy</a> · <a href="/terms/">Terms</a>
+        </p>
+      </div>
+    </footer>
+
+    <div class="lp-bar">
+      <a href={telLink} class="lp-bar__btn" data-ev="call_click" data-loc="landing_bar">Call now</a>
+      <a href={waLink(waMessage)} class="lp-bar__btn lp-bar__btn--wa" data-ev="whatsapp_click" data-loc="landing_bar" rel="noopener">WhatsApp us</a>
+    </div>
+
+    <style>
+      .lp-hdr{background:var(--surface-raised);border-bottom:1px solid var(--line)}
+      .lp-hdr__in{display:flex;align-items:center;justify-content:space-between;min-height:64px;gap:var(--s3)}
+      .lp-hdr__in img{width:150px;height:auto}
+      .lp-hdr__tel{font-size:.8125rem;font-weight:700;color:var(--deep-teal);text-decoration:none;letter-spacing:.02em}
+      .lp-ftr{background:var(--surface-raised);border-top:1px solid var(--line);padding-block:var(--s3);margin-bottom:56px}
+      .lp-ftr a{color:var(--link)}
+      @media (min-width:900px){ .lp-ftr{margin-bottom:0} }
+      .lp-bar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:grid;grid-template-columns:1fr 1fr;padding-bottom:env(safe-area-inset-bottom)}
+      .lp-bar__btn{
+        display:flex;align-items:center;justify-content:center;min-height:56px;text-decoration:none;
+        font-size:.75rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+        background:var(--deep-teal);color:var(--ivory)
+      }
+      .lp-bar__btn--wa{background:#1F9E55;color:#fff}
+      @media (min-width:900px){ .lp-bar{display:none} }
+    </style>
+  </body>
+</html>

@@ -1,0 +1,67 @@
+---
+import Legal from '../layouts/Legal.astro';
+import { site } from '../site.config';
+---
+<Legal
+  title="Privacy Policy | The Better Face"
+  description="How The Better Face collects, uses, stores and protects your personal and health information, and the rights you hold under RA 10173."
+  path="/privacy/"
+  heading="Privacy policy"
+  updated="TODO — date of counsel sign-off"
+>
+  <h2>Who we are</h2>
+  <p>
+    {site.legalName} ("we", "us") operates {site.url}. We are the personal
+    information controller for the data described here. Our Data Protection
+    Officer can be reached at <a href={`mailto:${site.email}`}>{site.email}</a>.
+    <strong> TODO — name the DPO. RA 10173 requires a named individual.</strong>
+  </p>
+
+  <h2>What we collect</h2>
+  <ul>
+    <li><strong>Enquiry data.</strong> Name, mobile number, treatment of interest and anything you write in the message field of our forms.</li>
+    <li><strong>Clinical data.</strong> Collected in person at consultation, not through this website. Health information is sensitive personal information and is held under stricter controls.</li>
+    <li><strong>Usage data.</strong> If analytics are enabled, pages viewed, approximate location, device and referral source — in aggregate, through Google Analytics 4 and the Meta pixel.</li>
+  </ul>
+
+  <h2>Why we collect it</h2>
+  <ul>
+    <li>To reply to your enquiry and arrange a consultation — the purpose you gave it to us for.</li>
+    <li>To deliver and record your care, where you become a client.</li>
+    <li>To understand which pages and campaigns lead to enquiries, so we spend advertising money sensibly.</li>
+  </ul>
+  <p>
+    We do not sell your data. We do not add you to a marketing list without asking
+    you separately and explicitly.
+  </p>
+
+  <h2>Cookies and tracking</h2>
+  <p>
+    This site loads Google Analytics 4 and the Meta pixel only when those tools
+    are configured. Both set cookies. You can refuse them in your browser
+    settings without losing access to any part of the site.
+    <strong> TODO — if you serve EU visitors, add a consent banner; RA 10173 alone does not require one.</strong>
+  </p>
+
+  <h2>How long we keep it</h2>
+  <p>
+    Enquiries that do not become bookings are deleted after twelve months.
+    Clinical records are retained for the period required by DOH and PRC record
+    keeping rules. <strong>TODO — confirm the applicable retention period with counsel.</strong>
+  </p>
+
+  <h2>Who we share it with</h2>
+  <p>
+    Our form provider, our analytics providers, and our booking or clinic
+    management system, each acting on our instructions. We do not share your
+    information with anyone else unless you ask us to, or the law requires it.
+    <strong> TODO — list each processor by name once the stack is final.</strong>
+  </p>
+
+  <h2>Your rights</h2>
+  <p>Under RA 10173 you have the right to be informed, to object, to access, to correct, to erasure or blocking, to damages, and to data portability. To exercise any of these, email <a href={`mailto:${site.email}`}>{site.email}</a>. We will respond within the statutory period.</p>
+  <p>You may also lodge a complaint with the National Privacy Commission.</p>
+
+  <h2>Changes</h2>
+  <p>We will update this page when our practices change, and will change the date at the top when we do.</p>
+</Legal>

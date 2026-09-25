@@ -1,0 +1,101 @@
+---
+interface Props {
+  href: string; title: string; summary: string;
+  category: string; priceFrom: number | null; duration: string; image?: string;
+  /** Portrait 3:4 in the slider, landscape 3:2 in a dense grid. */
+  ratio?: 'portrait' | 'landscape';
+  /** Bordered white card on a tinted ground (homepage grid). Borderless otherwise. */
+  chrome?: boolean;
+}
+const { href, title, summary, category, priceFrom, duration, image, ratio = 'portrait', chrome = false } = Astro.props;
+const peso = (n: number) => '₱' + n.toLocaleString('en-PH');
+---
+<a class:list={['tc', `tc--${ratio}`, { 'tc--chrome': chrome }]} href={href}>
+  <div class="tc__media zoom">
+    {image
+      ? <img src={image} alt="" width="560" height="740" loading="lazy" decoding="async" />
+      : <div class="tc__ph" aria-hidden="true"></div>}
+    <span class="tc__cat">{category}</span>
+  </div>
+  <div class="tc__body">
+    <h3 class="tc__title">{title}</h3>
+    <p class="tc__sum">{summary}</p>
+    <div class="tc__meta">
+      <span class="tc__price">{priceFrom ? `from ${peso(priceFrom)}` : 'On consultation'}</span>
+      <span class="tc__dur">{duration}</span>
+    </div>
+    <span class="tc__more">Explore<i aria-hidden="true">→</i></span>
+  </div>
+</a>
+
+<style>
+  /* Two treatments of the same card. Default: no chrome — the photograph is the
+     card, a champagne hairline does the rest. Chrome: a bordered ivory plate for
+     a contained grid, which reads as more considered when several sit in a row. */
+  .tc{display:flex;flex-direction:column;height:100%;text-decoration:none;color:inherit}
+  .tc__media{position:relative;background:var(--light-teal);overflow:hidden}
+  .tc--portrait .tc__media{aspect-ratio:3/4}
+  .tc--landscape .tc__media{aspect-ratio:3/2}
+  .tc__media img{width:100%;height:100%;object-fit:cover}
+  .tc__media::after{
+    content:'';position:absolute;inset:12px;border:1px solid rgba(201,166,107,.75);
+    opacity:0;transform:scale(1.02);pointer-events:none;z-index:1;
+    transition:opacity .45s cubic-bezier(.22,.61,.36,1),transform .6s cubic-bezier(.22,.61,.36,1);
+  }
+  .tc:hover .tc__media::after,.tc:focus-visible .tc__media::after{opacity:1;transform:none}
+  .tc__ph{width:100%;height:100%;background:linear-gradient(140deg,var(--light-teal),var(--blush))}
+
+  .tc__cat{
+    position:absolute;left:0;bottom:0;z-index:1;
+    background:var(--ivory);color:var(--deep-teal);
+    padding:.62rem 1rem;
+    font-size:.625rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;
+  }
+
+  .tc__body{display:flex;flex-direction:column;flex:1;padding-top:var(--s3)}
+  .tc__title{
+    font-family:'Playfair Display',serif;font-weight:400;font-size:1.5rem;
+    color:var(--deep-teal);letter-spacing:-.018em;line-height:1.15;transition:color .25s;
+  }
+  .tc__sum{font-size:.8125rem;line-height:1.8;color:var(--text-muted);margin-top:.6rem;flex:1}
+  .tc__meta{
+    display:flex;justify-content:space-between;gap:1rem;align-items:baseline;
+    margin-top:var(--s3);padding-top:.85rem;border-top:1px solid var(--accent);
+    font-size:.75rem;
+  }
+  .tc__price{font-weight:700;color:var(--deep-teal);letter-spacing:.01em}
+  .tc__dur{color:var(--text-muted);font-size:.6875rem;letter-spacing:.02em}
+  .tc__more{
+    margin-top:.9rem;font-size:.625rem;font-weight:700;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--ocean-teal);
+    display:inline-flex;align-items:center;gap:.6em;
+  }
+  .tc__more i{font-style:normal;transition:transform .35s cubic-bezier(.22,.61,.36,1)}
+  .tc:hover .tc__more i{transform:translateX(5px)}
+  .tc:hover .tc__title{color:var(--ocean-teal)}
+  @media (prefers-reduced-motion:reduce){ .tc__more i{transition:none} .tc__media::after{transition:none} }
+
+  /* --- chrome variant --- */
+  .tc--chrome{
+    background:var(--surface-raised);border:1px solid var(--line);
+    transition:border-color .3s,box-shadow .4s,transform .4s cubic-bezier(.22,.61,.36,1);
+  }
+  .tc--chrome:hover{
+    border-color:var(--accent);
+    box-shadow:0 24px 44px -30px rgba(11,79,89,.4);
+    transform:translateY(-4px);
+  }
+  .tc--chrome.tc--portrait .tc__media{aspect-ratio:4/3}
+  .tc--chrome .tc__body{padding:var(--s3) var(--s3) var(--s3)}
+  .tc--chrome .tc__title{font-size:1.35rem}
+  @media (prefers-reduced-motion:reduce){ .tc--chrome:hover{transform:none} }
+
+  /* on a dark band */
+  :global(.inverse) .tc__title{color:var(--ivory)}
+  :global(.inverse) .tc__sum{color:rgba(247,244,238,.7)}
+  :global(.inverse) .tc__price{color:var(--ivory)}
+  :global(.inverse) .tc__dur{color:rgba(247,244,238,.6)}
+  :global(.inverse) .tc__meta{border-top-color:rgba(201,166,107,.55)}
+  :global(.inverse) .tc__more{color:var(--champagne)}
+  :global(.inverse) .tc:hover .tc__title{color:var(--champagne)}
+</style>

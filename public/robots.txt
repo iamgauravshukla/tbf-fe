@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+
+# Ad landing pages are for paid traffic only — keep them out of the index so
+# they never compete with the SEO service pages for the same keyword.
+Disallow: /lp/
+
+Sitemap: https://thebetterface.com/sitemap-index.xml
