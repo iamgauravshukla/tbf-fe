@@ -25,6 +25,9 @@ const treatments = defineCollection({
     notSuitableFor: z.array(z.string()),
     order: z.number().default(50),
     image: z.string().optional(),
+    /** Extra showcase images for the treatment page's experience section.
+     *  Leave empty and the page falls back to curated clinic photography. */
+    gallery: z.array(z.string()).default([]),
 
     /** Optional treatment walkthrough video. A YouTube/Vimeo link, or a
      *  self-hosted `/video/xxx.mp4` path. When set, the treatment page shows a
@@ -51,20 +54,8 @@ const treatments = defineCollection({
   }),
 });
 
-/** Education content. Drives SEO and gives the sales team something to send. */
-const journal = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/journal' }),
-  schema: z.object({
-    title: z.string(),
-    seoTitle: z.string(),
-    metaDescription: z.string().max(158),
-    date: z.coerce.date(),
-    author: z.string(),
-    authorRole: z.string(),
-    /** Slugs of related treatments — builds the internal link graph. */
-    related: z.array(z.string()).default([]),
-    draft: z.boolean().default(false),
-  }),
-});
+// NOTE: the journal moved out of markdown and into the database — posts are
+// written in /admin/blog and served by the API; the /journal/ pages render
+// them on demand. See src/lib/blog.ts.
 
-export const collections = { treatments, journal };
+export const collections = { treatments };

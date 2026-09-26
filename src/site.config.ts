@@ -8,6 +8,13 @@
 // directory listing. Mismatched NAP is the most common local-SEO own goal.
 // ============================================================================
 
+// Backend API base URL, read at BUILD time from the PUBLIC_API_BASE env var.
+// Set it on the frontend host (or in client/.env.production) to your deployed
+// API; local dev falls back to localhost. Trailing slashes are stripped. The
+// value is baked into the static build and used by the /admin/ dashboard and
+// the lead form.
+const API_BASE = (import.meta.env.PUBLIC_API_BASE || "http://localhost:4000").replace(/\/+$/, "");
+
 export const site = {
   name: "The Better Face",
   legalName: "The Better Face Wellness & Aesthetic Clinic",
@@ -57,11 +64,11 @@ export const site = {
   metaPixel: "",      // "000000000000000"
   // Where the lead form posts. Point this at the API's lead endpoint —
   // e.g. "http://localhost:4000/api/leads" in dev, your API host in production.
-  formEndpoint: "http://localhost:4000/api/leads",
+  formEndpoint: `${API_BASE}/api/leads`,
 
   // Base URL of the backend API. Used by the /admin/ dashboard to log in and
-  // manage leads. Set to your API host in production.
-  apiBase: "http://localhost:4000",
+  // manage leads. Comes from PUBLIC_API_BASE (see API_BASE above).
+  apiBase: API_BASE,
 
   // --- media -------------------------------------------------------------
   // Clinic walkaround video for the homepage. A YouTube/Vimeo link or a

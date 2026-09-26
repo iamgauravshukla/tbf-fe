@@ -1,14 +1,13 @@
 ---
+// Server-rendered: the list reflects the database the moment a post is
+// published from /admin/blog — no rebuild needed.
+export const prerender = false;
+
 import Base from '../../layouts/Base.astro';
-import { getCollection } from 'astro:content';
+import { fetchPosts, fmtDate } from '../../lib/blog';
 
-const posts = (await getCollection('journal', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-
+const { posts } = await fetchPosts('?limit=50');
 const [lead, ...rest] = posts;
-const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-const mins = (p: (typeof posts)[number]) =>
-  Math.max(1, Math.ceil((p.body ? p.body.trim().split(/\s+/).length : 0) / 200));
 ---
 <Base
   title="Journal | Skin & Hair Guides | The Better Face"
@@ -31,15 +30,15 @@ const mins = (p: (typeof posts)[number]) =>
   {lead && (
     <section class="section--tight">
       <div class="wrap">
-        <a href={`/journal/${lead.id}/`} class="lead" data-reveal>
+        <a href={`/journal/${lead.slug}/`} class="lead" data-reveal>
           <div class="lead__meta">
             <span class="eyebrow">Latest</span>
-            <span class="lead__date">{fmt(lead.data.date)} · {mins(lead)} min read</span>
+            <span class="lead__date">{fmtDate(lead.publishedAt)} · {lead.readMins} min read</span>
           </div>
           <div class="lead__body">
-            <h2 class="lead__t">{lead.data.title}</h2>
-            <p class="lede lead__d">{lead.data.metaDescription}</p>
-            <span class="lead__by">{lead.data.author} · {lead.data.authorRole}</span>
+            <h2 class="lead__t">{lead.title}</h2>
+            <p class="lede lead__d">{lead.excerpt || lead.metaDescription}</p>
+            <span class="lead__by">{lead.authorName}{lead.authorRole && ` · ${lead.authorRole}`}</span>
             <span class="lead__more">Read the guide<i aria-hidden="true">→</i></span>
           </div>
         </a>
@@ -53,16 +52,22 @@ const mins = (p: (typeof posts)[number]) =>
         <h2 class="allh" data-reveal>More from the clinic</h2>
         <div class="grid g-2 g-3 jlist">
           {rest.map((p, i) => (
-            <a href={`/journal/${p.id}/`} class="jcard" data-reveal data-reveal-delay={String(Math.min(i, 3))}>
-              <span class="jcard__date">{fmt(p.data.date)} · {mins(p)} min</span>
-              <h3 class="jcard__t">{p.data.title}</h3>
-              <p class="jcard__d">{p.data.metaDescription}</p>
-              <span class="jcard__by">{p.data.author}</span>
+            <a href={`/journal/${p.slug}/`} class="jcard" data-reveal data-reveal-delay={String(Math.min(i, 3))}>
+              <span class="jcard__date">{fmtDate(p.publishedAt)} · {p.readMins} min</span>
+              <h3 class="jcard__t">{p.title}</h3>
+              <p class="jcard__d">{p.excerpt || p.metaDescription}</p>
+              <span class="jcard__by">{p.authorName}</span>
               <span class="jcard__more">Read<i aria-hidden="true">→</i></span>
             </a>
           ))}
         </div>
       </div>
+    </section>
+  )}
+
+  {!lead && (
+    <section class="section--tight">
+      <div class="wrap"><p class="lede">New guides are on the way — check back shortly.</p></div>
     </section>
   )}
 

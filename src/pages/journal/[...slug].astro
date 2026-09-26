@@ -1,45 +1,52 @@
 ---
+// Server-rendered per request from the API's database, so a post published in
+// /admin/blog is live and crawlable immediately. Everything else on the site
+// stays prerendered static.
+export const prerender = false;
+
 import Base from '../../layouts/Base.astro';
 import TreatmentCard from '../../components/TreatmentCard.astro';
 import { site, waLink } from '../../site.config';
-import { getCollection, getEntry, render } from 'astro:content';
+import { getEntry } from 'astro:content';
+import { fetchPost, fetchPosts, renderMarkdown, fmtDate } from '../../lib/blog';
 
-export async function getStaticPaths() {
-  const posts = (await getCollection('journal', ({ data }) => !data.draft))
-    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
-  return posts.map((entry, i) => ({
-    params: { slug: entry.id },
-    props: { entry, next: posts[i + 1] ?? posts[0] },
-  }));
+const slug = String(Astro.params.slug || '').replace(/\/$/, '');
+const post = await fetchPost(slug);
+if (!post) {
+  // A real 404 status for crawlers (rewriting to the prerendered /404 page is
+  // not supported from an on-demand route in standalone mode), with a gentle
+  // human-facing bounce to the journal index.
+  return new Response(
+    `<!doctype html><meta charset="utf-8"><meta http-equiv="refresh" content="0;url=/journal/"><title>Not found</title><a href="/journal/">Journal</a>`,
+    { status: 404, headers: { 'Content-Type': 'text/html; charset=utf-8' } },
+  );
 }
 
-const { entry, next } = Astro.props;
-const d = entry.data;
-const { Content, headings } = await render(entry);
+const { html, toc } = renderMarkdown(post.content);
 
-// Related treatments come from frontmatter — this is what builds the internal
-// link from education content to the commercial page.
+// "Read next": the most recent other post.
+const { posts: latest } = await fetchPosts('?limit=4');
+const next = latest.find((p) => p.slug !== post.slug) ?? null;
+
+// Related treatments come from the post's `related` slugs — the internal link
+// from education content to the commercial page.
 const related = (
-  await Promise.all(d.related.map((slug) => getEntry('treatments', slug)))
+  await Promise.all((post.related || []).map((s) => getEntry('treatments', s).catch(() => null)))
 ).filter(Boolean);
 
-const toc = headings.filter((h) => h.depth === 2);
-const fmt = (x: Date) => x.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-
-// Reading time from the raw body — honest rather than decorative.
-const words = entry.body ? entry.body.trim().split(/\s+/).length : 0;
-const mins = Math.max(1, Math.ceil(words / 200));
+const pubDate = new Date(post.publishedAt);
 ---
 <Base
-  title={d.seoTitle}
-  description={d.metaDescription}
-  path={`/journal/${entry.id}/`}
+  title={post.seoTitle || post.title}
+  description={post.metaDescription || post.excerpt}
+  path={`/journal/${post.slug}/`}
+  ogImage={post.coverImage || undefined}
   schemaType="article"
-  article={{ title: d.title, description: d.metaDescription, date: d.date, author: d.author }}
+  article={{ title: post.title, description: post.metaDescription || post.excerpt, date: pubDate, author: post.authorName }}
   breadcrumbs={[
     { name: 'Home', path: '/' },
     { name: 'Journal', path: '/journal/' },
-    { name: d.title, path: `/journal/${entry.id}/` },
+    { name: post.title, path: `/journal/${post.slug}/` },
   ]}
 >
   <article>
@@ -50,19 +57,19 @@ const mins = Math.max(1, Math.ceil(words / 200));
           <a href="/">Home</a><span aria-hidden="true">/</span>
           <a href="/journal/">Journal</a>
         </nav>
-        <span class="eyebrow" data-reveal>Journal · {mins} min read</span>
-        <h1 class="ahero__h" data-reveal data-reveal-delay="1">{d.title}</h1>
+        <span class="eyebrow" data-reveal>Journal · {post.readMins} min read</span>
+        <h1 class="ahero__h" data-reveal data-reveal-delay="1">{post.title}</h1>
         <hr class="rule rule--center" data-reveal data-reveal-delay="1" />
-        <p class="lede ahero__lede" data-reveal data-reveal-delay="2">{d.metaDescription}</p>
+        <p class="lede ahero__lede" data-reveal data-reveal-delay="2">{post.excerpt || post.metaDescription}</p>
         <div class="byline" data-reveal data-reveal-delay="3">
-          <span class="byline__n">{d.author}</span>
-          <span class="byline__r">{d.authorRole}</span>
-          <time datetime={d.date.toISOString()} class="byline__d">{fmt(d.date)}</time>
+          <span class="byline__n">{post.authorName}</span>
+          {post.authorRole && <span class="byline__r">{post.authorRole}</span>}
+          <time datetime={pubDate.toISOString()} class="byline__d">{fmtDate(post.publishedAt)}</time>
         </div>
       </div>
     </header>
 
-    <!-- ══════════════ BODY ══════════════ -->
+    <!-- ══════════════ BODY (auto table of contents from the h2s) ══════════════ -->
     <div class="section--tight">
       <div class="wrap abody">
         <aside class="toc">
@@ -74,7 +81,7 @@ const mins = Math.max(1, Math.ceil(words / 200));
           )}
         </aside>
 
-        <div class="prose" data-reveal><Content /></div>
+        <div class="prose" data-reveal set:html={html} />
 
         <aside class="aside">
           <div class="aside__card" data-reveal data-reveal-delay="1">
@@ -85,31 +92,32 @@ const mins = Math.max(1, Math.ceil(words / 200));
               applies to you.
             </p>
             <a href="/contact/" class="btn btn--primary aside__btn" data-ev="book_click" data-loc="journal_aside">Book a consultation</a>
-            <a href={waLink(`Hi ${site.name}, I read "${d.title}" and have a question.`)} class="aside__wa" data-ev="whatsapp_click" data-loc="journal_aside" rel="noopener">or ask on WhatsApp</a>
+            <a href={waLink(`Hi ${site.name}, I read "${post.title}" and have a question.`)} class="aside__wa" data-ev="whatsapp_click" data-loc="journal_aside" rel="noopener">or ask on WhatsApp</a>
           </div>
         </aside>
       </div>
     </div>
 
-    <!-- ══════════════ AUTHOR ══════════════ -->
+    <!-- ══════════════ AUTHOR / NEXT ══════════════ -->
     <div class="section--tight sunken">
       <div class="wrap author" data-reveal>
         <div class="author__body">
           <span class="eyebrow">Written by</span>
-          <h2 class="author__n">{d.author}</h2>
-          <p class="author__r">{d.authorRole}</p>
+          <h2 class="author__n">{post.authorName}</h2>
+          {post.authorRole && <p class="author__r">{post.authorRole}</p>}
           <p class="small author__b">
             Part of the clinical team at {site.name}. Articles here are written by
             the people who deliver the treatments — not by an agency — and are
             reviewed before publication.
-            <strong>TODO — replace with this author's real biography and PRC number.</strong>
           </p>
         </div>
-        <a href={`/journal/${next.id}/`} class="nextup">
-          <span class="eyebrow">Read next</span>
-          <span class="nextup__t">{next.data.title}</span>
-          <span class="nextup__m">Continue<i aria-hidden="true">→</i></span>
-        </a>
+        {next && (
+          <a href={`/journal/${next.slug}/`} class="nextup">
+            <span class="eyebrow">Read next</span>
+            <span class="nextup__t">{next.title}</span>
+            <span class="nextup__m">Continue<i aria-hidden="true">→</i></span>
+          </a>
+        )}
       </div>
     </div>
   </article>
@@ -180,14 +188,16 @@ const mins = Math.max(1, Math.ceil(words / 200));
   .prose :global(h2){font-size:clamp(1.5rem,1.2rem + .9vw,1.9rem);margin-top:var(--s5);
     margin-bottom:var(--s2);scroll-margin-top:110px}
   .prose :global(h2:first-child){margin-top:0}
-  .prose :global(h3){margin-top:var(--s4);margin-bottom:.6rem;color:var(--deep-teal)}
+  .prose :global(h3){margin-top:var(--s4);margin-bottom:.6rem;color:var(--deep-teal);scroll-margin-top:110px}
   .prose :global(p){margin-bottom:var(--s2);font-size:.9375rem;line-height:1.9}
   .prose :global(ul),.prose :global(ol){margin:0 0 var(--s2);padding-left:1.3rem}
   .prose :global(li){margin-bottom:.5rem;line-height:1.85}
   .prose :global(strong){color:var(--deep-teal);font-weight:600}
+  .prose :global(a){color:var(--ocean-teal)}
   .prose :global(blockquote){border-left:2px solid var(--accent);padding-left:var(--s3);
     margin:var(--s4) 0;font-family:'Playfair Display',serif;font-style:italic;
     font-size:1.25rem;line-height:1.55;color:var(--deep-teal)}
+  .prose :global(blockquote p){font-size:inherit;line-height:inherit;margin:0}
 
   .aside{display:grid;gap:var(--s3)}
   @media (min-width:1100px){ .aside{position:sticky;top:104px} }
@@ -205,7 +215,6 @@ const mins = Math.max(1, Math.ceil(words / 200));
   .author__r{font-size:.6875rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;
     color:var(--ocean-teal);margin-top:.5rem}
   .author__b{margin-top:var(--s3)}
-  .author__b strong{color:#8A5A2B}
 
   .nextup{display:block;padding:var(--s4);background:var(--deep-teal);color:var(--ivory);text-decoration:none}
   .nextup .eyebrow{color:var(--champagne)}

@@ -1,0 +1,180 @@
+---
+import Admin from '../../layouts/Admin.astro';
+import AdminNav from '../../components/admin/AdminNav.astro';
+import { site } from '../../site.config';
+---
+<Admin title="Analytics">
+  <div class="dash" hidden id="dash">
+    <AdminNav active="analytics" heading="Analytics" />
+
+    <main class="db-main">
+      <section class="db-tools">
+        <span class="db-user" id="rangeLabel" style="text-transform:none"></span>
+        <div class="an-range" role="group" aria-label="Date range">
+          <button class="an-range__b" data-days="7" type="button">7 days</button>
+          <button class="an-range__b is-on" data-days="30" type="button">30 days</button>
+          <button class="an-range__b" data-days="90" type="button">90 days</button>
+        </div>
+      </section>
+
+      <!-- headline KPIs -->
+      <section class="kpi" id="kpi" aria-label="Summary"></section>
+
+      <div class="an-grid">
+        <!-- over time -->
+        <section class="an-card an-card--wide">
+          <h2 class="an-card__h">New leads over time</h2>
+          <div id="chart"></div>
+        </section>
+
+        <!-- funnel -->
+        <section class="an-card">
+          <h2 class="an-card__h">Conversion funnel</h2>
+          <div id="funnel"></div>
+        </section>
+
+        <!-- status split -->
+        <section class="an-card">
+          <h2 class="an-card__h">By status</h2>
+          <div id="byStatus"></div>
+        </section>
+
+        <!-- sources -->
+        <section class="an-card">
+          <h2 class="an-card__h">Top sources</h2>
+          <div id="bySource"></div>
+        </section>
+
+        <!-- treatments -->
+        <section class="an-card">
+          <h2 class="an-card__h">Top treatments</h2>
+          <div id="byTreatment"></div>
+        </section>
+
+        <!-- agent performance -->
+        <section class="an-card an-card--wide">
+          <h2 class="an-card__h">Agent performance</h2>
+          <div class="db-tablewrap" style="border:0">
+            <table class="db-table" style="min-width:560px">
+              <thead><tr><th>Agent</th><th>Assigned</th><th>Contacted</th><th>Booked</th><th>Completed</th><th>Conversion</th></tr></thead>
+              <tbody id="agentRows"></tbody>
+            </table>
+          </div>
+          <p class="an-empty" id="agentEmpty" hidden>No assigned leads in this range.</p>
+        </section>
+      </div>
+    </main>
+  </div>
+  <p class="db-loading" id="loading">Loading…</p>
+
+  <script define:vars={{ apiBase: site.apiBase }}>
+    const TOKEN = localStorage.getItem('tbf_token');
+    if (!TOKEN) location.replace('/admin/login');
+    let ME = {}; try { ME = JSON.parse(localStorage.getItem('tbf_user') || '{}'); } catch (_) {}
+
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    const STATUS_LABEL = { new:'New', contacted:'Contacted', booked:'Booked', completed:'Completed', cancelled:'Cancelled', lost:'Lost' };
+    const STATUSES = ['new','contacted','booked','completed','cancelled','lost'];
+    const fmtD = (iso) => new Date(iso).toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
+    let AGENTS = [];
+    const agentName = (id) => { if (!id) return 'Unassigned'; const a = AGENTS.find((x) => x.id === id); return a ? a.name : 'Unknown'; };
+    let days = 30;
+
+    async function api(path) {
+      const res = await fetch(apiBase + path, { headers: { authorization: 'Bearer ' + TOKEN } });
+      if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login'); throw new Error('unauth'); }
+      return res.json();
+    }
+
+    function renderKpis(a) {
+      const tiles = [
+        { k:'Leads', v:a.total }, { k:'Booked', v:a.booked }, { k:'Completed', v:a.completed },
+        { k:'Conversion', v:a.conversion + '%' },
+      ];
+      $('kpi').innerHTML = tiles.map((t) => `<div class="kpi__i"><span class="kpi__v">${t.v}</span><span class="kpi__k">${t.k}</span></div>`).join('');
+    }
+
+    function renderFunnel(funnel) {
+      const base = funnel[0].count || 1;
+      $('funnel').innerHTML = '<div class="funnel">' + funnel.map((f) => {
+        const pct = Math.round((f.count / base) * 100);
+        return `<div class="funnel__row">
+          <span class="funnel__label">${esc(f.stage)}</span>
+          <div class="funnel__track"><div class="funnel__fill" style="width:${f.count ? Math.max(pct,2) : 0}%"></div></div>
+          <span class="funnel__val">${f.count}<span class="funnel__pct">${pct}%</span></span>
+        </div>`;
+      }).join('') + '</div>';
+    }
+
+    function renderChart(series) {
+      if (!series.length) { $('chart').innerHTML = '<p class="an-empty">No data.</p>'; return; }
+      const max = Math.max(1, ...series.map((d) => d.count));
+      const bars = series.map((d) => `<div class="chart__bar" title="${d.date}: ${d.count}"><div class="chart__fill" style="height:${Math.round((d.count / max) * 100)}%"></div></div>`).join('');
+      $('chart').innerHTML = `<div class="chart">${bars}</div>
+        <div class="chart-x"><span>${fmtD(series[0].date)}</span><span>${max} max/day</span><span>${fmtD(series[series.length-1].date)}</span></div>`;
+    }
+
+    function renderBList(elId, items, labelFn) {
+      const el = $(elId);
+      if (!items.length) { el.innerHTML = '<p class="an-empty">No data.</p>'; return; }
+      const max = Math.max(1, ...items.map((i) => i.count));
+      el.innerHTML = '<div class="blist">' + items.map((i) => `
+        <div class="blist__row">
+          <div class="blist__top"><span class="blist__label">${esc(labelFn ? labelFn(i.key) : i.key)}</span><span class="blist__val">${i.count}</span></div>
+          <div class="blist__track"><div class="blist__fill" style="width:${Math.round((i.count / max) * 100)}%"></div></div>
+        </div>`).join('') + '</div>';
+    }
+
+    function renderStatus(byStatus) {
+      const items = STATUSES.map((s) => ({ key: s, count: byStatus[s] || 0 })).filter((i) => i.count > 0);
+      renderBList('byStatus', items.length ? items : STATUSES.map((s)=>({key:s,count:byStatus[s]||0})), (k) => STATUS_LABEL[k] || k);
+    }
+
+    function renderAgents(byOwner) {
+      const rows = byOwner.filter((o) => o.ownerId); // named agents only in the table
+      $('agentEmpty').hidden = rows.length > 0;
+      $('agentRows').innerHTML = rows.map((o) => {
+        const conv = o.assigned ? Math.round((o.completed / o.assigned) * 100) : 0;
+        return `<tr>
+          <td><strong>${esc(agentName(o.ownerId))}</strong>${o.ownerId===ME.id?'<span class="tm-you">you</span>':''}</td>
+          <td><span class="tm-num">${o.assigned}</span></td>
+          <td>${o.contacted}</td><td>${o.booked}</td><td>${o.completed}</td>
+          <td>${conv}%</td>
+        </tr>`;
+      }).join('');
+    }
+
+    async function load() {
+      const to = new Date();
+      const from = new Date(Date.now() - (days - 1) * 86400000);
+      const iso = (d) => d.toISOString().slice(0, 10);
+      const j = await api(`/api/admin/analytics?from=${iso(from)}&to=${iso(to)}`);
+      if (!j.ok) return;
+      $('rangeLabel').textContent = `${fmtD(j.range.from)} – ${fmtD(j.range.to)}`;
+      renderKpis(j); renderFunnel(j.funnel); renderChart(j.overTime);
+      renderStatus(j.byStatus);
+      renderBList('bySource', j.bySource);
+      renderBList('byTreatment', j.byTreatment);
+      renderAgents(j.byOwner);
+    }
+
+    // range buttons
+    document.querySelectorAll('[data-days]').forEach((b) => b.addEventListener('click', () => {
+      days = Number(b.dataset.days);
+      document.querySelectorAll('[data-days]').forEach((x) => x.classList.toggle('is-on', x === b));
+      load();
+    }));
+
+    // shared header
+    if ($('userInfo')) $('userInfo').textContent = ME.name ? `${ME.name} · ${ME.role}` : (ME.email || '');
+    if ((ME.role === 'admin' || ME.role === 'manager') && $('navUsers')) $('navUsers').hidden = false;
+    $('refreshBtn').addEventListener('click', load);
+    $('logoutBtn').addEventListener('click', () => { localStorage.removeItem('tbf_token'); localStorage.removeItem('tbf_user'); location.replace('/admin/login'); });
+
+    (async () => {
+      try { const a = await api('/api/admin/agents'); AGENTS = (a.ok && a.agents) ? a.agents : []; await load(); $('loading').hidden = true; $('dash').hidden = false; }
+      catch (e) { if (e.message !== 'unauth') $('loading').textContent = 'Could not reach the API.'; }
+    })();
+  </script>
+</Admin>

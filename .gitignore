@@ -1,0 +1,15 @@
+# build output
+dist/
+.astro/
+
+# dependencies
+node_modules/
+
+# local env overrides — .env.production and .env.example ARE committed
+.env
+.env.local
+.env.*.local
+
+# misc
+.DS_Store
+*.log

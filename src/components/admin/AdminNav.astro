@@ -1,8 +1,9 @@
 ---
-// Shared dashboard top bar. Each page wires #userInfo / #navUsers / #logoutBtn /
-// #refreshBtn in its own script (the auth token lives in localStorage).
+// Shared dashboard top bar. Pages wire #userInfo / #logoutBtn / #refreshBtn in
+// their own scripts; role-gated links (Blog, Team) are toggled right here so
+// every admin page gets them without repeating the logic.
 import { site } from '../../site.config';
-interface Props { active: 'leads' | 'tasks' | 'team'; heading: string }
+interface Props { active: 'leads' | 'analytics' | 'blog' | 'tasks' | 'team'; heading: string }
 const { active, heading } = Astro.props;
 ---
 <header class="db-top">
@@ -15,7 +16,9 @@ const { active, heading } = Astro.props;
   </div>
   <nav class="db-nav">
     <a href="/admin/" class:list={['db-nav__a', { 'is-active': active === 'leads' }]}>Leads</a>
+    <a href="/admin/analytics" class:list={['db-nav__a', { 'is-active': active === 'analytics' }]}>Analytics</a>
     <a href="/admin/tasks" class:list={['db-nav__a', { 'is-active': active === 'tasks' }]}>Tasks</a>
+    <a href="/admin/blog" class:list={['db-nav__a', { 'is-active': active === 'blog' }]} id="navBlog" hidden>Blog</a>
     <a href="/admin/users" class:list={['db-nav__a', { 'is-active': active === 'team' }]} id="navUsers" hidden>Team</a>
   </nav>
   <div class="db-top__r">
@@ -24,3 +27,16 @@ const { active, heading } = Astro.props;
     <button class="db-btn db-btn--ghost" id="logoutBtn" type="button">Sign out</button>
   </div>
 </header>
+
+<script is:inline>
+  // Role-gated nav links (admins + managers). Pages handle the rest themselves.
+  (function () {
+    try {
+      var u = JSON.parse(localStorage.getItem('tbf_user') || '{}');
+      if (u.role === 'admin' || u.role === 'manager') {
+        var b = document.getElementById('navBlog'); if (b) b.hidden = false;
+        var t = document.getElementById('navUsers'); if (t) t.hidden = false;
+      }
+    } catch (e) { /* signed out — the page will redirect */ }
+  })();
+</script>

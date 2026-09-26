@@ -15,13 +15,16 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
     <AdminNav active="leads" heading="Enquiries" />
 
     <main class="db-main">
-      <!-- stat tiles -->
-      <section class="db-stats" id="stats" aria-label="Summary"></section>
+      <!-- KPI row -->
+      <section class="kpi" id="kpi" aria-label="Summary"></section>
 
-      <!-- filters -->
+      <!-- pipeline flow -->
+      <section class="pipe" id="pipe" aria-label="Pipeline flow"></section>
+
+      <!-- toolbar: filters + view toggle -->
       <section class="db-tools">
         <input class="db-search" id="search" type="search" placeholder="Search name, email, phone, treatment, notes…" autocomplete="off" />
-        <select class="db-sel" id="fStatus" aria-label="Status">
+        <select class="db-sel" id="fStatus" aria-label="Status" hidden>
           <option value="">All statuses</option>
           {STATUSES.map((s) => <option value={s}>{s}</option>)}
         </select>
@@ -37,10 +40,17 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
         <label class="db-date">From<input id="fFrom" type="date" /></label>
         <label class="db-date">To<input id="fTo" type="date" /></label>
         <button class="db-btn db-btn--ghost" id="clearBtn" type="button">Clear</button>
+        <div class="db-viewtoggle" role="group" aria-label="View">
+          <button class="db-vt is-on" id="viewBoard" type="button">Board</button>
+          <button class="db-vt" id="viewTable" type="button">Table</button>
+        </div>
       </section>
 
-      <!-- table -->
-      <section class="db-tablewrap">
+      <!-- BOARD (kanban) -->
+      <section class="kb" id="board" aria-label="Lead board"></section>
+
+      <!-- TABLE -->
+      <section class="db-tablewrap" id="tableWrap" hidden>
         <table class="db-table">
           <thead>
             <tr>
@@ -52,9 +62,7 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
         </table>
         <p class="db-empty" id="empty" hidden>No enquiries match these filters.</p>
       </section>
-
-      <!-- pagination -->
-      <footer class="db-page">
+      <footer class="db-page" id="pager" hidden>
         <span id="pageInfo"></span>
         <div class="db-page__btns">
           <button class="db-btn db-btn--ghost" id="prevBtn" type="button">Previous</button>
@@ -82,6 +90,7 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
     try { ME = JSON.parse(localStorage.getItem('tbf_user') || '{}'); } catch (_) {}
 
     const STATUS_LABEL = { new:'New', contacted:'Contacted', booked:'Booked', completed:'Completed', cancelled:'Cancelled', lost:'Lost' };
+    const FLOW = ['new', 'contacted', 'booked', 'completed'];
 
     const $ = (id) => document.getElementById(id);
     const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
@@ -89,10 +98,12 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
     const fmtDay = (iso) => { if (!iso) return '—'; return new Date(iso).toLocaleDateString('en-GB', { day:'2-digit', month:'short' }); };
     const toLocalInput = (iso) => iso ? new Date(new Date(iso).getTime() - new Date().getTimezoneOffset()*60000).toISOString().slice(0,16) : '';
 
-    const state = { q:'', status:'', assignedTo:'', treatment:'', from:'', to:'', limit:25, offset:0, total:0 };
+    let savedView = 'board';
+    try { savedView = localStorage.getItem('tbf_view') || 'board'; } catch (_) {}
+    const state = { q:'', status:'', assignedTo:'', treatment:'', from:'', to:'', limit:25, offset:0, total:0, view: savedView };
     let leads = [];
-    let AGENTS = [];            // [{id,name,role}]
-    let ASSIGNABLE = [];        // who THIS user may assign to
+    let AGENTS = [];
+    let ASSIGNABLE = [];
     const agentName = (id) => { const a = AGENTS.find((x) => x.id === id); return a ? a.name : (id ? 'Unknown' : ''); };
 
     async function api(path, opts = {}) {
@@ -104,11 +115,10 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
       return res.json();
     }
 
-    // ── owner + status controls ──
+    // ── owner + status controls (table) ──
     function ownerOptions(selected) {
       const opts = [`<option value="" ${!selected?'selected':''}>Unassigned</option>`];
       for (const a of ASSIGNABLE) opts.push(`<option value="${esc(a.id)}" ${a.id===selected?'selected':''}>${esc(a.name)}</option>`);
-      // If the lead is owned by someone this user can't reassign to, still show them.
       if (selected && !ASSIGNABLE.some((a) => a.id === selected)) opts.push(`<option value="${esc(selected)}" selected>${esc(agentName(selected))}</option>`);
       return opts.join('');
     }
@@ -117,21 +127,80 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
       return `<select class="db-status db-status--${esc(status)}" data-status-id="${esc(id)}">${opts}</select>`;
     }
 
-    function renderStats(s) {
-      const tiles = [
+    // ── KPI + pipeline flow (from stats) ──
+    function renderPipe(s) {
+      const kpis = [
         { k:'Today', v:s.today }, { k:'This week', v:s.week }, { k:'Total', v:s.total },
         { k:'Unassigned', v:s.unassigned, assignee:'none' },
-        ...STATUSES.map((st) => ({ k: STATUS_LABEL[st], v: s.byStatus[st] || 0, status: st })),
       ];
-      $('stats').innerHTML = tiles.map((t) =>
-        `<button class="db-stat ${t.status?'db-stat--'+t.status:''}" ${t.status?`data-status="${t.status}"`:''} ${t.assignee?`data-assignee="${t.assignee}"`:''}>
-          <span class="db-stat__v">${t.v}</span><span class="db-stat__k">${t.k}</span></button>`).join('');
-      $('stats').querySelectorAll('[data-status]').forEach((el) =>
-        el.addEventListener('click', () => { state.status = el.dataset.status; $('fStatus').value = state.status; state.offset = 0; load(); }));
-      $('stats').querySelectorAll('[data-assignee]').forEach((el) =>
-        el.addEventListener('click', () => { state.assignedTo = el.dataset.assignee; $('fAssignee').value = state.assignedTo; state.offset = 0; load(); }));
+      $('kpi').innerHTML = kpis.map((t) =>
+        `<button class="kpi__i ${t.assignee?'is-clickable':''}" ${t.assignee?`data-assignee="${t.assignee}"`:'disabled'}>
+          <span class="kpi__v">${t.v}</span><span class="kpi__k">${t.k}</span></button>`).join('');
+      $('kpi').querySelectorAll('[data-assignee]').forEach((el) =>
+        el.addEventListener('click', () => { state.assignedTo = el.dataset.assignee; $('fAssignee').value = 'none'; reload(); }));
+
+      const stage = (st) => `<button class="pipe__stage pipe__stage--${st}" data-status="${st}">
+          <span class="pipe__v">${s.byStatus[st] || 0}</span><span class="pipe__k">${STATUS_LABEL[st]}</span></button>`;
+      const flow = FLOW.map((st, i) => stage(st) + (i < FLOW.length - 1 ? '<span class="pipe__arrow" aria-hidden="true">›</span>' : '')).join('');
+      const closed = ['cancelled', 'lost'].map((st) => `<button class="pipe__stage pipe__stage--${st} is-muted" data-status="${st}">
+          <span class="pipe__v">${s.byStatus[st] || 0}</span><span class="pipe__k">${STATUS_LABEL[st]}</span></button>`).join('');
+      $('pipe').innerHTML = `<div class="pipe__flow">${flow}</div><div class="pipe__closed">${closed}</div>`;
+      $('pipe').querySelectorAll('[data-status]').forEach((el) =>
+        el.addEventListener('click', () => { state.status = el.dataset.status; $('fStatus').value = state.status; setView('table'); }));
     }
 
+    // ── kanban board ──
+    function cardHTML(l) {
+      return `<article class="kb-card" draggable="true" data-id="${esc(l.id)}">
+        <div class="kb-card__name">${esc(l.name)}</div>
+        <div class="kb-card__treat">${esc(l.treatment || '—')}</div>
+        <div class="kb-card__meta">
+          <span class="kb-owner ${l.assignedTo?'':'is-none'}">${l.assignedTo ? esc(agentName(l.assignedTo)) : 'Unassigned'}</span>
+          <span class="kb-time">${fmtDay(l.receivedAt)}</span>
+        </div>
+        ${l.appointmentAt ? `<div class="kb-appt">Appt · ${fmtDate(l.appointmentAt)}</div>` : ''}
+      </article>`;
+    }
+    function renderBoard() {
+      const groups = Object.fromEntries(STATUSES.map((s) => [s, []]));
+      for (const l of leads) if (groups[l.status]) groups[l.status].push(l);
+      $('board').innerHTML = STATUSES.map((s) => `
+        <div class="kb-col kb-col--${s}">
+          <div class="kb-col__head"><span class="kb-col__dot"></span>${STATUS_LABEL[s]}<span class="kb-col__count">${groups[s].length}</span></div>
+          <div class="kb-col__body" data-status="${s}">
+            ${groups[s].map(cardHTML).join('') || '<p class="kb-empty">Drop here</p>'}
+          </div>
+        </div>`).join('');
+      wireBoard();
+    }
+    function wireBoard() {
+      const board = $('board');
+      board.querySelectorAll('.kb-card').forEach((card) => {
+        card.addEventListener('dragstart', (e) => { e.dataTransfer.setData('text/plain', card.dataset.id); e.dataTransfer.effectAllowed = 'move'; card.classList.add('is-dragging'); });
+        card.addEventListener('dragend', () => card.classList.remove('is-dragging'));
+        card.addEventListener('click', () => openDetail(card.dataset.id));
+      });
+      board.querySelectorAll('.kb-col__body').forEach((body) => {
+        body.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; body.classList.add('is-over'); });
+        body.addEventListener('dragleave', () => body.classList.remove('is-over'));
+        body.addEventListener('drop', (e) => {
+          e.preventDefault(); body.classList.remove('is-over');
+          const id = e.dataTransfer.getData('text/plain');
+          const lead = leads.find((l) => l.id === id);
+          if (lead && lead.status !== body.dataset.status) moveLead(id, body.dataset.status);
+        });
+      });
+    }
+    async function moveLead(id, status) {
+      const lead = leads.find((l) => l.id === id); if (!lead) return;
+      const prev = lead.status;
+      lead.status = status; renderBoard();                    // optimistic
+      const j = await api('/api/admin/leads/' + id, { method:'PATCH', body: JSON.stringify({ status }) });
+      if (j.ok) { const i = leads.findIndex((l) => l.id === id); if (i > -1) leads[i] = j.lead; renderBoard(); loadStats(); }
+      else { lead.status = prev; renderBoard(); alert('Could not move the lead.'); }
+    }
+
+    // ── table ──
     function renderRows() {
       const tb = $('rows');
       if (!leads.length) { tb.innerHTML = ''; $('empty').hidden = false; return; }
@@ -155,10 +224,12 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
         b.addEventListener('click', () => openDetail(b.dataset.detail)));
     }
 
+    const renderActive = () => (state.view === 'board' ? renderBoard() : renderRows());
+
     async function setLead(id, patch) {
       const j = await api('/api/admin/leads/' + id, { method:'PATCH', body: JSON.stringify(patch) });
-      if (j.ok) { const i = leads.findIndex((l) => l.id === id); if (i>-1) leads[i] = j.lead; loadStats(); renderRows(); }
-      else { alert(j.error === 'forbidden' ? 'You can only assign leads to yourself.' : 'Could not save.'); loadLeads(); }
+      if (j.ok) { const i = leads.findIndex((l) => l.id === id); if (i>-1) leads[i] = j.lead; loadStats(); renderActive(); }
+      else { alert(j.error === 'forbidden' ? 'You can only assign leads to yourself.' : 'Could not save.'); reloadView(); }
     }
 
     // ── detail drawer ──
@@ -238,7 +309,6 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
         </section>`;
       $('drawer').hidden = false;
 
-      // load timeline + tasks
       const refreshTimeline = async () => { const j = await api('/api/admin/leads/'+id+'/activity'); if (j.ok) $('timeline').innerHTML = renderActivity(j.activity); };
       const refreshTasks = async () => { const j = await api('/api/tasks?leadId='+id); if (j.ok) { $('leadTasks').innerHTML = renderTaskList(j.tasks); wireTaskChecks(); } };
       const wireTaskChecks = () => $('leadTasks').querySelectorAll('[data-task]').forEach((c) =>
@@ -248,7 +318,7 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
       $('dSave').addEventListener('click', async () => {
         const appt = $('dAppt').value ? new Date($('dAppt').value).toISOString() : null;
         const j = await api('/api/admin/leads/' + id, { method:'PATCH', body: JSON.stringify({ status: $('dStatus').value, assignedTo: $('dOwner').value, notes: $('dNotes').value, appointmentAt: appt }) });
-        if (j.ok) { const i = leads.findIndex((x)=>x.id===id); if (i>-1) leads[i]=j.lead; renderRows(); loadStats(); refreshTimeline(); $('dSaved').hidden=false; setTimeout(()=>{$('dSaved').hidden=true;},1500); }
+        if (j.ok) { const i = leads.findIndex((x)=>x.id===id); if (i>-1) leads[i]=j.lead; renderActive(); loadStats(); refreshTimeline(); $('dSaved').hidden=false; setTimeout(()=>{$('dSaved').hidden=true;},1500); }
         else { alert(j.error === 'forbidden' ? 'You can only assign leads to yourself.' : 'Could not save.'); }
       });
       $('aLog').addEventListener('click', async () => {
@@ -265,11 +335,22 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
     }
     function closeDrawer(){ $('drawer').hidden = true; }
 
-    async function loadStats() { const j = await api('/api/admin/stats'); if (j.ok) renderStats(j); }
+    // ── data loading ──
+    async function loadStats() { const j = await api('/api/admin/stats'); if (j.ok) renderPipe(j); }
+
+    async function loadBoard() {
+      const p = new URLSearchParams();
+      for (const k of ['q','assignedTo','treatment','from','to']) if (state[k]) p.set(k, state[k]);
+      p.set('limit', '300');
+      const j = await api('/api/admin/leads?' + p.toString());
+      if (!j.ok) return;
+      leads = j.leads;
+      renderBoard();
+    }
 
     async function loadLeads() {
       const p = new URLSearchParams();
-      for (const k of ['q','status','assignedTo','treatment','from','to']) if (state[k]) p.set(k === 'assignedTo' ? 'assignedTo' : k, state[k]);
+      for (const k of ['q','status','assignedTo','treatment','from','to']) if (state[k]) p.set(k, state[k]);
       p.set('limit', state.limit); p.set('offset', state.offset);
       const j = await api('/api/admin/leads?' + p.toString());
       if (!j.ok) return;
@@ -282,27 +363,41 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
       $('nextBtn').disabled = end >= state.total;
     }
 
+    const reloadView = () => (state.view === 'board' ? loadBoard() : loadLeads());
+    async function reload() { await Promise.all([loadStats(), reloadView()]); }
+
+    function setView(v) {
+      state.view = v;
+      try { localStorage.setItem('tbf_view', v); } catch (_) {}
+      $('viewBoard').classList.toggle('is-on', v === 'board');
+      $('viewTable').classList.toggle('is-on', v === 'table');
+      $('board').hidden = v !== 'board';
+      $('tableWrap').hidden = v !== 'table';
+      $('pager').hidden = v !== 'table';
+      $('fStatus').hidden = v !== 'table';
+      reloadView();
+    }
+
     async function loadAgents() {
       const j = await api('/api/admin/agents');
       AGENTS = (j.ok && j.agents) ? j.agents : [];
       ASSIGNABLE = ME.role === 'agent' ? AGENTS.filter((a) => a.id === ME.id) : AGENTS;
-      // populate the owner filter with the team
       const sel = $('fAssignee');
       for (const a of AGENTS) { const o = document.createElement('option'); o.value = a.id; o.textContent = a.name; sel.appendChild(o); }
     }
 
-    async function load() { await Promise.all([loadStats(), loadLeads()]); }
-
-    // wiring
+    // ── wiring ──
     let t;
-    $('search').addEventListener('input', (e) => { clearTimeout(t); t = setTimeout(() => { state.q = e.target.value.trim(); state.offset = 0; loadLeads(); }, 300); });
-    $('fStatus').addEventListener('change', (e) => { state.status = e.target.value; state.offset = 0; load(); });
-    $('fAssignee').addEventListener('change', (e) => { state.assignedTo = e.target.value; state.offset = 0; load(); });
-    $('fTreatment').addEventListener('change', (e) => { state.treatment = e.target.value; state.offset = 0; loadLeads(); });
-    $('fFrom').addEventListener('change', (e) => { state.from = e.target.value; state.offset = 0; loadLeads(); });
-    $('fTo').addEventListener('change', (e) => { state.to = e.target.value; state.offset = 0; loadLeads(); });
-    $('clearBtn').addEventListener('click', () => { Object.assign(state, { q:'', status:'', assignedTo:'', treatment:'', from:'', to:'', offset:0 }); $('search').value=''; $('fStatus').value=''; $('fAssignee').value=''; $('fTreatment').value=''; $('fFrom').value=''; $('fTo').value=''; load(); });
-    $('refreshBtn').addEventListener('click', load);
+    $('search').addEventListener('input', (e) => { clearTimeout(t); t = setTimeout(() => { state.q = e.target.value.trim(); state.offset = 0; reloadView(); }, 300); });
+    $('fStatus').addEventListener('change', (e) => { state.status = e.target.value; state.offset = 0; loadLeads(); });
+    $('fAssignee').addEventListener('change', (e) => { state.assignedTo = e.target.value; state.offset = 0; reload(); });
+    $('fTreatment').addEventListener('change', (e) => { state.treatment = e.target.value; state.offset = 0; reloadView(); });
+    $('fFrom').addEventListener('change', (e) => { state.from = e.target.value; state.offset = 0; reloadView(); });
+    $('fTo').addEventListener('change', (e) => { state.to = e.target.value; state.offset = 0; reloadView(); });
+    $('clearBtn').addEventListener('click', () => { Object.assign(state, { q:'', status:'', assignedTo:'', treatment:'', from:'', to:'', offset:0 }); $('search').value=''; $('fStatus').value=''; $('fAssignee').value=''; $('fTreatment').value=''; $('fFrom').value=''; $('fTo').value=''; reload(); });
+    $('viewBoard').addEventListener('click', () => setView('board'));
+    $('viewTable').addEventListener('click', () => setView('table'));
+    $('refreshBtn').addEventListener('click', reload);
     $('prevBtn').addEventListener('click', () => { state.offset = Math.max(0, state.offset - state.limit); loadLeads(); });
     $('nextBtn').addEventListener('click', () => { state.offset += state.limit; loadLeads(); });
     $('logoutBtn').addEventListener('click', () => { localStorage.removeItem('tbf_token'); localStorage.removeItem('tbf_user'); location.replace('/admin/login'); });
@@ -310,15 +405,22 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
     $('scrim').addEventListener('click', closeDrawer);
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });
 
-    // header (name + role, team link)
     if ($('userInfo')) $('userInfo').textContent = ME.name ? `${ME.name} · ${ME.role}` : (ME.email || '');
     if ((ME.role === 'admin' || ME.role === 'manager') && $('navUsers')) $('navUsers').hidden = false;
 
     // go
     (async () => {
       try {
-        await loadAgents(); await load(); $('loading').hidden = true; $('dash').hidden = false;
-        // Deep link from the Tasks page: /admin/?lead=<id> opens that lead.
+        await loadAgents();
+        // reflect the saved view in the toggle before first paint
+        $('viewBoard').classList.toggle('is-on', state.view === 'board');
+        $('viewTable').classList.toggle('is-on', state.view === 'table');
+        $('board').hidden = state.view !== 'board';
+        $('tableWrap').hidden = state.view !== 'table';
+        $('pager').hidden = state.view !== 'table';
+        $('fStatus').hidden = state.view !== 'table';
+        await reload();
+        $('loading').hidden = true; $('dash').hidden = false;
         const wantLead = new URLSearchParams(location.search).get('lead');
         if (wantLead) {
           if (!leads.find((l) => l.id === wantLead)) { const j = await api('/api/admin/leads/' + wantLead); if (j.ok) leads.unshift(j.lead); }
@@ -328,5 +430,4 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
       catch (e) { if (e.message !== 'unauth') { $('loading').textContent = 'Could not reach the API. Is the server running?'; } }
     })();
   </script>
-
 </Admin>

@@ -25,9 +25,9 @@ const related = (await getCollection('treatments', ({ data }) => !data.draft))
   })
   .slice(0, 3);
 
-const posts = (await getCollection('journal', ({ data }) => !data.draft))
-  .filter((p) => p.data.related.includes(entry.id))
-  .slice(0, 2);
+// Blog posts that mention this treatment (build-time fetch, fails soft).
+import { fetchPosts } from '../../lib/blog';
+const { posts } = await fetchPosts(`?related=${entry.id}&limit=2`);
 
 // Full treatment list for the booking dropdown, this treatment pre-selected.
 const treatmentNames = (await getCollection('treatments', ({ data }) => !data.draft))
@@ -41,6 +41,17 @@ const facts = [
   { k: 'Course',   v: d.course },
   { k: 'Downtime', v: d.downtime },
 ];
+
+// Two showcase images for the experience band. Content can supply its own via
+// `gallery:` in the frontmatter; otherwise fall back to curated clinic
+// photography per group — never repeating the hero image.
+const FALLBACK_GALLERY: Record<string, string[]> = {
+  Skin:     ['/img/t-treatment.jpg', '/img/f-expert.jpg', '/img/t-skin.jpg'],
+  Hair:     ['/img/t-clinician.jpg', '/img/t-care.jpg', '/img/f-expert.jpg'],
+  Wellness: ['/img/t-lobby.jpg', '/img/t-leaf.jpg', '/img/t-reception.jpg'],
+};
+const pool = d.gallery.length ? [...d.gallery, ...FALLBACK_GALLERY[d.group]] : FALLBACK_GALLERY[d.group];
+const gallery = [...new Set(pool)].filter((i) => i !== d.image).slice(0, 2);
 ---
 <Base
   title={d.seoTitle}
@@ -99,28 +110,6 @@ const facts = [
     </div>
   </section>
 
-  <!-- ══════════════ SUITABILITY ══════════════ -->
-  <section class="section">
-    <div class="wrap suit">
-      <div class="suit__col" data-reveal>
-        <span class="eyebrow">Suitable for</span>
-        <ul class="suit__list suit__list--yes">
-          {d.suitableFor.map((s) => <li>{s}</li>)}
-        </ul>
-      </div>
-      <div class="suit__col" data-reveal data-reveal-delay="1">
-        <span class="eyebrow">Not suitable for</span>
-        <ul class="suit__list suit__list--no">
-          {d.notSuitableFor.map((s) => <li>{s}</li>)}
-        </ul>
-        <p class="small suit__note">
-          If any of these apply to you we will say so at consultation and recommend
-          something else — or nothing.
-        </p>
-      </div>
-    </div>
-  </section>
-
   <!-- ══════════════ BODY ══════════════ -->
   <section class="section">
     <div class="wrap tbody">
@@ -142,7 +131,7 @@ const facts = [
           <div class="aside__rel" data-reveal data-reveal-delay="2">
             <span class="eyebrow">Read first</span>
             {posts.map((p) => (
-              <a href={`/journal/${p.id}/`} class="aside__link">{p.data.title}<i aria-hidden="true">→</i></a>
+              <a href={`/journal/${p.slug}/`} class="aside__link">{p.title}<i aria-hidden="true">→</i></a>
             ))}
           </div>
         )}
@@ -150,8 +139,58 @@ const facts = [
     </div>
   </section>
 
+  <!-- ══════════════ EXPERIENCE (two showcase images) ══════════════ -->
+  <section class="section tgal">
+    <div class="wrap tgal__grid">
+      <figure class="tgal__img tgal__img--a zoom" data-reveal>
+        <img src={gallery[0]} alt={`${d.title} at ${site.name}`} width="520" height="650" loading="lazy" decoding="async" />
+        <figcaption class="tgal__cap">In the treatment room</figcaption>
+      </figure>
+      <div class="tgal__in" data-reveal data-reveal-delay="1">
+        <span class="eyebrow">The experience</span>
+        <h2 class="tgal__h">Clinical standards, in a calm room.</h2>
+        <p class="tgal__p">
+          {d.title} is delivered in a private treatment room by a clinician who has
+          assessed you first — never off a script, never rushed. You will know what
+          is happening at every step, and exactly what to do when you get home.
+        </p>
+        <ul class="tgal__pts">
+          <li>Delivered by a licensed clinician</li>
+          <li>Assessed at consultation before anything is booked</li>
+          <li>Aftercare and a review point included</li>
+        </ul>
+      </div>
+      <figure class="tgal__img tgal__img--b zoom" data-reveal data-reveal-delay="2">
+        <img src={gallery[1]} alt={`Inside ${site.name}, where ${d.title} is performed`} width="520" height="650" loading="lazy" decoding="async" />
+        <figcaption class="tgal__cap">The Better Face clinic</figcaption>
+      </figure>
+    </div>
+  </section>
+
   <!-- ══════════════ VIDEO ══════════════ -->
   <TreatmentVideo video={d.video} poster={d.videoPoster ?? d.image} title={d.title} />
+
+  <!-- ══════════════ SUITABILITY ══════════════ -->
+  <section class="section">
+    <div class="wrap suit">
+      <div class="suit__col" data-reveal>
+        <span class="eyebrow">Suitable for</span>
+        <ul class="suit__list suit__list--yes">
+          {d.suitableFor.map((s) => <li>{s}</li>)}
+        </ul>
+      </div>
+      <div class="suit__col" data-reveal data-reveal-delay="1">
+        <span class="eyebrow">Not suitable for</span>
+        <ul class="suit__list suit__list--no">
+          {d.notSuitableFor.map((s) => <li>{s}</li>)}
+        </ul>
+        <p class="small suit__note">
+          If any of these apply to you we will say so at consultation and recommend
+          something else — or nothing.
+        </p>
+      </div>
+    </div>
+  </section>
 
   <!-- ══════════════ BEFORE / AFTER ══════════════ -->
   <BeforeAfter pairs={d.beforeAfter} title={d.title} />
@@ -262,6 +301,33 @@ const facts = [
   .suit__list--yes li::before{content:'✓';color:var(--ocean-teal)}
   .suit__list--no li::before{content:'—';color:#A06A5E}
   .suit__note{margin-top:var(--s3)}
+
+  /* ---------------- EXPERIENCE GALLERY ---------------- */
+  .tgal{overflow:hidden;background:var(--surface-raised)}
+  .tgal__grid{display:grid;gap:var(--s4);align-items:center}
+  .tgal__in{max-width:32rem;margin-inline:auto;text-align:center;order:-1}
+  .tgal__h{margin-top:.7rem;font-size:clamp(1.5rem,1.1rem + 1.4vw,2.1rem)}
+  .tgal__p{font-size:.9375rem;line-height:1.85;color:var(--text-muted);margin-top:var(--s3)}
+  .tgal__pts{list-style:none;padding:0;margin-top:var(--s4);display:grid;gap:.6rem;justify-items:center}
+  .tgal__pts li{position:relative;padding-left:1.5rem;font-size:.8125rem;line-height:1.5;color:var(--charcoal)}
+  .tgal__pts li::before{content:'✓';position:absolute;left:0;color:var(--ocean-teal);font-weight:700}
+  .tgal__img{margin:0}
+  .tgal__img img{width:100%;aspect-ratio:4/5;object-fit:cover;background:var(--light-teal)}
+  .tgal__cap{
+    margin-top:.65rem;font-size:.5625rem;letter-spacing:.22em;text-transform:uppercase;
+    font-weight:700;color:var(--text-muted);text-align:center
+  }
+  @media (max-width:899px){
+    .tgal__grid{grid-template-columns:1fr 1fr;gap:var(--s3)}
+    .tgal__in{grid-column:1 / -1;margin-bottom:var(--s2)}
+  }
+  @media (min-width:900px){
+    .tgal__grid{grid-template-columns:minmax(220px,1fr) minmax(0,2fr) minmax(220px,1fr);gap:var(--s6);padding-block:var(--s3)}
+    .tgal__in{order:0}
+    .tgal__img{width:100%;max-width:320px}
+    .tgal__img--a{justify-self:end;transform:translateY(5%)}
+    .tgal__img--b{justify-self:start;transform:translateY(-5%)}
+  }
 
   /* ---------------- BODY ---------------- */
   .tbody{display:grid;gap:var(--s5)}

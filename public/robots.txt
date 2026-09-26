@@ -6,3 +6,4 @@ Allow: /
 Disallow: /lp/
 
 Sitemap: https://thebetterface.com/sitemap-index.xml
+Sitemap: https://thebetterface.com/sitemap-posts.xml

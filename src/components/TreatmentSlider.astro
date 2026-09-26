@@ -1,10 +1,11 @@
 ---
-// Skin / Hair treatments — a CONTAINED grid, not a horizontal scroll rail.
+// Skin / Hair / Wellness treatments — a scroll-snap CAROUSEL, not a grid.
 //
-// Tabs are radio inputs and CSS `:has()` — no JavaScript, so the panels switch
-// even if scripting fails. Everything sits inside the page margin: nothing
-// bleeds off the edge, which reads calmer and more premium than a rail that
-// runs out of the viewport.
+// Three cards per view on desktop, two on mobile (with compact type), and the
+// rest reached by the arrow buttons or a swipe — the rail is a native
+// overflow-x scroller, so touch works with no library. Tabs stay radio inputs
+// and CSS `:has()`, so groups still switch even if scripting fails; without JS
+// the rail simply swipes/scrolls instead of paging by arrow.
 import TreatmentCard from './TreatmentCard.astro';
 import { getCollection } from 'astro:content';
 
@@ -36,12 +37,20 @@ const rails = GROUPS
           </label>
         ))}
       </div>
+      <div class="ts__arrows">
+        <button type="button" class="ts__arrow" data-dir="-1" aria-label="Previous treatments">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+        <button type="button" class="ts__arrow" data-dir="1" aria-label="Next treatments">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
     </div>
   </div>
 
   {rails.map((r) => (
     <div class="ts__panel" data-group={r.g.toLowerCase()}>
-      <div class="ts__grid" style={`--cols:${Math.min(r.items.length, 4)}`}>
+      <div class="ts__rail" tabindex="0" role="region" aria-label={`${r.g} treatments`}>
         {r.items.map((t, i) => (
           <div class="ts__item" data-reveal data-reveal-delay={String(Math.min(i, 3))}>
             <TreatmentCard
@@ -70,6 +79,47 @@ const rails = GROUPS
   ))}
 </div>
 
+<script is:inline>
+  (function () {
+    document.querySelectorAll('.ts').forEach(function (ts) {
+      var rails = Array.prototype.slice.call(ts.querySelectorAll('.ts__rail'));
+      var prev = ts.querySelector('.ts__arrow[data-dir="-1"]');
+      var next = ts.querySelector('.ts__arrow[data-dir="1"]');
+      if (!prev || !next || !rails.length) return;
+
+      function active() {
+        for (var i = 0; i < rails.length; i++) if (rails[i].offsetParent !== null) return rails[i];
+        return null;
+      }
+      function update() {
+        var r = active(); if (!r) return;
+        var overflow = r.scrollWidth > r.clientWidth + 2;
+        prev.hidden = !overflow;
+        next.hidden = !overflow;
+        prev.disabled = r.scrollLeft <= 2;
+        next.disabled = r.scrollLeft >= r.scrollWidth - r.clientWidth - 2;
+      }
+      function go(dir) {
+        var r = active(); if (!r) return;
+        // One "page" = the visible width plus one gap, so paging lands exactly
+        // on the next set of cards instead of a gap short of it.
+        var gap = parseFloat(getComputedStyle(r).columnGap) || 0;
+        r.scrollBy({ left: dir * (r.clientWidth + gap), behavior: 'smooth' });
+      }
+      prev.addEventListener('click', function () { go(-1); });
+      next.addEventListener('click', function () { go(1); });
+      rails.forEach(function (r) {
+        r.addEventListener('scroll', function () { requestAnimationFrame(update); }, { passive: true });
+      });
+      ts.querySelectorAll('.ts__radio').forEach(function (radio) {
+        radio.addEventListener('change', update);
+      });
+      window.addEventListener('resize', update, { passive: true });
+      update();
+    });
+  })();
+</script>
+
 <style>
   .ts{position:relative}
 
@@ -78,9 +128,9 @@ const rails = GROUPS
     .ts__head{grid-template-columns:1fr auto;align-items:end;gap:var(--s5)}
   }
   .ts__h{margin-top:.7rem}
-  .ts__controls{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3) var(--s4)}
+  .ts__controls{display:flex;flex-wrap:wrap;align-items:center;gap:var(--s3) var(--s3)}
 
-  /* --- tabs: radio + :has(), no script — now pill toggles --- */
+  /* --- tabs: radio + :has(), no script — pill toggles --- */
   .ts__tabs{display:flex;gap:var(--s2)}
   .ts__tab{
     cursor:pointer;position:relative;padding:.6rem 1.2rem;
@@ -91,6 +141,20 @@ const rails = GROUPS
   }
   .ts__tabn{font-family:'Playfair Display',serif;font-size:.8125rem;letter-spacing:.02em;color:var(--champagne)}
   .ts__tab:hover{color:var(--deep-teal);border-color:var(--accent)}
+  @media (max-width:480px){ .ts__tab{padding:.5rem .85rem;font-size:.6875rem} }
+
+  /* --- arrows --- */
+  .ts__arrows{display:flex;gap:.45rem;margin-left:auto}
+  .ts__arrow{
+    width:42px;height:42px;display:grid;place-items:center;cursor:pointer;
+    background:var(--surface-raised);border:1px solid var(--line);border-radius:50%;
+    color:var(--deep-teal);transition:background-color .25s,border-color .25s,color .25s,opacity .25s
+  }
+  .ts__arrow svg{width:18px;height:18px}
+  .ts__arrow:hover:not(:disabled){background:var(--deep-teal);border-color:var(--deep-teal);color:var(--ivory)}
+  .ts__arrow:disabled{opacity:.32;cursor:default}
+  .ts__arrow[hidden]{display:none}
+  .ts__arrow:focus-visible{outline:2px solid var(--ocean-teal);outline-offset:2px}
 
   .ts__panel{display:none}
   .ts:has(#ts-skin:checked) .ts__panel[data-group="skin"],
@@ -101,22 +165,51 @@ const rails = GROUPS
   .ts:has(#ts-wellness:checked) .ts__tab[for="ts-wellness"]{
     color:var(--ivory);background:var(--deep-teal);border-color:var(--deep-teal)
   }
-  /* keyboard: the input is what actually receives focus */
   .ts:has(#ts-skin:focus-visible) .ts__tab[for="ts-skin"],
   .ts:has(#ts-hair:focus-visible) .ts__tab[for="ts-hair"],
   .ts:has(#ts-wellness:focus-visible) .ts__tab[for="ts-wellness"]{
     outline:2px solid var(--ocean-teal);outline-offset:3px
   }
 
-  /* --- contained grid: as many columns as the group has cards (max 4), so a
-         row is always full and no lone card is ever left dangling --- */
-  .ts__grid{display:grid;gap:var(--s3)}
-  @media (min-width:560px){ .ts__grid{grid-template-columns:repeat(2,1fr)} }
-  @media (min-width:1000px){ .ts__grid{grid-template-columns:repeat(var(--cols,4),1fr)} }
-  .ts__item{display:flex}
-  .ts__item > *{width:100%}
+  /* --- the rail: 3 per view desktop, 2 per view mobile, swipe + snap --- */
+  .ts__rail{
+    display:flex;gap:var(--s3);
+    overflow-x:auto;overscroll-behavior-x:contain;
+    scroll-snap-type:x mandatory;scroll-behavior:smooth;
+    scrollbar-width:none;-webkit-overflow-scrolling:touch;
+    padding-bottom:6px;
+  }
+  .ts__rail::-webkit-scrollbar{display:none}
+  .ts__rail:focus-visible{outline:2px solid var(--ocean-teal);outline-offset:4px}
+  .ts__item{
+    flex:0 0 calc((100% - 2 * var(--s3)) / 3);
+    scroll-snap-align:start;display:flex;
+  }
+  .ts__item > :global(*){width:100%}
+  @media (max-width:899px){
+    .ts__item{flex-basis:calc((100% - var(--s3)) / 2)}
+  }
+  @media (prefers-reduced-motion:reduce){ .ts__rail{scroll-behavior:auto} }
 
-  /* --- full-width CTA strip below the grid --- */
+  /* --- compact card type on phones so two columns breathe ---
+     Selectors ride on .tc--chrome so they outrank the card's own variant rules. */
+  @media (max-width:640px){
+    .ts :global(.tc--chrome .tc__body){padding:var(--s2) var(--s2) var(--s2)}
+    .ts :global(.tc--chrome .tc__title){font-size:1.02rem;line-height:1.2}
+    .ts :global(.tc--chrome .tc__sum){
+      font-size:.6875rem;line-height:1.55;margin-top:.45rem;
+      display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+      /* the card's flex:1 stretches this box past the clamp — cap it so hidden
+         lines never bleed out under the ellipsis */
+      max-height:calc(3 * 1.55em)
+    }
+    .ts :global(.tc--chrome .tc__cat){font-size:.5rem;letter-spacing:.16em;padding:.4rem .6rem}
+    .ts :global(.tc--chrome .tc__meta){font-size:.625rem;margin-top:var(--s2);padding-top:.55rem;flex-wrap:wrap;gap:.3rem .6rem}
+    .ts :global(.tc--chrome .tc__dur){font-size:.5625rem}
+    .ts :global(.tc--chrome .tc__more){font-size:.5625rem;margin-top:.6rem}
+  }
+
+  /* --- full-width CTA strip below the rail --- */
   .ts__all{
     position:relative;overflow:hidden;margin-top:var(--s3);
     display:flex;flex-direction:column;align-items:flex-start;gap:var(--s3);

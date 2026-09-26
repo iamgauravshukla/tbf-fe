@@ -1,0 +1,293 @@
+---
+import Admin from '../../layouts/Admin.astro';
+import AdminNav from '../../components/admin/AdminNav.astro';
+import { site } from '../../site.config';
+import { getCollection } from 'astro:content';
+
+// Treatments for the "related" picker (drives internal links on the live post).
+const treatments = (await getCollection('treatments', ({ data }) => !data.draft))
+  .sort((a, b) => a.data.order - b.data.order)
+  .map((t) => ({ id: t.id, title: t.data.title }));
+
+// Site imagery for the cover-image picker.
+const images = Object.keys(import.meta.glob('/public/img/*.{jpg,png}'))
+  .map((p) => p.replace('/public', ''));
+---
+<Admin title="Blog">
+  <div class="dash" hidden id="dash" data-api-base={site.apiBase} data-site-url={site.url}>
+    <AdminNav active="blog" heading="Blog" />
+
+    <main class="db-main">
+      <!-- ── LIST ── -->
+      <section id="listView">
+        <div class="db-tools">
+          <input class="db-search" id="q" type="search" placeholder="Search posts…" autocomplete="off" />
+          <select class="db-sel" id="fStatus">
+            <option value="">All</option><option value="published">Published</option><option value="draft">Drafts</option>
+          </select>
+          <button class="btn btn--primary" id="newBtn" type="button" style="margin-left:auto">New post</button>
+        </div>
+        <div class="db-tablewrap">
+          <table class="db-table" style="min-width:700px">
+            <thead><tr><th>Title</th><th>Status</th><th>Author</th><th>Updated</th><th>Published</th><th aria-label="Actions"></th></tr></thead>
+            <tbody id="rows"></tbody>
+          </table>
+          <p class="db-empty" id="empty" hidden>No posts yet — write the first one.</p>
+        </div>
+      </section>
+
+      <!-- ── EDITOR ── -->
+      <section id="editView" hidden>
+        <div class="bl-bar">
+          <button class="db-btn db-btn--ghost" id="backBtn" type="button" style="color:var(--deep-teal);border-color:var(--line)">← All posts</button>
+          <span class="bl-status" id="edStatus"></span>
+          <div class="bl-bar__r">
+            <a class="db-link" id="viewLive" target="_blank" rel="noopener" hidden>View live ↗</a>
+            <button class="db-btn db-btn--ghost" id="deleteBtn" type="button" style="color:#8A4B3F;border-color:#D8B4AC" hidden>Delete</button>
+            <button class="db-btn db-btn--ghost" id="unpubBtn" type="button" style="color:var(--deep-teal);border-color:var(--line)" hidden>Unpublish</button>
+            <button class="db-btn" id="draftBtn" type="button">Save draft</button>
+            <button class="db-btn db-btn--solid" id="publishBtn" type="button">Publish</button>
+          </div>
+        </div>
+        <p class="db-err" id="edErr" hidden></p>
+
+        <div class="bl-grid">
+          <div class="bl-main">
+            <label class="db-flabel">Title
+              <input id="pTitle" class="db-sel bl-title" placeholder="e.g. HIFU vs. a surgical facelift: an honest comparison" />
+            </label>
+            <label class="db-flabel">Excerpt <span class="bl-hint">shown on cards and as the article lede</span>
+              <textarea id="pExcerpt" class="db-textarea" rows="2" placeholder="One or two sentences on what the reader will learn."></textarea>
+            </label>
+
+            <div class="db-flabel" style="margin-top:var(--s3)">Content <span class="bl-hint">Markdown — ## headings become the table of contents</span></div>
+            <div class="bl-toolbar" role="toolbar" aria-label="Formatting">
+              <button type="button" data-md="h2">H2</button>
+              <button type="button" data-md="h3">H3</button>
+              <button type="button" data-md="bold"><strong>B</strong></button>
+              <button type="button" data-md="italic"><em>I</em></button>
+              <button type="button" data-md="ul">• List</button>
+              <button type="button" data-md="quote">“ Quote</button>
+              <button type="button" data-md="link">Link</button>
+              <span class="bl-toolbar__sp"></span>
+              <button type="button" id="previewBtn" class="is-toggle">Preview</button>
+            </div>
+            <textarea id="pContent" class="db-textarea bl-content" rows="22" placeholder="## First section&#10;&#10;Write in plain language…"></textarea>
+            <div id="preview" class="bl-preview prose-mini" hidden></div>
+          </div>
+
+          <aside class="bl-side">
+            <div class="db-card">
+              <h2 class="db-card__h" style="font-size:1rem">SEO</h2>
+              <label class="db-flabel">SEO title <span class="bl-count" id="cSeoTitle"></span>
+                <input id="pSeoTitle" class="db-sel" placeholder="Keyword-rich title tag (≤60 chars)" />
+              </label>
+              <label class="db-flabel">Meta description <span class="bl-count" id="cMeta"></span>
+                <textarea id="pMeta" class="db-textarea" rows="3" placeholder="≤158 characters for the search snippet"></textarea>
+              </label>
+              <label class="db-flabel">Slug <span class="bl-hint">/journal/…/</span>
+                <input id="pSlug" class="db-sel" placeholder="auto-generated from the title" />
+              </label>
+            </div>
+
+            <div class="db-card">
+              <h2 class="db-card__h" style="font-size:1rem">Details</h2>
+              <label class="db-flabel">Author
+                <input id="pAuthor" class="db-sel" placeholder="Dr. …" />
+              </label>
+              <label class="db-flabel">Author role
+                <input id="pRole" class="db-sel" placeholder="MBBS · Aesthetic Physician" />
+              </label>
+              <label class="db-flabel">Cover image <span class="bl-hint">used for social shares</span>
+                <input id="pCover" class="db-sel" list="imgList" placeholder="/img/…" />
+                <datalist id="imgList">{images.map((i) => <option value={i} />)}</datalist>
+              </label>
+              <label class="db-flabel">Related treatments <span class="bl-hint">links the article to its pages</span>
+                <select id="pRelated" class="db-sel" multiple size="6">
+                  {treatments.map((t) => <option value={t.id}>{t.title}</option>)}
+                </select>
+              </label>
+            </div>
+
+            <div class="db-card">
+              <h2 class="db-card__h" style="font-size:1rem">Auto table of contents</h2>
+              <ol class="bl-toc" id="tocPreview"><li class="bl-toc__none">Add ## headings to build it</li></ol>
+            </div>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+  <p class="db-loading" id="loading">Loading…</p>
+
+  <script>
+    import { marked } from 'marked';
+
+    const root = document.getElementById('dash') as HTMLElement;
+    const apiBase = root.dataset.apiBase!;
+    const siteUrl = root.dataset.siteUrl!;
+    const TOKEN = localStorage.getItem('tbf_token');
+    if (!TOKEN) location.replace('/admin/login');
+    let ME: any = {}; try { ME = JSON.parse(localStorage.getItem('tbf_user') || '{}'); } catch {}
+    if (ME.role !== 'admin' && ME.role !== 'manager') location.replace('/admin/');
+
+    const $ = (id: string) => document.getElementById(id) as any;
+    const esc = (s: any) => String(s ?? '').replace(/[&<>"']/g, (c) => (({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }) as any)[c]);
+    const fmt = (iso: string | null) => iso ? new Date(iso).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '—';
+    const slugify = (s: string) => s.toLowerCase().trim().replace(/['’]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,'').slice(0,80);
+
+    let posts: any[] = [];
+    let editing: any = null;        // null = new post
+    let slugTouched = false;
+
+    async function api(path: string, opts: any = {}) {
+      const res = await fetch(apiBase + path, { ...opts, headers: { authorization: 'Bearer ' + TOKEN, ...(opts.body ? { 'content-type': 'application/json' } : {}) } });
+      if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login'); throw new Error('unauth'); }
+      return res.json();
+    }
+
+    // ── list ──
+    function renderList() {
+      const tb = $('rows');
+      $('empty').hidden = posts.length > 0;
+      tb.innerHTML = posts.map((p) => `
+        <tr>
+          <td><strong>${esc(p.title)}</strong><span class="db-sub">/journal/${esc(p.slug)}/ · ${p.readMins} min read</span></td>
+          <td><span class="db-badge ${p.status==='published'?'db-badge--agent':''}">${p.status}</span></td>
+          <td class="db-muted">${esc(p.authorName)}</td>
+          <td class="db-nowrap">${fmt(p.updatedAt)}</td>
+          <td class="db-nowrap">${fmt(p.publishedAt)}</td>
+          <td><button class="db-link" data-edit="${esc(p.id)}">Edit</button></td>
+        </tr>`).join('');
+      tb.querySelectorAll('[data-edit]').forEach((b: any) => b.addEventListener('click', () => openEditor(b.dataset.edit)));
+    }
+    async function loadList() {
+      const q = new URLSearchParams();
+      if ($('q').value.trim()) q.set('q', $('q').value.trim());
+      if ($('fStatus').value) q.set('status', $('fStatus').value);
+      const j = await api('/api/admin/posts?' + q.toString());
+      if (j.ok) { posts = j.posts; renderList(); }
+    }
+
+    // ── editor ──
+    function setView(edit: boolean) { $('listView').hidden = edit; $('editView').hidden = !edit; }
+    function fill(p: any) {
+      $('pTitle').value = p?.title || '';
+      $('pSlug').value = p?.slug || '';
+      $('pExcerpt').value = p?.excerpt || '';
+      $('pContent').value = p?.content || '';
+      $('pSeoTitle').value = p?.seoTitle || '';
+      $('pMeta').value = p?.metaDescription || '';
+      $('pAuthor').value = p?.authorName || (ME.name || '');
+      $('pRole').value = p?.authorRole || '';
+      $('pCover').value = p?.coverImage || '';
+      const rel = new Set(p?.related || []);
+      [...$('pRelated').options].forEach((o: any) => { o.selected = rel.has(o.value); });
+      slugTouched = Boolean(p);
+      $('edStatus').textContent = p ? `${p.status}${p.publishedAt ? ' · first published ' + fmt(p.publishedAt) : ''}` : 'new draft';
+      $('deleteBtn').hidden = !p;
+      $('unpubBtn').hidden = !(p && p.status === 'published');
+      $('viewLive').hidden = !(p && p.status === 'published');
+      if (p) $('viewLive').href = `${siteUrl}/journal/${p.slug}/`;
+      $('edErr').hidden = true;
+      $('preview').hidden = true; $('pContent').hidden = false; $('previewBtn').classList.remove('is-on');
+      refreshMeta();
+    }
+    async function openEditor(id: string | null) {
+      if (id) { const j = await api('/api/admin/posts/' + id); if (!j.ok) return; editing = j.post; }
+      else editing = null;
+      fill(editing); setView(true); window.scrollTo(0, 0);
+    }
+    function collect() {
+      return {
+        title: $('pTitle').value.trim(),
+        slug: $('pSlug').value.trim(),
+        excerpt: $('pExcerpt').value.trim(),
+        content: $('pContent').value,
+        seoTitle: $('pSeoTitle').value.trim(),
+        metaDescription: $('pMeta').value.trim(),
+        authorName: $('pAuthor').value.trim(),
+        authorRole: $('pRole').value.trim(),
+        coverImage: $('pCover').value.trim() || null,
+        related: [...$('pRelated').selectedOptions].map((o: any) => o.value),
+      };
+    }
+    const errText = (e: string) => (({ title:'Give the post a title (3+ characters).', excerpt_too_long:'Excerpt is too long (500 max).', meta_description_too_long:'Meta description is too long (170 max).', forbidden:'You do not have permission for that.' }) as any)[e] || 'Could not save.';
+    async function save(status?: string) {
+      const body: any = collect();
+      if (status) body.status = status;
+      const j = editing
+        ? await api('/api/admin/posts/' + editing.id, { method: 'PATCH', body: JSON.stringify(body) })
+        : await api('/api/admin/posts', { method: 'POST', body: JSON.stringify(body) });
+      if (!j.ok) { $('edErr').textContent = errText(j.error); $('edErr').hidden = false; return; }
+      editing = j.post; fill(editing); loadList();
+    }
+
+    // ── markdown toolbar / preview / auto-TOC ──
+    const ta = $('pContent') as HTMLTextAreaElement;
+    function wrap(before: string, after = '', block = false) {
+      const s = ta.selectionStart, e = ta.selectionEnd, v = ta.value;
+      const sel = v.slice(s, e) || (block ? 'Heading' : 'text');
+      const pre = block && s > 0 && v[s - 1] !== '\n' ? '\n\n' : '';
+      ta.setRangeText(pre + before + sel + after, s, e, 'end');
+      ta.focus(); refreshMeta();
+    }
+    document.querySelectorAll('[data-md]').forEach((b: any) => b.addEventListener('click', () => {
+      const k = b.dataset.md;
+      if (k === 'h2') wrap('## ', '', true);
+      if (k === 'h3') wrap('### ', '', true);
+      if (k === 'bold') wrap('**', '**');
+      if (k === 'italic') wrap('*', '*');
+      if (k === 'ul') wrap('- ', '', true);
+      if (k === 'quote') wrap('> ', '', true);
+      if (k === 'link') { const url = prompt('Link URL (e.g. /treatments/hifu/):'); if (url) wrap('[', `](${url})`); }
+    }));
+    $('previewBtn').addEventListener('click', () => {
+      const on = $('preview').hidden;
+      $('preview').innerHTML = on ? (marked.parse(ta.value || '*Nothing yet.*', { async: false }) as string) : '';
+      $('preview').hidden = !on; ta.hidden = on;
+      $('previewBtn').classList.toggle('is-on', on);
+    });
+    function refreshMeta() {
+      // counters
+      const st = $('pSeoTitle').value.length, md = $('pMeta').value.length;
+      $('cSeoTitle').textContent = st ? `${st}/60` : '';
+      $('cSeoTitle').style.color = st > 60 ? '#B06A5E' : '';
+      $('cMeta').textContent = md ? `${md}/158` : '';
+      $('cMeta').style.color = md > 158 ? '#B06A5E' : '';
+      // auto-TOC from ## headings
+      const heads = [...ta.value.matchAll(/^##\s+(.+)$/gm)].map((m) => m[1].trim());
+      $('tocPreview').innerHTML = heads.length
+        ? heads.map((h) => `<li>${esc(h)}</li>`).join('')
+        : '<li class="bl-toc__none">Add ## headings to build it</li>';
+    }
+    let t: any;
+    ['pSeoTitle', 'pMeta'].forEach((id) => $(id).addEventListener('input', refreshMeta));
+    ta.addEventListener('input', () => { clearTimeout(t); t = setTimeout(refreshMeta, 250); });
+    $('pTitle').addEventListener('input', () => { if (!slugTouched) $('pSlug').value = slugify($('pTitle').value); });
+    $('pSlug').addEventListener('input', () => { slugTouched = true; });
+
+    // ── wiring ──
+    $('newBtn').addEventListener('click', () => openEditor(null));
+    $('backBtn').addEventListener('click', () => { setView(false); loadList(); });
+    $('draftBtn').addEventListener('click', () => save(editing ? undefined : 'draft'));
+    $('publishBtn').addEventListener('click', () => save('published'));
+    $('unpubBtn').addEventListener('click', () => save('draft'));
+    $('deleteBtn').addEventListener('click', async () => {
+      if (!editing || !confirm(`Delete "${editing.title}"? This cannot be undone.`)) return;
+      const j = await api('/api/admin/posts/' + editing.id, { method: 'DELETE' });
+      if (j.ok) { setView(false); loadList(); }
+    });
+    let ql: any;
+    $('q').addEventListener('input', () => { clearTimeout(ql); ql = setTimeout(loadList, 300); });
+    $('fStatus').addEventListener('change', loadList);
+    $('refreshBtn').addEventListener('click', loadList);
+    $('logoutBtn').addEventListener('click', () => { localStorage.removeItem('tbf_token'); localStorage.removeItem('tbf_user'); location.replace('/admin/login'); });
+    if ($('userInfo')) $('userInfo').textContent = ME.name ? `${ME.name} · ${ME.role}` : (ME.email || '');
+
+    (async () => {
+      try { await loadList(); $('loading').hidden = true; root.hidden = false; }
+      catch (e: any) { if (e.message !== 'unauth') $('loading').textContent = 'Could not reach the API.'; }
+    })();
+  </script>
+</Admin>

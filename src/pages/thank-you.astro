@@ -5,11 +5,10 @@
 // event — not form_submit, which fires before the endpoint has accepted anything.
 import Base from '../layouts/Base.astro';
 import { site, telLink } from '../site.config';
-import { getCollection } from 'astro:content';
+import { fetchPosts } from '../lib/blog';
 
-const posts = (await getCollection('journal', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 2);
+// Fetched at build time, fails soft (the section hides if the API is down).
+const { posts } = await fetchPosts('?limit=2');
 ---
 <Base
   title="Thank you | The Better Face"
@@ -39,10 +38,10 @@ const posts = (await getCollection('journal', ({ data }) => !data.draft))
         <h2 class="ty__h">While you wait</h2>
         <div class="grid g-2">
           {posts.map((p) => (
-            <a href={`/journal/${p.id}/`} class="jcard">
+            <a href={`/journal/${p.slug}/`} class="jcard">
               <span class="micro">Journal</span>
-              <h3 class="jcard__t">{p.data.title}</h3>
-              <p class="jcard__d">{p.data.metaDescription}</p>
+              <h3 class="jcard__t">{p.title}</h3>
+              <p class="jcard__d">{p.excerpt || p.metaDescription}</p>
             </a>
           ))}
         </div>

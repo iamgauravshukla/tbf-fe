@@ -7,9 +7,11 @@ import LeadForm from '../components/LeadForm.astro';
 import { site, waLink, telLink } from '../site.config';
 import { getCollection } from 'astro:content';
 
-const posts = (await getCollection('journal', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf())
-  .slice(0, 3);
+// Journal teasers come from the blog API at BUILD time and fail soft — if the
+// API is unreachable during a build, the section simply hides. The live list
+// is on /journal/ (server-rendered).
+import { fetchPosts, fmtDate } from '../lib/blog';
+const { posts } = await fetchPosts('?limit=3');
 
 const treatmentNames = (await getCollection('treatments', ({ data }) => !data.draft))
   .sort((a, b) => a.data.order - b.data.order)
@@ -45,8 +47,6 @@ const testimonials = [
 const open = site.hours[0];
 const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
 
-const fmt = (d: Date) => d.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
-const readTime = (body?: string) => Math.max(1, Math.round((body ?? '').trim().split(/\s+/).length / 200));
 ---
 <Base
   title={`${site.name} | Premium Skin, Hair & Wellness Clinic`}
@@ -196,32 +196,34 @@ const readTime = (body?: string) => Math.max(1, Math.round((body ?? '').trim().s
   <Testimonials items={testimonials} />
 
   <!-- ══════════════ JOURNAL ══════════════ -->
-  <section class="section">
-    <div class="wrap">
-      <div class="sec-head" data-reveal>
-        <div>
-          <span class="eyebrow">Journal</span>
-          <h2>Worth reading before you book</h2>
+  {posts.length > 0 && (
+    <section class="section">
+      <div class="wrap">
+        <div class="sec-head" data-reveal>
+          <div>
+            <span class="eyebrow">Journal</span>
+            <h2>Worth reading before you book</h2>
+          </div>
+          <a href="/journal/" class="sec-head__link">All articles<i aria-hidden="true">→</i></a>
         </div>
-        <a href="/journal/" class="sec-head__link">All articles<i aria-hidden="true">→</i></a>
+        <div class="grid g-3 jgrid">
+          {posts.map((p, i) => (
+            <a class="jcard" href={`/journal/${p.slug}/`} data-reveal data-reveal-delay={String(i)}>
+              <span class="jcard__meta">
+                <span class="numeral">{String(i + 1).padStart(2, '0')}</span>
+                <span class="jcard__date">{fmtDate(p.publishedAt)}</span>
+                <span class="jcard__time">{p.readMins} min read</span>
+              </span>
+              <h3 class="jcard__t">{p.title}</h3>
+              <p class="jcard__d">{p.excerpt || p.metaDescription}</p>
+              <span class="jcard__by">{p.authorName}<em>{p.authorRole}</em></span>
+              <span class="jcard__more">Read<i aria-hidden="true">→</i></span>
+            </a>
+          ))}
+        </div>
       </div>
-      <div class="grid g-3 jgrid">
-        {posts.map((p, i) => (
-          <a class="jcard" href={`/journal/${p.id}/`} data-reveal data-reveal-delay={String(i)}>
-            <span class="jcard__meta">
-              <span class="numeral">{String(i + 1).padStart(2, '0')}</span>
-              <span class="jcard__date">{fmt(p.data.date)}</span>
-              <span class="jcard__time">{readTime(p.body)} min read</span>
-            </span>
-            <h3 class="jcard__t">{p.data.title}</h3>
-            <p class="jcard__d">{p.data.metaDescription}</p>
-            <span class="jcard__by">{p.data.author}<em>{p.data.authorRole}</em></span>
-            <span class="jcard__more">Read<i aria-hidden="true">→</i></span>
-          </a>
-        ))}
-      </div>
-    </div>
-  </section>
+    </section>
+  )}
 
   <!-- ══════════════ BOOKING ══════════════ -->
   <section class="band inverse" id="book">

@@ -27,7 +27,7 @@ import { site } from '../../site.config';
 
       <section class="db-tablewrap">
         <table class="db-table">
-          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Status</th><th aria-label="Actions"></th></tr></thead>
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Leads</th><th>Booked</th><th>Done</th><th>Status</th><th aria-label="Actions"></th></tr></thead>
           <tbody id="rows"></tbody>
         </table>
       </section>
@@ -46,6 +46,7 @@ import { site } from '../../site.config';
     const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
     const ROLES = ME.role === 'admin' ? ['agent','manager','admin'] : ['agent'];
     let users = [];
+    let perf = {};   // ownerId → { assigned, booked, completed } (last 12 months)
 
     async function api(path, opts = {}) {
       const res = await fetch(apiBase + path, { ...opts, headers: { 'authorization':'Bearer '+TOKEN, ...(opts.body?{'content-type':'application/json'}:{}), ...(opts.headers||{}) } });
@@ -66,10 +67,14 @@ import { site } from '../../site.config';
     function render() {
       $('rows').innerHTML = users.map((u) => {
         const canEdit = ME.role === 'admin' || u.role === 'agent';
+        const p = perf[u.id] || { assigned:0, booked:0, completed:0 };
         return `<tr class="${u.active?'':'db-off'}">
           <td><strong>${esc(u.name)}</strong>${u.id===ME.id?' <span class="db-badge">you</span>':''}</td>
           <td>${esc(u.email)}</td>
           <td>${roleControl(u)}</td>
+          <td><span class="tm-num">${p.assigned}</span></td>
+          <td>${p.booked}</td>
+          <td>${p.completed}</td>
           <td>${u.active?'Active':'Disabled'}</td>
           <td>${canEdit ? `
             <button class="db-link" data-toggle="${esc(u.id)}">${u.active?'Disable':'Enable'}</button>
@@ -90,7 +95,18 @@ import { site } from '../../site.config';
       if (j.ok) load(); else { alert(errText(j.error)); load(); }
     }
 
-    async function load() { const j = await api('/api/users'); if (j.ok) { users = j.users; render(); } }
+    async function load() {
+      const iso = (d) => d.toISOString().slice(0, 10);
+      const from = iso(new Date(Date.now() - 364 * 86400000));
+      const to = iso(new Date());
+      const [uj, aj] = await Promise.all([
+        api('/api/users'),
+        api('/api/admin/analytics?from=' + from + '&to=' + to).catch(() => ({ ok: false })),
+      ]);
+      perf = {};
+      if (aj.ok && aj.byOwner) for (const o of aj.byOwner) if (o.ownerId) perf[o.ownerId] = o;
+      if (uj.ok) { users = uj.users; render(); }
+    }
 
     $('newUser').addEventListener('submit', async (e) => {
       e.preventDefault(); $('newErr').hidden = true; $('newOk').hidden = true;
