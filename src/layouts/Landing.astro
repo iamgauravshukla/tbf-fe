@@ -15,7 +15,7 @@ const { title, description, path, waMessage } = Astro.props;
 <html lang={site.language}>
   <head>
     <Head title={title} description={description} path={path} noindex={true} />
-    <Schema type="home" />
+    <Schema type="home" path={path} />
     <Analytics />
   </head>
   <body>

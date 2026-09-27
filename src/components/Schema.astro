@@ -1,43 +1,63 @@
 ---
 // JSON-LD. Google reads this to build the Maps panel and rich results.
 // LocalBusiness is the one that matters most for "[treatment] near me".
-import { site } from '../site.config';
+//
+// Everything is emitted as ONE @graph so the nodes reference each other by @id
+// (page → website → business, service → provider) instead of repeating data.
+import { site, hasAddress, hasGeo } from '../site.config';
 
 interface Props {
   type?: 'home' | 'service' | 'article';
+  /** Path of the current page, e.g. "/treatments/hifu/". */
+  path?: string;
   serviceName?: string;
   serviceDescription?: string;
+  /** Short category label, e.g. "Laser" — becomes Service.serviceType. */
+  serviceType?: string;
   price?: number | null;
+  /** Page's main image (treatment hero / article cover). */
+  image?: string;
   breadcrumbs?: { name: string; path: string }[];
-  article?: { title: string; description: string; date: Date; author: string };
+  article?: { title: string; description: string; date: Date; modified?: Date; author: string };
 }
-const { type = 'home', serviceName, serviceDescription, price, breadcrumbs = [], article } = Astro.props;
+const { type = 'home', path = '/', serviceName, serviceDescription, serviceType, price, image, breadcrumbs = [], article } = Astro.props;
+
+const abs = (p: string) => new URL(p, site.url).href;
+const BUSINESS_ID = `${site.url}/#business`;
+const WEBSITE_ID = `${site.url}/#website`;
+const pageUrl = abs(path);
 
 // MedicalBusiness is a subtype of LocalBusiness — more specific, and the right
 // one for a clinic with qualified practitioners.
 const business = {
-  '@context': 'https://schema.org',
   '@type': ['MedicalBusiness', 'HealthAndBeautyBusiness'],
-  '@id': `${site.url}/#business`,
+  '@id': BUSINESS_ID,
   name: site.name,
   legalName: site.legalName,
   description: site.description,
-  url: site.url,
+  url: abs('/'),
   telephone: site.phoneE164,
   email: site.email,
-  image: new URL('/logo/logo-vertical.png', site.url).href,
-  logo: new URL('/logo/logo-vertical.png', site.url).href,
+  // `image` is the clinic itself (reception), `logo` is the brand mark.
+  image: abs(site.clinicImage),
+  logo: abs('/logo/logo-vertical.png'),
   slogan: site.tagline,
+  currenciesAccepted: 'PHP',
+  areaServed: { '@type': 'AdministrativeArea', name: site.address.region },
+  // Region and country are known; street, city and postcode are only
+  // published once they are real (see hasAddress in site.config.ts).
   address: {
     '@type': 'PostalAddress',
-    streetAddress: site.address.street,
-    addressLocality: site.address.locality,
+    ...(hasAddress ? {
+      streetAddress: site.address.street,
+      addressLocality: site.address.locality,
+      postalCode: site.address.postalCode,
+    } : {}),
     addressRegion: site.address.region,
-    postalCode: site.address.postalCode,
     addressCountry: site.address.country,
   },
-  geo: { '@type': 'GeoCoordinates', latitude: site.geo.lat, longitude: site.geo.lng },
-  hasMap: site.mapUrl,
+  ...(hasGeo ? { geo: { '@type': 'GeoCoordinates', latitude: site.geo.lat, longitude: site.geo.lng } } : {}),
+  ...(hasAddress ? { hasMap: site.mapUrl } : {}),
   openingHoursSpecification: site.hoursSpec.map((h) => ({
     '@type': 'OpeningHoursSpecification',
     dayOfWeek: h.days,
@@ -50,34 +70,64 @@ const business = {
   // evidence is a manual-action risk, not a shortcut.
 };
 
+const website = type === 'home' ? {
+  '@type': 'WebSite',
+  '@id': WEBSITE_ID,
+  url: abs('/'),
+  name: site.name,
+  inLanguage: site.language,
+  publisher: { '@id': BUSINESS_ID },
+} : null;
+
+// A clinic's treatment is an offered Service (which may carry an Offer);
+// MedicalProcedure has no `offers` property and describes the procedure in the
+// abstract rather than this clinic's service.
 const serviceLd = type === 'service' && serviceName ? {
-  '@context': 'https://schema.org',
-  '@type': 'MedicalProcedure',
+  '@type': 'Service',
+  '@id': `${pageUrl}#service`,
   name: serviceName,
   description: serviceDescription,
-  provider: { '@id': `${site.url}/#business` },
-  ...(price ? { offers: { '@type': 'Offer', price, priceCurrency: 'PHP', availability: 'https://schema.org/InStock' } } : {}),
+  url: pageUrl,
+  ...(serviceType ? { serviceType } : {}),
+  ...(image ? { image: abs(image) } : {}),
+  provider: { '@id': BUSINESS_ID },
+  areaServed: { '@type': 'AdministrativeArea', name: site.address.region },
+  ...(price ? {
+    offers: {
+      '@type': 'Offer',
+      url: pageUrl,
+      priceCurrency: 'PHP',
+      priceSpecification: { '@type': 'PriceSpecification', minPrice: price, priceCurrency: 'PHP' },
+    },
+  } : {}),
 } : null;
 
 const articleLd = type === 'article' && article ? {
-  '@context': 'https://schema.org',
   '@type': 'Article',
+  '@id': `${pageUrl}#article`,
   headline: article.title,
   description: article.description,
+  url: pageUrl,
+  mainEntityOfPage: pageUrl,
+  inLanguage: site.language,
+  image: abs(image || '/logo/logo-vertical.png'),
   datePublished: article.date.toISOString(),
+  dateModified: (article.modified ?? article.date).toISOString(),
   author: { '@type': 'Person', name: article.author },
-  publisher: { '@id': `${site.url}/#business` },
+  publisher: { '@id': BUSINESS_ID },
 } : null;
 
 const crumbLd = breadcrumbs.length ? {
-  '@context': 'https://schema.org',
   '@type': 'BreadcrumbList',
   itemListElement: breadcrumbs.map((b, i) => ({
     '@type': 'ListItem', position: i + 1, name: b.name,
-    item: new URL(b.path, site.url).href,
+    item: abs(b.path),
   })),
 } : null;
 
-const blocks = [business, serviceLd, articleLd, crumbLd].filter(Boolean);
+const graph = {
+  '@context': 'https://schema.org',
+  '@graph': [business, website, serviceLd, articleLd, crumbLd].filter(Boolean),
+};
 ---
-{blocks.map((b) => <script type="application/ld+json" set:html={JSON.stringify(b)} />)}
+<script type="application/ld+json" set:html={JSON.stringify(graph)} />

@@ -18,7 +18,8 @@ notSuitableFor:
   - "Implants, fillers or metal in the treatment area"
   - "Pregnancy, or active infection in the area"
 order: 20
-image: "/img/f-care.jpg"
+image: "/img/t-hifu.jpg"
+imageAlt: "A HIFU cartridge held against a client's jawline during a skin-tightening session"
 ---
 
 ## What it actually does

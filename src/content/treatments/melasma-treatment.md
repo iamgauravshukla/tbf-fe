@@ -1,6 +1,6 @@
 ---
 title: "Non-Invasive Melasma Treatment"
-seoTitle: "Non-Invasive Melasma Treatment | Dark Patches | The Better Face"
+seoTitle: "Melasma & Dark Patches Treatment | The Better Face"
 metaDescription: "A gentle, non-surgical program for melasma, dark patches and uneven tone, customised to your skin, with minimal downtime. The Better Face."
 group: "Skin"
 category: "Dermatology"
@@ -18,7 +18,8 @@ notSuitableFor:
   - "Skin that is currently inflamed or sunburned"
   - "Anyone unwilling to wear daily SPF, which is half the treatment"
 order: 40
-image: "/img/t-skin.jpg"
+image: "/img/t-melasma.jpg"
+imageAlt: "A client in protective eyewear having their face treated with a laser handpiece"
 ---
 
 ## What it actually does

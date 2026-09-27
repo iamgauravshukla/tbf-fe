@@ -15,8 +15,8 @@ const steps = [
 ];
 ---
 <Base
-  title="Book a Consultation | The Better Face"
-  description="Book a consultation at The Better Face. Call, WhatsApp or send an enquiry — we reply within one working day. All treatments require a consultation."
+  title={`Book a Consultation in ${site.address.region} | ${site.name}`}
+  description={`Book a skin, hair or wellness consultation at ${site.name} in ${site.address.region}. Call ${site.phoneDisplay}, WhatsApp or send an enquiry. We reply within one working day.`}
   path="/contact/"
   breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Book a consultation', path: '/contact/' }]}
 >

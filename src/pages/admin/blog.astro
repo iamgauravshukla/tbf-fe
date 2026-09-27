@@ -127,7 +127,7 @@ const images = Object.keys(import.meta.glob('/public/img/*.{jpg,png}'))
     const apiBase = root.dataset.apiBase!;
     const siteUrl = root.dataset.siteUrl!;
     const TOKEN = localStorage.getItem('tbf_token');
-    if (!TOKEN) location.replace('/admin/login');
+    if (!TOKEN) location.replace('/admin/login/');
     let ME: any = {}; try { ME = JSON.parse(localStorage.getItem('tbf_user') || '{}'); } catch {}
     if (ME.role !== 'admin' && ME.role !== 'manager') location.replace('/admin/');
 
@@ -142,7 +142,7 @@ const images = Object.keys(import.meta.glob('/public/img/*.{jpg,png}'))
 
     async function api(path: string, opts: any = {}) {
       const res = await fetch(apiBase + path, { ...opts, headers: { authorization: 'Bearer ' + TOKEN, ...(opts.body ? { 'content-type': 'application/json' } : {}) } });
-      if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login'); throw new Error('unauth'); }
+      if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login/'); throw new Error('unauth'); }
       return res.json();
     }
 
@@ -282,7 +282,7 @@ const images = Object.keys(import.meta.glob('/public/img/*.{jpg,png}'))
     $('q').addEventListener('input', () => { clearTimeout(ql); ql = setTimeout(loadList, 300); });
     $('fStatus').addEventListener('change', loadList);
     $('refreshBtn').addEventListener('click', loadList);
-    $('logoutBtn').addEventListener('click', () => { localStorage.removeItem('tbf_token'); localStorage.removeItem('tbf_user'); location.replace('/admin/login'); });
+    $('logoutBtn').addEventListener('click', () => { localStorage.removeItem('tbf_token'); localStorage.removeItem('tbf_user'); location.replace('/admin/login/'); });
     if ($('userInfo')) $('userInfo').textContent = ME.name ? `${ME.name} · ${ME.role}` : (ME.email || '');
 
     (async () => {

@@ -1,6 +1,6 @@
 ---
 title: "Warts Removal — Per Area"
-seoTitle: "Warts Removal | Per Area | The Better Face"
+seoTitle: "Wart & Skin Growth Removal | The Better Face"
 metaDescription: "Targeted removal of suitable superficial warts and skin growths by area, with the method matched to the lesion. Assessed first at The Better Face."
 group: "Skin"
 category: "Dermatology"
@@ -18,7 +18,8 @@ notSuitableFor:
   - "Widespread or recurrent lesions that need dermatology"
   - "Removal on the day without an assessment"
 order: 60
-image: "/img/t-treatment.jpg"
+image: "/img/t-warts-removal.jpg"
+imageAlt: "A fine-tipped device removing a small skin growth from a client's forehead"
 ---
 
 ## What it actually does

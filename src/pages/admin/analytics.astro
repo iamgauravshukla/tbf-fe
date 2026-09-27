@@ -69,7 +69,7 @@ import { site } from '../../site.config';
 
   <script define:vars={{ apiBase: site.apiBase }}>
     const TOKEN = localStorage.getItem('tbf_token');
-    if (!TOKEN) location.replace('/admin/login');
+    if (!TOKEN) location.replace('/admin/login/');
     let ME = {}; try { ME = JSON.parse(localStorage.getItem('tbf_user') || '{}'); } catch (_) {}
 
     const $ = (id) => document.getElementById(id);
@@ -83,7 +83,7 @@ import { site } from '../../site.config';
 
     async function api(path) {
       const res = await fetch(apiBase + path, { headers: { authorization: 'Bearer ' + TOKEN } });
-      if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login'); throw new Error('unauth'); }
+      if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login/'); throw new Error('unauth'); }
       return res.json();
     }
 
@@ -170,7 +170,7 @@ import { site } from '../../site.config';
     if ($('userInfo')) $('userInfo').textContent = ME.name ? `${ME.name} · ${ME.role}` : (ME.email || '');
     if ((ME.role === 'admin' || ME.role === 'manager') && $('navUsers')) $('navUsers').hidden = false;
     $('refreshBtn').addEventListener('click', load);
-    $('logoutBtn').addEventListener('click', () => { localStorage.removeItem('tbf_token'); localStorage.removeItem('tbf_user'); location.replace('/admin/login'); });
+    $('logoutBtn').addEventListener('click', () => { localStorage.removeItem('tbf_token'); localStorage.removeItem('tbf_user'); location.replace('/admin/login/'); });
 
     (async () => {
       try { const a = await api('/api/admin/agents'); AGENTS = (a.ok && a.agents) ? a.agents : []; await load(); $('loading').hidden = true; $('dash').hidden = false; }

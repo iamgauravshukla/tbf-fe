@@ -18,7 +18,8 @@ notSuitableFor:
   - "Pregnancy or breastfeeding"
   - "Anyone expecting a single-session transformation"
 order: 110
-image: "/img/t-lobby.jpg"
+image: "/img/t-barbie-arms.jpg"
+imageAlt: "A clinician in gloves applying clear gel to a client's upper arm before an arm-contouring session"
 ---
 
 ## What it actually does

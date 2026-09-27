@@ -49,8 +49,8 @@ const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
 
 ---
 <Base
-  title={`${site.name} | Premium Skin, Hair & Wellness Clinic`}
-  description={site.description}
+  title={`${site.name} | Skin & Hair Clinic in ${site.address.region}`}
+  description={`Skin, hair and wellness clinic in ${site.address.region}: HIFU, CO2 laser, melasma, PRP and hair treatments by licensed clinicians. Consultation first.`}
   path="/"
   schemaType="home"
 >
@@ -58,10 +58,12 @@ const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
   <section class="hero">
     <div class="hero__text">
       <div class="hero__inner">
-        <span class="eyebrow" data-reveal>Skin · Hair · Wellness</span>
-        <h1 class="display hero__h" data-reveal data-reveal-delay="1">
+        <!-- The h1 names the business and place (what the page is about); the
+             tagline keeps its display styling but is not the heading. -->
+        <h1 class="eyebrow hero__kw" data-reveal>Skin, Hair &amp; Wellness Clinic <span>· {site.address.region}</span></h1>
+        <p class="display hero__h" data-reveal data-reveal-delay="1">
           The better skin.<br /><em>The better you.</em>
-        </h1>
+        </p>
         <hr class="rule" data-reveal data-reveal-delay="2" />
         <p class="lede hero__lede" data-reveal data-reveal-delay="2">
           Clinical expertise delivered through a premium wellness experience —
@@ -81,7 +83,7 @@ const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
     </div>
 
     <div class="hero__media frame">
-      <img src="/img/f-care.jpg" alt="" width="900" height="1200" fetchpriority="high" decoding="async" />
+      <img src="/img/f-care.jpg" alt="Close-up portrait of a woman with clear, natural-looking skin" width="900" height="1200" fetchpriority="high" decoding="async" />
       <div class="hero__cap">
         <span>Metro Manila</span>
         <span class="hero__cap-hours">{hoursLine}</span>
@@ -278,8 +280,11 @@ const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
     }
   }
   .hero__inner{max-width:34rem}
+  /* The h1 wears the eyebrow style; keep the place name on one line. */
+  .hero__kw{font-family:'Instrument Sans',sans-serif;line-height:1.6;text-wrap:wrap}
+  .hero__kw span{white-space:nowrap}
   /* a touch smaller than the global display, so the hero clears the fold */
-  .hero__h{margin-bottom:0;font-size:clamp(2.35rem,1.4rem + 2.6vw,3.4rem);line-height:1.08}
+  .hero__h{max-width:none;margin-bottom:0;font-size:clamp(2.35rem,1.4rem + 2.6vw,3.4rem);line-height:1.08}
   .hero__h em{font-style:italic;color:var(--ocean-teal)}
   .hero__lede{margin-top:0}
   .hero__cta{display:flex;flex-wrap:wrap;gap:var(--s2);margin-top:var(--s3)}

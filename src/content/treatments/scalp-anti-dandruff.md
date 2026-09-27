@@ -1,6 +1,6 @@
 ---
 title: "Scalp Anti-Dandruff Treatment"
-seoTitle: "Anti-Dandruff Scalp Treatment | Flakes & Itch | The Better Face"
+seoTitle: "Anti-Dandruff Scalp Treatment | The Better Face"
 metaDescription: "A deep-cleansing scalp treatment for dandruff, flaking, itch and buildup, assessed by a clinician first. Book at The Better Face."
 group: "Hair"
 category: "Scalp"
@@ -18,7 +18,8 @@ notSuitableFor:
   - "Scalp psoriasis or eczema that needs medical dermatology"
   - "An undiagnosed rash we have not assessed"
 order: 70
-image: "/img/t-care.jpg"
+image: "/img/t-scalp-dandruff.jpg"
+imageAlt: "An airbrush applicator spraying treatment onto a client's scalp along the parting"
 ---
 
 ## What it actually does

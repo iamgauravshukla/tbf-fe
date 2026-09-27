@@ -18,7 +18,8 @@ notSuitableFor:
   - "Active infection in the treatment area"
   - "Pregnancy or breastfeeding"
 order: 50
-image: "/img/f-expert.jpg"
+image: "/img/t-prp.jpg"
+imageAlt: "A microneedling pen applying PRP to the skin beside a client's nose"
 ---
 
 ## What it actually does

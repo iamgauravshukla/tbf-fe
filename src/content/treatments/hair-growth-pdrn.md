@@ -18,7 +18,8 @@ notSuitableFor:
   - "Active scalp infection or inflammation"
   - "Anyone expecting guaranteed regrowth — no one can honestly promise that"
 order: 75
-image: "/img/t-clinician.jpg"
+image: "/img/t-hair-pdrn.jpg"
+imageAlt: "A clinician in gloves applying treatment to a client's scalp along the hair parting with a handheld applicator"
 ---
 
 ## What it actually does

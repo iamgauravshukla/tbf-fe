@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import TreatmentCard from '../../components/TreatmentCard.astro';
 import { getCollection } from 'astro:content';
+import { site } from '../../site.config';
 
 const all = (await getCollection('treatments', ({ data }) => !data.draft))
   .sort((a, b) => a.data.order - b.data.order);
@@ -29,8 +30,8 @@ const groups = GROUPS
   .filter((g) => g.items.length > 0);
 ---
 <Base
-  title="Treatments | Skin, Hair & Wellness | The Better Face"
-  description="Every treatment across skin, hair and wellness — what each does, who it suits, who it does not, and what it costs. Consultation required."
+  title="Skin, Hair & Wellness Treatments | The Better Face"
+  description={`HIFU, CO2 laser, melasma, PRP, hair regrowth and IV drips at our ${site.address.region} clinic: what each treatment does, who it suits and who it does not.`}
   path="/treatments/"
   breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Treatments', path: '/treatments/' }]}
 >

@@ -85,7 +85,7 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
 
   <script define:vars={{ apiBase: site.apiBase, STATUSES }}>
     const TOKEN = localStorage.getItem('tbf_token');
-    if (!TOKEN) location.replace('/admin/login');
+    if (!TOKEN) location.replace('/admin/login/');
     let ME = {};
     try { ME = JSON.parse(localStorage.getItem('tbf_user') || '{}'); } catch (_) {}
 
@@ -111,7 +111,7 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
         ...opts,
         headers: { 'authorization': 'Bearer ' + TOKEN, ...(opts.body ? { 'content-type':'application/json' } : {}), ...(opts.headers||{}) },
       });
-      if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login'); throw new Error('unauth'); }
+      if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login/'); throw new Error('unauth'); }
       return res.json();
     }
 
@@ -400,7 +400,7 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
     $('refreshBtn').addEventListener('click', reload);
     $('prevBtn').addEventListener('click', () => { state.offset = Math.max(0, state.offset - state.limit); loadLeads(); });
     $('nextBtn').addEventListener('click', () => { state.offset += state.limit; loadLeads(); });
-    $('logoutBtn').addEventListener('click', () => { localStorage.removeItem('tbf_token'); localStorage.removeItem('tbf_user'); location.replace('/admin/login'); });
+    $('logoutBtn').addEventListener('click', () => { localStorage.removeItem('tbf_token'); localStorage.removeItem('tbf_user'); location.replace('/admin/login/'); });
     $('closeDrawer').addEventListener('click', closeDrawer);
     $('scrim').addEventListener('click', closeDrawer);
     document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDrawer(); });

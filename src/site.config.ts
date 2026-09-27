@@ -26,7 +26,7 @@ export const site = {
   // --- domain -------------------------------------------------------------
   url: "https://thebetterface.com",          // TODO confirm domain
   locale: "en_PH",
-  language: "en",
+  language: "en-PH",
 
   // --- NAP ----------------------------------------------------------------
   phoneDisplay: "0927 770 8969",
@@ -71,12 +71,23 @@ export const site = {
   apiBase: API_BASE,
 
   // --- media -------------------------------------------------------------
+  // Photo of the clinic itself — the business `image` in structured data.
+  clinicImage: "/img/t-lobby.jpg",
   // Clinic walkaround video for the homepage. A YouTube/Vimeo link or a
   // self-hosted "/video/walkaround.mp4" path. Leave empty and the homepage
   // shows a "filming soon" placeholder in its place, ready for the footage.
   clinicVideo: "",
   clinicVideoPoster: "/img/t-lobby.jpg",
 } as const;
+
+// Placeholder guards. Structured data must never publish a "TODO" address or
+// 0,0 coordinates — Google treats that as a wrong address, which is worse for
+// local ranking than no address at all. These flip to true once the real NAP
+// is filled in above, and the schema picks the fields up automatically.
+const isReal = (v: string) => v.trim() !== "" && !/TODO/i.test(v);
+export const hasAddress =
+  isReal(site.address.street) && isReal(site.address.locality) && isReal(site.address.postalCode);
+export const hasGeo = site.geo.lat !== 0 && site.geo.lng !== 0;
 
 export const waLink = (message: string) =>
   `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(message)}`;

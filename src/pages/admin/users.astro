@@ -37,7 +37,7 @@ import { site } from '../../site.config';
 
   <script define:vars={{ apiBase: site.apiBase }}>
     const TOKEN = localStorage.getItem('tbf_token');
-    if (!TOKEN) location.replace('/admin/login');
+    if (!TOKEN) location.replace('/admin/login/');
     let ME = {}; try { ME = JSON.parse(localStorage.getItem('tbf_user') || '{}'); } catch (_) {}
     // Agents cannot manage the team.
     if (ME.role !== 'admin' && ME.role !== 'manager') location.replace('/admin/');
@@ -50,7 +50,7 @@ import { site } from '../../site.config';
 
     async function api(path, opts = {}) {
       const res = await fetch(apiBase + path, { ...opts, headers: { 'authorization':'Bearer '+TOKEN, ...(opts.body?{'content-type':'application/json'}:{}), ...(opts.headers||{}) } });
-      if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login'); throw new Error('unauth'); }
+      if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login/'); throw new Error('unauth'); }
       return res.json();
     }
     const errText = (e) => ({ email_taken:'That email is already in use.', password_too_short:'Password must be at least 8 characters.', last_admin:'You cannot remove the only admin.', cannot_deactivate_self:'You cannot deactivate yourself.', cannot_change_own_role:'You cannot change your own role.', forbidden:'You do not have permission for that.', name:'Enter a name.', email:'Enter a valid email.' }[e] || 'Something went wrong.');
@@ -120,7 +120,7 @@ import { site } from '../../site.config';
     if ($('userInfo')) $('userInfo').textContent = ME.name ? `${ME.name} · ${ME.role}` : (ME.email || '');
     if ($('navUsers')) $('navUsers').hidden = false;
     $('refreshBtn').addEventListener('click', load);
-    $('logoutBtn').addEventListener('click', () => { localStorage.removeItem('tbf_token'); localStorage.removeItem('tbf_user'); location.replace('/admin/login'); });
+    $('logoutBtn').addEventListener('click', () => { localStorage.removeItem('tbf_token'); localStorage.removeItem('tbf_user'); location.replace('/admin/login/'); });
 
     (async () => { try { await load(); $('loading').hidden = true; $('dash').hidden = false; } catch (e) { if (e.message!=='unauth') $('loading').textContent = 'Could not reach the API.'; } })();
   </script>

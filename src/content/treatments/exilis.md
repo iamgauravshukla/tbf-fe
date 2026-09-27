@@ -18,7 +18,8 @@ notSuitableFor:
   - "Implants or metal in the treatment area"
   - "Pregnancy"
 order: 100
-image: "/img/t-campaign.jpg"
+image: "/img/t-exilis.jpg"
+imageAlt: "An Exilis handpiece in use on the skin beside a client's eye"
 ---
 
 ## What it actually does

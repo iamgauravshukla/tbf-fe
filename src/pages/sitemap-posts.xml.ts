@@ -11,7 +11,7 @@ export const GET: APIRoute = async () => {
   const { posts } = await fetchPosts('?limit=100');
   const urls = [
     { loc: `${site.url}/journal/`, lastmod: posts[0]?.publishedAt },
-    ...posts.map((p) => ({ loc: `${site.url}/journal/${p.slug}/`, lastmod: p.publishedAt })),
+    ...posts.map((p) => ({ loc: `${site.url}/journal/${p.slug}/`, lastmod: p.updatedAt || p.publishedAt })),
   ];
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

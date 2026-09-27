@@ -52,15 +52,18 @@ const FALLBACK_GALLERY: Record<string, string[]> = {
 };
 const pool = d.gallery.length ? [...d.gallery, ...FALLBACK_GALLERY[d.group]] : FALLBACK_GALLERY[d.group];
 const gallery = [...new Set(pool)].filter((i) => i !== d.image).slice(0, 2);
+const heroAlt = d.imageAlt ?? `${d.title} at ${site.name}`;
 ---
 <Base
   title={d.seoTitle}
   description={d.metaDescription}
   path={`/treatments/${entry.id}/`}
   ogImage={d.image}
+  ogImageAlt={heroAlt}
   schemaType="service"
   serviceName={d.title}
   serviceDescription={d.summary}
+  serviceType={d.category}
   price={d.priceFrom}
   breadcrumbs={[
     { name: 'Home', path: '/' },
@@ -93,7 +96,7 @@ const gallery = [...new Set(pool)].filter((i) => i !== d.image).slice(0, 2);
 
     <div class="thero__media zoom">
       {d.image
-        ? <img src={d.image} alt="" width="900" height="1200" fetchpriority="high" decoding="async" />
+        ? <img src={d.image} alt={heroAlt} width="900" height="1200" fetchpriority="high" decoding="async" />
         : <div class="thero__ph" aria-hidden="true"></div>}
     </div>
   </section>
@@ -150,8 +153,8 @@ const gallery = [...new Set(pool)].filter((i) => i !== d.image).slice(0, 2);
         <span class="eyebrow">The experience</span>
         <h2 class="tgal__h">Clinical standards, in a calm room.</h2>
         <p class="tgal__p">
-          {d.title} is delivered in a private treatment room by a clinician who has
-          assessed you first — never off a script, never rushed. You will know what
+          {d.title} is delivered in a private treatment room at our {site.address.region}
+          clinic, by a clinician who has assessed you first — never off a script, never rushed. You will know what
           is happening at every step, and exactly what to do when you get home.
         </p>
         <ul class="tgal__pts">

@@ -1,6 +1,6 @@
 ---
 title: "CO₂ Fractional Laser"
-seoTitle: "CO2 Fractional Laser | Acne Scars & Texture | The Better Face"
+seoTitle: "CO2 Fractional Laser for Acne Scars | The Better Face"
 metaDescription: "CO₂ fractional laser resurfacing for acne scars, pores, texture and fine lines, delivered by a qualified clinician. Consultation first at The Better Face."
 group: "Skin"
 category: "Laser"
@@ -18,7 +18,8 @@ notSuitableFor:
   - "Pregnancy or breastfeeding"
   - "A recent tan, or a history of keloid scarring we have not discussed"
 order: 10
-image: "/img/f-skin.jpg"
+image: "/img/t-co2-laser.jpg"
+imageAlt: "A CO2 fractional laser handpiece on a client's cheek, its red aiming light visible on the skin"
 ---
 
 ## What it actually does

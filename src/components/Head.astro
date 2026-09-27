@@ -9,8 +9,19 @@ interface Props {
   /** Ad landing pages must not be indexed — see public/robots.txt */
   noindex?: boolean;
   ogImage?: string;
+  /** Describes ogImage for screen readers on social cards. */
+  ogImageAlt?: string;
+  /** "article" on journal posts; everything else is a website page. */
+  ogType?: 'website' | 'article';
+  /** Journal posts only — emitted as article:published_time / modified_time. */
+  published?: Date;
+  modified?: Date;
 }
-const { title, description, path, noindex = false, ogImage = '/logo/logo-vertical.png' } = Astro.props;
+const {
+  title, description, path, noindex = false,
+  ogImage = '/logo/logo-vertical.png', ogImageAlt = site.name,
+  ogType = 'website', published, modified,
+} = Astro.props;
 const canonical = new URL(path, site.url).href;
 const ogUrl = new URL(ogImage, site.url).href;
 ---
@@ -19,22 +30,29 @@ const ogUrl = new URL(ogImage, site.url).href;
 
 <title>{title}</title>
 <meta name="description" content={description} />
-<link rel="canonical" href={canonical} />
-{noindex && <meta name="robots" content="noindex,follow" />}
+<!-- A noindex page gets no canonical: "don't index this" plus "this is the
+     preferred URL" is a contradictory pair of signals. -->
+{noindex
+  ? <meta name="robots" content="noindex,follow" />
+  : <link rel="canonical" href={canonical} />}
 
 <!-- Self-hosted fonts: preload only the two cuts above the fold.
      Preloading more than this delays first paint rather than helping it. -->
 <link rel="preload" href="/fonts/playfair-400.woff2" as="font" type="font/woff2" crossorigin />
 <link rel="preload" href="/fonts/instrument-sans-var.woff2" as="font" type="font/woff2" crossorigin />
 
-<meta property="og:type" content="website" />
+<meta property="og:type" content={ogType} />
 <meta property="og:site_name" content={site.name} />
 <meta property="og:title" content={title} />
 <meta property="og:description" content={description} />
 <meta property="og:url" content={canonical} />
 <meta property="og:image" content={ogUrl} />
+<meta property="og:image:alt" content={ogImageAlt} />
 <meta property="og:locale" content={site.locale} />
+{published && <meta property="article:published_time" content={published.toISOString()} />}
+{(modified ?? published) && <meta property="article:modified_time" content={(modified ?? published)!.toISOString()} />}
 <meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image:alt" content={ogImageAlt} />
 
 <meta name="theme-color" content="#0B4F59" />
 <link rel="icon" href="/logo/icon-512.png" type="image/png" />

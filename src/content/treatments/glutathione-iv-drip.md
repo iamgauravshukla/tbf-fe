@@ -18,7 +18,8 @@ notSuitableFor:
   - "Pregnancy or breastfeeding"
   - "Anyone expecting a guaranteed cosmetic outcome — we do not make that claim"
 order: 90
-image: "/img/t-product.jpg"
+image: "/img/t-glutathione-iv.jpg"
+imageAlt: "A clinician in gloves securing an IV line on a client's arm for a glutathione drip"
 ---
 
 ## What it actually is

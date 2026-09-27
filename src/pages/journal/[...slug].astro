@@ -31,18 +31,21 @@ const next = latest.find((p) => p.slug !== post.slug) ?? null;
 // Related treatments come from the post's `related` slugs — the internal link
 // from education content to the commercial page.
 const related = (
-  await Promise.all((post.related || []).map((s) => getEntry('treatments', s).catch(() => null)))
+  await Promise.all((post.related || []).map((s) => Promise.resolve(getEntry('treatments', s)).catch(() => null)))
 ).filter(Boolean);
 
 const pubDate = new Date(post.publishedAt);
+// Only report a modified date that is real and not earlier than publication.
+const modDate = post.updatedAt && new Date(post.updatedAt) > pubDate ? new Date(post.updatedAt) : undefined;
 ---
 <Base
   title={post.seoTitle || post.title}
   description={post.metaDescription || post.excerpt}
   path={`/journal/${post.slug}/`}
   ogImage={post.coverImage || undefined}
+  ogImageAlt={post.title}
   schemaType="article"
-  article={{ title: post.title, description: post.metaDescription || post.excerpt, date: pubDate, author: post.authorName }}
+  article={{ title: post.title, description: post.metaDescription || post.excerpt, date: pubDate, modified: modDate, author: post.authorName }}
   breadcrumbs={[
     { name: 'Home', path: '/' },
     { name: 'Journal', path: '/journal/' },

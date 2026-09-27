@@ -18,7 +18,8 @@ notSuitableFor:
   - "Recent sun exposure or a fresh tan"
   - "Pregnancy for certain peel types — flagged at consultation"
 order: 30
-image: "/img/t-face.jpg"
+image: "/img/t-chemical-peel.jpg"
+imageAlt: "A clinician treating a client's underarm with a handheld applicator"
 ---
 
 ## What it actually does

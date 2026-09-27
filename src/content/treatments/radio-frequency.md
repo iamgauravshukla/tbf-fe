@@ -1,6 +1,6 @@
 ---
 title: "Radio Frequency (RF)"
-seoTitle: "Radio Frequency Skin Tightening | Face & Body | The Better Face"
+seoTitle: "Radio Frequency Skin Tightening | The Better Face"
 metaDescription: "Radio frequency skin tightening and contouring for the face or body, non-invasively, with suitability assessed first. The Better Face."
 group: "Wellness"
 category: "Body"

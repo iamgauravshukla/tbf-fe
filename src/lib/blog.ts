@@ -15,7 +15,7 @@ export interface PostSummary {
   slug: string; title: string; excerpt: string;
   metaDescription?: string; seoTitle?: string; coverImage?: string | null;
   related: string[]; authorName: string; authorRole: string;
-  publishedAt: string; readMins: number;
+  publishedAt: string; updatedAt?: string; readMins: number;
 }
 export interface Post extends PostSummary { content: string }
 
@@ -58,4 +58,4 @@ export function renderMarkdown(md: string): { html: string; toc: { slug: string;
 }
 
 export const fmtDate = (iso: string) =>
-  new Date(iso).toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
+  new Date(iso).toLocaleDateString('en-PH', { day: 'numeric', month: 'long', year: 'numeric' });

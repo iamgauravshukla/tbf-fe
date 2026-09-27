@@ -9,20 +9,26 @@ import { site } from '../site.config';
 
 interface Props {
   title: string; description: string; path: string;
-  noindex?: boolean; ogImage?: string;
+  noindex?: boolean; ogImage?: string; ogImageAlt?: string;
   schemaType?: 'home' | 'service' | 'article';
-  serviceName?: string; serviceDescription?: string; price?: number | null;
+  serviceName?: string; serviceDescription?: string; serviceType?: string; price?: number | null;
   breadcrumbs?: { name: string; path: string }[];
-  article?: { title: string; description: string; date: Date; author: string };
+  article?: { title: string; description: string; date: Date; modified?: Date; author: string };
 }
 const p = Astro.props;
+const isArticle = p.schemaType === 'article' && !!p.article;
 ---
 <!doctype html>
 <html lang={site.language}>
   <head>
-    <Head title={p.title} description={p.description} path={p.path} noindex={p.noindex} ogImage={p.ogImage} />
-    <Schema type={p.schemaType} serviceName={p.serviceName} serviceDescription={p.serviceDescription}
-            price={p.price} breadcrumbs={p.breadcrumbs} article={p.article} />
+    <Head title={p.title} description={p.description} path={p.path} noindex={p.noindex}
+          ogImage={p.ogImage} ogImageAlt={p.ogImageAlt}
+          ogType={isArticle ? 'article' : 'website'}
+          published={isArticle ? p.article!.date : undefined}
+          modified={isArticle ? p.article!.modified : undefined} />
+    <Schema type={p.schemaType} path={p.path} serviceName={p.serviceName} serviceDescription={p.serviceDescription}
+            serviceType={p.serviceType} price={p.price} image={p.ogImage}
+            breadcrumbs={p.breadcrumbs} article={p.article} />
     <Analytics />
   </head>
   <body>

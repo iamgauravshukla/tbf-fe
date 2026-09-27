@@ -25,6 +25,9 @@ const treatments = defineCollection({
     notSuitableFor: z.array(z.string()),
     order: z.number().default(50),
     image: z.string().optional(),
+    /** Describes what `image` shows (hero alt text + social card alt). Say what
+     *  is in the photo, plainly — not a keyword list. Defaults to the title. */
+    imageAlt: z.string().optional(),
     /** Extra showcase images for the treatment page's experience section.
      *  Leave empty and the page falls back to curated clinic photography. */
     gallery: z.array(z.string()).default([]),
