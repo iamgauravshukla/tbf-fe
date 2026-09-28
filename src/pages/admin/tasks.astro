@@ -1,6 +1,7 @@
 ---
 import Admin from '../../layouts/Admin.astro';
 import AdminNav from '../../components/admin/AdminNav.astro';
+import AdminSkeleton from '../../components/admin/AdminSkeleton.astro';
 import { site } from '../../site.config';
 ---
 <Admin title="Tasks">
@@ -10,21 +11,27 @@ import { site } from '../../site.config';
     <main class="db-main">
       <section class="db-card">
         <h2 class="db-card__h">New follow-up</h2>
-        <form class="db-form" id="newTask" style="max-width:44rem">
-          <div class="db-formrow" style="grid-template-columns:2fr 1fr">
+        <form class="db-form db-form--task" id="newTask">
+          <div class="db-taskrow">
             <label>Task<input name="title" required autocomplete="off" placeholder="e.g. Call back about HIFU" /></label>
             <label>Due<input name="dueAt" type="datetime-local" /></label>
+            <label id="assignWrap" hidden>Assign to<select name="assignedTo"></select></label>
           </div>
-          <label id="assignWrap" hidden>Assign to<select name="assignedTo"></select></label>
-          <button class="btn btn--primary" type="submit" style="justify-self:start">Add task</button>
+          <div class="db-quickdue" role="group" aria-label="Quick due dates">
+            <button type="button" class="db-chip" data-due="today">Today 5 pm</button>
+            <button type="button" class="db-chip" data-due="tomorrow">Tomorrow 10 am</button>
+            <button type="button" class="db-chip" data-due="week">In a week</button>
+            <button type="button" class="db-chip" data-due="clear">No date</button>
+            <button class="btn btn--primary" type="submit">Add task</button>
+          </div>
         </form>
       </section>
 
       <section class="db-tools">
-        <div class="db-nav" style="justify-content:flex-start;flex:none">
-          <button class="db-nav__a is-active" data-view="mine" style="color:var(--deep-teal);border:1px solid var(--line)">My tasks</button>
-          <button class="db-nav__a" data-view="overdue" style="color:var(--text-muted);border:1px solid var(--line)">Overdue</button>
-          <button class="db-nav__a" data-view="all" id="viewAll" hidden style="color:var(--text-muted);border:1px solid var(--line)">Everyone</button>
+        <div class="db-viewtoggle" style="margin-left:0">
+          <button class="db-vt is-on" data-view="mine" type="button">My tasks</button>
+          <button class="db-vt" data-view="overdue" type="button">Overdue</button>
+          <button class="db-vt" data-view="all" id="viewAll" hidden type="button">Everyone</button>
         </div>
         <select class="db-sel" id="fDone">
           <option value="false">Open</option>
@@ -38,7 +45,7 @@ import { site } from '../../site.config';
       </section>
     </main>
   </div>
-  <p class="db-loading" id="loading">Loading…</p>
+  <AdminSkeleton />
 
   <script define:vars={{ apiBase: site.apiBase }}>
     const TOKEN = localStorage.getItem('tbf_token');
@@ -56,20 +63,60 @@ import { site } from '../../site.config';
     async function api(path, opts = {}) {
       const res = await fetch(apiBase + path, { ...opts, headers: { 'authorization':'Bearer '+TOKEN, ...(opts.body?{'content-type':'application/json'}:{}), ...(opts.headers||{}) } });
       if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login/'); throw new Error('unauth'); }
+      if (window.tbfSynced) window.tbfSynced();
       return res.json();
     }
 
-    function render(tasks) {
-      if (!tasks.length) { $('taskList').innerHTML = '<p class="db-tl__empty">Nothing here.</p>'; return; }
-      const overdue = (t) => !t.done && t.dueAt && new Date(t.dueAt) < new Date();
-      $('taskList').innerHTML = '<ul class="db-tasks">' + tasks.map((t) => `
-        <li class="db-task ${t.done?'is-done':''} ${overdue(t)?'is-overdue':''}">
+    // "Today 17:00" / "Tomorrow 10:00" instead of a full date when it's near.
+    const sameDay = (a, b) => a.getFullYear()===b.getFullYear() && a.getMonth()===b.getMonth() && a.getDate()===b.getDate();
+    function fmtDue(iso) {
+      const d = new Date(iso), now = new Date(), tom = new Date(now.getTime() + 86400000);
+      const hm = d.toLocaleTimeString('en-GB', { hour:'2-digit', minute:'2-digit' });
+      if (sameDay(d, now)) return 'Today ' + hm;
+      if (sameDay(d, tom)) return 'Tomorrow ' + hm;
+      return d.toLocaleDateString('en-GB', { day:'2-digit', month:'short' }) + ', ' + hm;
+    }
+
+    function taskRow(t) {
+      const now = new Date();
+      const overdue = !t.done && t.dueAt && new Date(t.dueAt) < now;
+      const dueToday = !t.done && !overdue && t.dueAt && sameDay(new Date(t.dueAt), now);
+      return `
+        <li class="db-task db-task--row ${t.done?'is-done':''} ${overdue?'is-overdue':''}">
           <label><input type="checkbox" data-task="${esc(t.id)}" ${t.done?'checked':''}>
             <span class="db-task__t">${esc(t.title)}${t.leadId?` <a class="db-link" href="/admin/?lead=${esc(t.leadId)}">${esc(t.leadName||'lead')}</a>`:''}</span>
           </label>
-          <span class="db-task__due">${t.dueAt?fmtDate(t.dueAt):'No date'}${state.view!=='mine'&&t.assignedTo?' · '+esc(agentName(t.assignedTo)):''}
-            <button class="db-link" data-del="${esc(t.id)}">Delete</button></span>
-        </li>`).join('') + '</ul>';
+          <span class="db-task__r">
+            ${t.dueAt?`<span class="db-due ${overdue?'db-due--overdue':dueToday?'db-due--today':''}">${overdue?'Overdue · ':''}${fmtDue(t.dueAt)}</span>`:''}
+            ${state.view!=='mine'&&t.assignedTo?`<span class="db-who">${esc(agentName(t.assignedTo))}</span>`:''}
+            <button class="db-task__del" data-del="${esc(t.id)}" aria-label="Delete task" title="Delete">✕</button>
+          </span>
+        </li>`;
+    }
+
+    function render(tasks) {
+      if (!tasks.length) {
+        $('taskList').innerHTML = '<p class="db-tl__none"><strong>All clear</strong>Nothing here — add a follow-up above.</p>';
+        return;
+      }
+      const now = new Date();
+      const groups = [
+        { key:'overdue', label:'Overdue', cls:'db-tgroup--overdue', match:(t) => !t.done && t.dueAt && new Date(t.dueAt) < now },
+        { key:'today', label:'Today', cls:'db-tgroup--today', match:(t) => !t.done && t.dueAt && sameDay(new Date(t.dueAt), now) },
+        { key:'up', label:'Upcoming', cls:'', match:(t) => !t.done && t.dueAt },
+        { key:'none', label:'No due date', cls:'', match:(t) => !t.done },
+        { key:'done', label:'Completed', cls:'', match:() => true },
+      ];
+      const seen = new Set();
+      let html = '';
+      for (const g of groups) {
+        const items = tasks.filter((t) => !seen.has(t.id) && g.match(t));
+        if (!items.length) continue;
+        items.forEach((t) => seen.add(t.id));
+        if (g.key === 'up') items.sort((a, b) => a.dueAt.localeCompare(b.dueAt));
+        html += `<h3 class="db-tgroup ${g.cls}">${g.label} · ${items.length}</h3><ul class="db-tasks">${items.map(taskRow).join('')}</ul>`;
+      }
+      $('taskList').innerHTML = html;
       $('taskList').querySelectorAll('[data-task]').forEach((c) => c.addEventListener('change', async () => { await api('/api/tasks/'+c.dataset.task, { method:'PATCH', body: JSON.stringify({ done:c.checked }) }); load(); }));
       $('taskList').querySelectorAll('[data-del]').forEach((b) => b.addEventListener('click', async () => { if (confirm('Delete this task?')) { await api('/api/tasks/'+b.dataset.del, { method:'DELETE' }); load(); } }));
     }
@@ -86,10 +133,22 @@ import { site } from '../../site.config';
     // view toggle
     document.querySelectorAll('[data-view]').forEach((b) => b.addEventListener('click', () => {
       state.view = b.dataset.view;
-      document.querySelectorAll('[data-view]').forEach((x) => { x.classList.toggle('is-active', x===b); x.style.color = x===b ? 'var(--deep-teal)' : 'var(--text-muted)'; });
+      document.querySelectorAll('[data-view]').forEach((x) => x.classList.toggle('is-on', x === b));
       load();
     }));
     $('fDone').addEventListener('change', (e) => { state.done = e.target.value; load(); });
+
+    // quick due-date chips fill the datetime-local input
+    const localVal = (d) => new Date(d.getTime() - d.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+    document.querySelectorAll('[data-due]').forEach((b) => b.addEventListener('click', () => {
+      const f = $('newTask'); const d = new Date();
+      if (b.dataset.due === 'clear') f.dueAt.value = '';
+      else if (b.dataset.due === 'today') { d.setHours(17, 0, 0, 0); f.dueAt.value = localVal(d); }
+      else if (b.dataset.due === 'tomorrow') { d.setDate(d.getDate() + 1); d.setHours(10, 0, 0, 0); f.dueAt.value = localVal(d); }
+      else if (b.dataset.due === 'week') { d.setDate(d.getDate() + 7); d.setHours(10, 0, 0, 0); f.dueAt.value = localVal(d); }
+      document.querySelectorAll('[data-due]').forEach((x) => x.classList.toggle('is-on', x === b));
+    }));
+    $('newTask').dueAt.addEventListener('input', () => document.querySelectorAll('[data-due]').forEach((x) => x.classList.remove('is-on')));
 
     $('newTask').addEventListener('submit', async (e) => {
       e.preventDefault();
@@ -97,7 +156,7 @@ import { site } from '../../site.config';
       const body = { title: f.title.value.trim(), dueAt: f.dueAt.value ? new Date(f.dueAt.value).toISOString() : null };
       if (isManager && f.assignedTo && f.assignedTo.value) body.assignedTo = f.assignedTo.value;
       const j = await api('/api/tasks', { method:'POST', body: JSON.stringify(body) });
-      if (j.ok) { f.reset(); load(); }
+      if (j.ok) { f.reset(); document.querySelectorAll('[data-due]').forEach((x) => x.classList.remove('is-on')); f.title.focus(); load(); }
     });
 
     async function loadAgents() {

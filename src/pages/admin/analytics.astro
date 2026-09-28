@@ -1,6 +1,7 @@
 ---
 import Admin from '../../layouts/Admin.astro';
 import AdminNav from '../../components/admin/AdminNav.astro';
+import AdminSkeleton from '../../components/admin/AdminSkeleton.astro';
 import { site } from '../../site.config';
 ---
 <Admin title="Analytics">
@@ -65,7 +66,7 @@ import { site } from '../../site.config';
       </div>
     </main>
   </div>
-  <p class="db-loading" id="loading">Loading…</p>
+  <AdminSkeleton />
 
   <script define:vars={{ apiBase: site.apiBase }}>
     const TOKEN = localStorage.getItem('tbf_token');
@@ -84,6 +85,7 @@ import { site } from '../../site.config';
     async function api(path) {
       const res = await fetch(apiBase + path, { headers: { authorization: 'Bearer ' + TOKEN } });
       if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login/'); throw new Error('unauth'); }
+      if (window.tbfSynced) window.tbfSynced();
       return res.json();
     }
 

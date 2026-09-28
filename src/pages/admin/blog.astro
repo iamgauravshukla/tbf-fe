@@ -1,6 +1,7 @@
 ---
 import Admin from '../../layouts/Admin.astro';
 import AdminNav from '../../components/admin/AdminNav.astro';
+import AdminSkeleton from '../../components/admin/AdminSkeleton.astro';
 import { site } from '../../site.config';
 import { getCollection } from 'astro:content';
 
@@ -28,8 +29,8 @@ const images = Object.keys(import.meta.glob('/public/img/*.{jpg,png}'))
           <button class="btn btn--primary" id="newBtn" type="button" style="margin-left:auto">New post</button>
         </div>
         <div class="db-tablewrap">
-          <table class="db-table" style="min-width:700px">
-            <thead><tr><th>Title</th><th>Status</th><th>Author</th><th>Updated</th><th>Published</th><th aria-label="Actions"></th></tr></thead>
+          <table class="db-table" style="min-width:760px">
+            <thead><tr><th>Post</th><th>Status</th><th>Author</th><th>Updated</th><th>Published</th><th aria-label="Actions"></th></tr></thead>
             <tbody id="rows"></tbody>
           </table>
           <p class="db-empty" id="empty" hidden>No posts yet — write the first one.</p>
@@ -99,9 +100,15 @@ const images = Object.keys(import.meta.glob('/public/img/*.{jpg,png}'))
                 <input id="pRole" class="db-sel" placeholder="MBBS · Aesthetic Physician" />
               </label>
               <label class="db-flabel">Cover image <span class="bl-hint">used for social shares</span>
-                <input id="pCover" class="db-sel" list="imgList" placeholder="/img/…" />
+                <input id="pCover" class="db-sel" list="imgList" placeholder="/img/… or upload below" />
                 <datalist id="imgList">{images.map((i) => <option value={i} />)}</datalist>
               </label>
+              <div class="bl-upload">
+                <input id="coverFile" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/avif" hidden />
+                <button class="db-btn db-btn--ghost" id="uploadBtn" type="button" style="color:var(--deep-teal);border-color:var(--line)">Upload image…</button>
+                <span class="bl-upload__note" id="upNote"></span>
+              </div>
+              <img class="bl-coverprev" id="coverPrev" alt="Cover preview" hidden />
               <label class="db-flabel">Related treatments <span class="bl-hint">links the article to its pages</span>
                 <select id="pRelated" class="db-sel" multiple size="6">
                   {treatments.map((t) => <option value={t.id}>{t.title}</option>)}
@@ -118,7 +125,7 @@ const images = Object.keys(import.meta.glob('/public/img/*.{jpg,png}'))
       </section>
     </main>
   </div>
-  <p class="db-loading" id="loading">Loading…</p>
+  <AdminSkeleton />
 
   <script>
     import { marked } from 'marked';
@@ -143,6 +150,7 @@ const images = Object.keys(import.meta.glob('/public/img/*.{jpg,png}'))
     async function api(path: string, opts: any = {}) {
       const res = await fetch(apiBase + path, { ...opts, headers: { authorization: 'Bearer ' + TOKEN, ...(opts.body ? { 'content-type': 'application/json' } : {}) } });
       if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login/'); throw new Error('unauth'); }
+      (window as any).tbfSynced?.();
       return res.json();
     }
 
@@ -151,15 +159,24 @@ const images = Object.keys(import.meta.glob('/public/img/*.{jpg,png}'))
       const tb = $('rows');
       $('empty').hidden = posts.length > 0;
       tb.innerHTML = posts.map((p) => `
-        <tr>
-          <td><strong>${esc(p.title)}</strong><span class="db-sub">/journal/${esc(p.slug)}/ · ${p.readMins} min read</span></td>
-          <td><span class="db-badge ${p.status==='published'?'db-badge--agent':''}">${p.status}</span></td>
+        <tr class="bl-row" data-row="${esc(p.id)}">
+          <td>
+            <span class="bl-postcell">
+              <span class="bl-thumb">${p.coverImage ? `<img src="${esc(p.coverImage)}" alt="" loading="lazy" onerror="this.remove()">` : ''}</span>
+              <span><strong>${esc(p.title)}</strong><span class="db-sub">/journal/${esc(p.slug)}/ · ${p.readMins} min read</span></span>
+            </span>
+          </td>
+          <td><span class="db-badge ${p.status==='published'?'db-badge--published':'db-badge--draft'}">${p.status}</span></td>
           <td class="db-muted">${esc(p.authorName)}</td>
           <td class="db-nowrap">${fmt(p.updatedAt)}</td>
           <td class="db-nowrap">${fmt(p.publishedAt)}</td>
           <td><button class="db-link" data-edit="${esc(p.id)}">Edit</button></td>
         </tr>`).join('');
       tb.querySelectorAll('[data-edit]').forEach((b: any) => b.addEventListener('click', () => openEditor(b.dataset.edit)));
+      tb.querySelectorAll('[data-row]').forEach((r: any) => r.addEventListener('click', (e: any) => {
+        if (e.target.closest('button, a, select, input')) return;   // the Edit button handles itself
+        openEditor(r.dataset.row);
+      }));
     }
     async function loadList() {
       const q = new URLSearchParams();
@@ -184,6 +201,8 @@ const images = Object.keys(import.meta.glob('/public/img/*.{jpg,png}'))
       const rel = new Set(p?.related || []);
       [...$('pRelated').options].forEach((o: any) => { o.selected = rel.has(o.value); });
       slugTouched = Boolean(p);
+      coverPreview();
+      $('upNote').textContent = ''; $('upNote').classList.remove('is-err');
       $('edStatus').textContent = p ? `${p.status}${p.publishedAt ? ' · first published ' + fmt(p.publishedAt) : ''}` : 'new draft';
       $('deleteBtn').hidden = !p;
       $('unpubBtn').hidden = !(p && p.status === 'published');
@@ -222,6 +241,48 @@ const images = Object.keys(import.meta.glob('/public/img/*.{jpg,png}'))
       if (!j.ok) { $('edErr').textContent = errText(j.error); $('edErr').hidden = false; return; }
       editing = j.post; fill(editing); loadList();
     }
+
+    // ── cover image: upload to the API + live preview ──
+    // The file goes up as the raw request body (the api() helper always sends
+    // JSON, so this uses its own fetch). The API stores it and returns the URL.
+    const upErr = (m: string) => { $('upNote').textContent = m; $('upNote').classList.add('is-err'); };
+    function coverPreview() {
+      const v = $('pCover').value.trim();
+      $('coverPrev').hidden = !v;
+      if (v) $('coverPrev').src = v; else $('coverPrev').removeAttribute('src');
+    }
+    function addImgOption(url: string) {
+      if (![...$('imgList').options].some((o: any) => o.value === url)) {
+        const o = document.createElement('option'); o.value = url; $('imgList').prepend(o);
+      }
+    }
+    $('coverPrev').addEventListener('error', () => { $('coverPrev').hidden = true; });
+    $('pCover').addEventListener('input', coverPreview);
+    $('uploadBtn').addEventListener('click', () => $('coverFile').click());
+    $('coverFile').addEventListener('change', async () => {
+      const file = $('coverFile').files?.[0];
+      $('coverFile').value = '';                 // so picking the same file again re-fires change
+      if (!file) return;
+      $('upNote').classList.remove('is-err');
+      if (file.size > 8 * 1024 * 1024) return upErr('Too large — keep it under 8 MB.');
+      $('upNote').textContent = 'Uploading…'; $('uploadBtn').disabled = true;
+      try {
+        const res = await fetch(apiBase + '/api/admin/uploads?filename=' + encodeURIComponent(file.name), {
+          method: 'POST',
+          headers: { authorization: 'Bearer ' + TOKEN, 'content-type': file.type || 'application/octet-stream' },
+          body: file,
+        });
+        if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login/'); return; }
+        const j = res.status === 413 ? { ok: false, error: 'too_large' } : await res.json();
+        if (!j.ok) return upErr((({ too_large: 'Too large — keep it under 8 MB.', unsupported_type: 'Use a JPG, PNG, WebP, GIF or AVIF image.', no_image: 'That file is not an image.', forbidden: 'You do not have permission to upload.' }) as any)[j.error] || 'Upload failed — try again.');
+        $('pCover').value = j.url;
+        coverPreview(); addImgOption(j.url);
+        $('upNote').textContent = 'Uploaded ✓';
+      } catch { upErr('Upload failed — check the connection.'); }
+      finally { $('uploadBtn').disabled = false; }
+    });
+    // Previously uploaded images join the picker alongside the built-in site imagery.
+    api('/api/admin/uploads').then((j) => { if (j.ok) j.files.forEach((f: any) => addImgOption(f.url)); }).catch(() => {});
 
     // ── markdown toolbar / preview / auto-TOC ──
     const ta = $('pContent') as HTMLTextAreaElement;

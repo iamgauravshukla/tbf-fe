@@ -1,6 +1,7 @@
 ---
 import Admin from '../../layouts/Admin.astro';
 import AdminNav from '../../components/admin/AdminNav.astro';
+import AdminSkeleton from '../../components/admin/AdminSkeleton.astro';
 import { site } from '../../site.config';
 import { getCollection } from 'astro:content';
 
@@ -81,7 +82,7 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
     </div>
   </div>
 
-  <p class="db-loading" id="loading">Loading…</p>
+  <AdminSkeleton />
 
   <script define:vars={{ apiBase: site.apiBase, STATUSES }}>
     const TOKEN = localStorage.getItem('tbf_token');
@@ -112,6 +113,7 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
         headers: { 'authorization': 'Bearer ' + TOKEN, ...(opts.body ? { 'content-type':'application/json' } : {}), ...(opts.headers||{}) },
       });
       if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login/'); throw new Error('unauth'); }
+      if (window.tbfSynced) window.tbfSynced();
       return res.json();
     }
 

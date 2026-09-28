@@ -1,6 +1,7 @@
 ---
 import Admin from '../../layouts/Admin.astro';
 import AdminNav from '../../components/admin/AdminNav.astro';
+import AdminSkeleton from '../../components/admin/AdminSkeleton.astro';
 import { site } from '../../site.config';
 ---
 <Admin title="Team">
@@ -10,18 +11,23 @@ import { site } from '../../site.config';
     <main class="db-main">
       <section class="db-card">
         <h2 class="db-card__h">Add a team member</h2>
-        <form class="db-form" id="newUser">
-          <div class="db-formrow">
-            <label>Name<input name="name" required autocomplete="off" /></label>
-            <label>Email<input type="email" name="email" required autocomplete="off" /></label>
-          </div>
-          <div class="db-formrow">
+        <form class="db-form db-form--team" id="newUser">
+          <div class="db-formgrid">
+            <label>Name<input name="name" required autocomplete="off" placeholder="Full name" /></label>
+            <label>Email<input type="email" name="email" required autocomplete="off" placeholder="name@thebetterface.com" /></label>
             <label>Role<select name="role" id="roleSel"></select></label>
-            <label>Temporary password<input type="text" name="password" minlength="8" required autocomplete="off" placeholder="min 8 characters" /></label>
+            <label>Temporary password <span class="db-fhint">they change it after first sign-in</span>
+              <span class="db-pwrow">
+                <input type="text" name="password" minlength="8" required autocomplete="off" placeholder="min 8 characters" />
+                <button class="db-genbtn" type="button" id="genPw">Generate</button>
+              </span>
+            </label>
           </div>
-          <p class="db-err" id="newErr" hidden></p>
-          <p class="db-ok" id="newOk" hidden>Team member added.</p>
-          <button class="btn btn--primary" type="submit" style="justify-self:start">Create account</button>
+          <div class="db-factions">
+            <button class="btn btn--primary" type="submit">Create account</button>
+            <p class="db-err" id="newErr" hidden></p>
+            <p class="db-ok" id="newOk" hidden>Team member added.</p>
+          </div>
         </form>
       </section>
 
@@ -33,7 +39,7 @@ import { site } from '../../site.config';
       </section>
     </main>
   </div>
-  <p class="db-loading" id="loading">Loading…</p>
+  <AdminSkeleton />
 
   <script define:vars={{ apiBase: site.apiBase }}>
     const TOKEN = localStorage.getItem('tbf_token');
@@ -51,11 +57,21 @@ import { site } from '../../site.config';
     async function api(path, opts = {}) {
       const res = await fetch(apiBase + path, { ...opts, headers: { 'authorization':'Bearer '+TOKEN, ...(opts.body?{'content-type':'application/json'}:{}), ...(opts.headers||{}) } });
       if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login/'); throw new Error('unauth'); }
+      if (window.tbfSynced) window.tbfSynced();
       return res.json();
     }
     const errText = (e) => ({ email_taken:'That email is already in use.', password_too_short:'Password must be at least 8 characters.', last_admin:'You cannot remove the only admin.', cannot_deactivate_self:'You cannot deactivate yourself.', cannot_change_own_role:'You cannot change your own role.', forbidden:'You do not have permission for that.', name:'Enter a name.', email:'Enter a valid email.' }[e] || 'Something went wrong.');
 
     $('roleSel').innerHTML = ROLES.map((r) => `<option value="${r}">${r}</option>`).join('');
+
+    // Readable temporary password: word-digits-word, easy to relay over a call.
+    $('genPw').addEventListener('click', () => {
+      const words = ['amber','coral','ivory','jade','lotus','olive','pearl','sage','teal','velvet'];
+      const pick = (a) => a[Math.floor(Math.random() * a.length)];
+      const f = $('newUser');
+      f.password.value = pick(words) + '-' + String(Math.floor(1000 + Math.random() * 9000)) + '-' + pick(words);
+      f.password.focus();
+    });
 
     function roleControl(u) {
       const editable = ME.role === 'admin' || u.role === 'agent';

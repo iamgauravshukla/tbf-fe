@@ -1,14 +1,16 @@
 ---
 // Shared dashboard top bar. Pages wire #userInfo / #logoutBtn / #refreshBtn in
 // their own scripts; role-gated links (Blog, Team) are toggled right here so
-// every admin page gets them without repeating the logic.
+// every admin page gets them without repeating the logic. Pages report a
+// successful API roundtrip via window.tbfSynced() and the freshness line under
+// the buttons keeps itself up to date.
 import { site } from '../../site.config';
 interface Props { active: 'leads' | 'analytics' | 'blog' | 'tasks' | 'team'; heading: string }
 const { active, heading } = Astro.props;
 ---
 <header class="db-top">
   <div class="db-top__l">
-    <img src="/logo/icon-512.png" alt="" width="34" height="34" />
+    <span class="db-logochip"><img src="/logo/mark-brand.png" alt="TBF" width="30" height="30" /></span>
     <div>
       <span class="eyebrow">{site.name}</span>
       <h1 class="db-top__h">{heading}</h1>
@@ -22,9 +24,12 @@ const { active, heading } = Astro.props;
     <a href="/admin/users/" class:list={['db-nav__a', { 'is-active': active === 'team' }]} id="navUsers" hidden>Team</a>
   </nav>
   <div class="db-top__r">
-    <span class="db-user" id="userInfo"></span>
-    <button class="db-btn db-btn--ghost" id="refreshBtn" type="button">Refresh</button>
-    <button class="db-btn db-btn--ghost" id="logoutBtn" type="button">Sign out</button>
+    <div class="db-top__actions">
+      <span class="db-user" id="userInfo"></span>
+      <button class="db-btn db-btn--ghost" id="refreshBtn" type="button">Refresh</button>
+      <button class="db-btn db-btn--ghost" id="logoutBtn" type="button">Sign out</button>
+    </div>
+    <span class="db-sync" id="lastSync" hidden></span>
   </div>
 </header>
 
@@ -38,5 +43,23 @@ const { active, heading } = Astro.props;
         var t = document.getElementById('navUsers'); if (t) t.hidden = false;
       }
     } catch (e) { /* signed out — the page will redirect */ }
+  })();
+
+  // Data freshness: pages call window.tbfSynced() after each successful API
+  // response; the label under the buttons then ages by itself.
+  (function () {
+    var stamp = 0;
+    function paint() {
+      var el = document.getElementById('lastSync');
+      if (!el || !stamp) return;
+      var s = Math.floor((Date.now() - stamp) / 1000);
+      el.hidden = false;
+      el.textContent = s < 10 ? 'Updated just now'
+        : s < 60 ? 'Updated ' + s + 's ago'
+        : s < 3600 ? 'Updated ' + Math.floor(s / 60) + ' min ago'
+        : 'Updated ' + Math.floor(s / 3600) + ' h ago';
+    }
+    window.tbfSynced = function () { stamp = Date.now(); paint(); };
+    setInterval(paint, 15000);
   })();
 </script>
