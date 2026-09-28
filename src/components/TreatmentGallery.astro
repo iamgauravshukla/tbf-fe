@@ -1,0 +1,232 @@
+---
+// Treatment photo gallery — a bento grid (one lead photo, four supporting) that
+// opens a full-screen viewer. Up to five tiles show; any extra photos are
+// reached from a "+N" tile and the viewer's arrows. No library: a native
+// <dialog> gives focus trapping and Esc-to-close for free.
+export interface GalleryPhoto { src: string; alt: string; caption?: string }
+interface Props {
+  photos: GalleryPhoto[];
+  title: string;
+  eyebrow?: string;
+  heading?: string;
+}
+const { photos, title, eyebrow = 'Gallery', heading = `Inside ${title}` } = Astro.props;
+const MAX_TILES = 5;
+const tiles = photos.slice(0, MAX_TILES);
+const extra = photos.length - tiles.length;
+const pad = (n: number) => String(n).padStart(2, '0');
+---
+{photos.length > 0 && (
+  <section class="section tg" data-gallery>
+    <div class="wrap">
+      <div class="tg__head" data-reveal>
+        <div>
+          <span class="eyebrow">{eyebrow}</span>
+          <h2 class="tg__h">{heading}</h2>
+        </div>
+        <p class="tg__hint">{pad(photos.length)} photos <span aria-hidden="true">·</span> tap to enlarge</p>
+      </div>
+
+      <ul class={`tg__grid tg__grid--${tiles.length}`} role="list">
+        {tiles.map((p, i) => (
+          <li class={`tg__tile${i === 0 ? ' tg__tile--lead' : ''}`} data-reveal data-reveal-delay={String(Math.min(i, 3))}>
+            <button type="button" class="tg__btn" data-index={i}
+                    aria-label={extra > 0 && i === tiles.length - 1 ? `View all ${photos.length} photos` : `Enlarge: ${p.alt}`}>
+              <img src={p.src} alt={p.alt} width="800" height="800" loading="lazy" decoding="async" />
+              {p.caption && <span class="tg__cap">{p.caption}</span>}
+              {extra > 0 && i === tiles.length - 1
+                ? <span class="tg__more" aria-hidden="true">+{extra}</span>
+                : <span class="tg__zoom" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" /></svg></span>}
+            </button>
+          </li>
+        ))}
+      </ul>
+    </div>
+
+    <dialog class="tg__lb" aria-label={`${title} photo viewer`}>
+      <div class="tg__lb-in">
+        <div class="tg__lb-bar">
+          <span class="tg__lb-count"><b data-lb-n>01</b> / {pad(photos.length)}</span>
+          <button type="button" class="tg__lb-btn tg__lb-close" data-lb-close aria-label="Close viewer">
+            <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" /></svg>
+          </button>
+        </div>
+        <figure class="tg__lb-fig">
+          <img data-lb-img src={photos[0].src} alt={photos[0].alt} />
+          <figcaption class="tg__lb-cap" data-lb-cap>{photos[0].caption ?? photos[0].alt}</figcaption>
+        </figure>
+        {photos.length > 1 && (
+          <>
+            <button type="button" class="tg__lb-btn tg__lb-nav tg__lb-prev" data-lb-prev aria-label="Previous photo">
+              <svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" /></svg>
+            </button>
+            <button type="button" class="tg__lb-btn tg__lb-nav tg__lb-next" data-lb-next aria-label="Next photo">
+              <svg viewBox="0 0 24 24"><path d="M9 5l7 7-7 7" /></svg>
+            </button>
+          </>
+        )}
+      </div>
+      <script type="application/json" data-lb-photos set:html={JSON.stringify(photos)} />
+    </dialog>
+  </section>
+)}
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((root) => {
+    const dlg = root.querySelector<HTMLDialogElement>('.tg__lb');
+    const data = root.querySelector('[data-lb-photos]');
+    if (!dlg || !data) return;
+    const photos: { src: string; alt: string; caption?: string }[] = JSON.parse(data.textContent || '[]');
+    const img = dlg.querySelector<HTMLImageElement>('[data-lb-img]')!;
+    const cap = dlg.querySelector<HTMLElement>('[data-lb-cap]')!;
+    const num = dlg.querySelector<HTMLElement>('[data-lb-n]')!;
+    let at = 0;
+
+    const show = (i: number) => {
+      at = (i + photos.length) % photos.length;
+      const p = photos[at];
+      img.classList.remove('is-in');
+      img.src = p.src;
+      img.alt = p.alt;
+      cap.textContent = p.caption ?? p.alt;
+      num.textContent = String(at + 1).padStart(2, '0');
+      requestAnimationFrame(() => img.classList.add('is-in'));
+    };
+
+    root.querySelectorAll<HTMLButtonElement>('.tg__btn').forEach((b) =>
+      b.addEventListener('click', () => { show(Number(b.dataset.index)); dlg.showModal(); }));
+    dlg.querySelector('[data-lb-prev]')?.addEventListener('click', () => show(at - 1));
+    dlg.querySelector('[data-lb-next]')?.addEventListener('click', () => show(at + 1));
+    dlg.querySelector('[data-lb-close]')?.addEventListener('click', () => dlg.close());
+    // Click on the dark backdrop (not the photo or controls) closes.
+    dlg.addEventListener('click', (e) => { if (e.target === dlg || (e.target as HTMLElement).classList.contains('tg__lb-in')) dlg.close(); });
+    dlg.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowLeft') show(at - 1);
+      if (e.key === 'ArrowRight') show(at + 1);
+    });
+    // Swipe on touch screens.
+    let x0: number | null = null;
+    dlg.addEventListener('pointerdown', (e) => { if (e.pointerType !== 'mouse') x0 = e.clientX; });
+    dlg.addEventListener('pointerup', (e) => {
+      if (x0 === null) return;
+      const dx = e.clientX - x0; x0 = null;
+      if (Math.abs(dx) > 40) show(at + (dx < 0 ? 1 : -1));
+    });
+  });
+</script>
+
+<style>
+  .tg{background:var(--surface-raised);overflow:hidden}
+  .tg__head{display:grid;gap:var(--s2);margin-bottom:var(--s5)}
+  @media (min-width:900px){ .tg__head{grid-template-columns:1fr auto;align-items:end;gap:var(--s5)} }
+  .tg__h{margin-top:.7rem;font-size:clamp(1.6rem,1.1rem + 1.6vw,2.4rem)}
+  .tg__hint{font-size:.625rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--text-muted)}
+
+  /* ---- grid: a swipeable strip on phones, a bento grid from tablet up ---- */
+  .tg__grid{
+    list-style:none;margin:0;padding:0;display:grid;grid-auto-flow:column;grid-auto-columns:78%;
+    gap:var(--s2);overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
+    margin-inline:calc(var(--gutter) * -1);padding-inline:var(--gutter);scroll-padding-inline:var(--gutter);
+  }
+  .tg__grid::-webkit-scrollbar{display:none}
+  .tg__tile{scroll-snap-align:start;aspect-ratio:4/5;min-width:0}
+  @media (min-width:700px){
+    .tg__grid{
+      grid-auto-flow:row dense;grid-auto-columns:auto;overflow:visible;margin-inline:0;padding-inline:0;
+      grid-template-columns:repeat(4,minmax(0,1fr));grid-auto-rows:clamp(150px,17vw,250px);gap:var(--s3);
+    }
+    .tg__tile{aspect-ratio:auto}
+    .tg__tile--lead{grid-column:span 2;grid-row:span 2}
+    /* Fewer photos: keep the layout balanced instead of leaving holes. */
+    .tg__grid--1{grid-template-columns:1fr;grid-auto-rows:clamp(260px,40vw,520px)}
+    .tg__grid--1 .tg__tile--lead{grid-column:auto;grid-row:auto}
+    .tg__grid--2{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:clamp(240px,34vw,440px)}
+    .tg__grid--2 .tg__tile--lead{grid-column:auto;grid-row:auto}
+    .tg__grid--3{grid-template-columns:2fr 1fr}
+    .tg__grid--3 .tg__tile--lead{grid-column:auto}
+    .tg__grid--4 .tg__tile:last-child{grid-column:span 2}
+  }
+
+  .tg__btn{
+    position:relative;display:block;width:100%;height:100%;padding:0;border:0;cursor:zoom-in;
+    background:var(--light-teal);overflow:hidden;color:var(--ivory);text-align:left;
+  }
+  .tg__btn img{width:100%;height:100%;object-fit:cover;transition:transform 1.1s cubic-bezier(.22,.61,.36,1)}
+  /* champagne hairline + soft teal wash on hover, same language as the treatment cards */
+  .tg__btn::before{
+    content:'';position:absolute;inset:0;z-index:1;pointer-events:none;
+    background:linear-gradient(180deg,rgba(11,79,89,0) 45%,rgba(11,79,89,.72));
+    opacity:.55;transition:opacity .45s;
+  }
+  .tg__btn::after{
+    content:'';position:absolute;inset:12px;z-index:1;border:1px solid rgba(201,166,107,.8);pointer-events:none;
+    opacity:0;transform:scale(1.02);transition:opacity .45s cubic-bezier(.22,.61,.36,1),transform .6s cubic-bezier(.22,.61,.36,1);
+  }
+  .tg__btn:hover img,.tg__btn:focus-visible img{transform:scale(1.05)}
+  .tg__btn:hover::before,.tg__btn:focus-visible::before{opacity:1}
+  .tg__btn:hover::after,.tg__btn:focus-visible::after{opacity:1;transform:none}
+  .tg__btn:focus-visible{outline:2px solid var(--champagne);outline-offset:3px}
+
+  .tg__cap{
+    position:absolute;left:1.25rem;right:3.5rem;bottom:1.1rem;z-index:2;
+    font-size:.5625rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;
+    transform:translateY(4px);opacity:.9;transition:transform .45s,opacity .45s;
+  }
+  .tg__tile--lead .tg__cap{font-size:.625rem;bottom:1.5rem;left:1.6rem}
+  .tg__btn:hover .tg__cap{transform:none;opacity:1}
+  .tg__zoom{
+    position:absolute;right:1rem;bottom:.85rem;z-index:2;width:34px;height:34px;display:grid;place-items:center;
+    border-radius:50%;border:1px solid rgba(247,244,238,.6);background:rgba(247,244,238,.12);backdrop-filter:blur(3px);
+    opacity:0;transform:scale(.85);transition:opacity .35s,transform .35s,background-color .3s;
+  }
+  .tg__zoom svg{width:14px;height:14px;fill:none;stroke:var(--ivory);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .tg__btn:hover .tg__zoom,.tg__btn:focus-visible .tg__zoom{opacity:1;transform:none}
+  @media (hover:none){ .tg__zoom{opacity:1;transform:none} }
+  .tg__more{
+    position:absolute;inset:0;z-index:2;display:grid;place-items:center;
+    background:rgba(11,79,89,.62);font-family:'Playfair Display',serif;font-size:2.4rem;color:var(--ivory);
+  }
+
+  /* ---- full-screen viewer ---- */
+  .tg__lb{
+    width:100vw;height:100dvh;max-width:none;max-height:none;margin:0;padding:0;border:0;
+    background:rgb(8,46,52);color:var(--ivory);
+  }
+  .tg__lb::backdrop{background:rgba(8,46,52,.6);backdrop-filter:blur(4px)}
+  .tg__lb[open]{animation:tg-fade .35s ease}
+  :global(html:has(.tg__lb[open])){overflow:hidden}
+  .tg__lb-in{position:relative;height:100%;display:grid;grid-template-rows:auto 1fr;grid-template-columns:minmax(0,1fr);padding:var(--s2) var(--s3) var(--s3)}
+  .tg__lb-bar{display:flex;align-items:center;justify-content:space-between}
+  .tg__lb-count{font-size:.6875rem;letter-spacing:.24em;color:rgba(247,244,238,.65)}
+  .tg__lb-count b{color:var(--champagne);font-weight:700}
+  .tg__lb-fig{margin:0;min-height:0;min-width:0;display:grid;grid-template-columns:minmax(0,1fr);align-content:center;justify-items:center;gap:var(--s3)}
+  .tg__lb-fig img{
+    max-width:min(100%,1100px);max-height:calc(100dvh - 190px);object-fit:contain;
+    box-shadow:0 30px 60px -30px rgba(0,0,0,.6);opacity:0;transform:scale(.985);
+    transition:opacity .35s ease,transform .45s cubic-bezier(.22,.61,.36,1);
+  }
+  .tg__lb-fig img.is-in{opacity:1;transform:none}
+  .tg__lb-cap{font-size:.625rem;font-weight:700;letter-spacing:.22em;text-transform:uppercase;text-align:center;
+    color:rgba(247,244,238,.8);max-width:40rem}
+  .tg__lb-btn{
+    width:48px;height:48px;display:grid;place-items:center;border-radius:50%;cursor:pointer;
+    background:rgba(247,244,238,.08);border:1px solid rgba(247,244,238,.35);
+    transition:background-color .25s,border-color .25s;
+  }
+  .tg__lb-btn svg{width:18px;height:18px;fill:none;stroke:var(--ivory);stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round}
+  .tg__lb-btn:hover{background:var(--champagne);border-color:var(--champagne)}
+  .tg__lb-btn:hover svg{stroke:var(--deep-teal)}
+  .tg__lb-btn:focus-visible{outline:2px solid var(--champagne);outline-offset:3px}
+  .tg__lb-nav{position:absolute;top:50%;transform:translateY(-50%)}
+  .tg__lb-prev{left:var(--s3)}
+  .tg__lb-next{right:var(--s3)}
+  @media (max-width:699px){
+    .tg__lb-nav{top:auto;bottom:var(--s3);transform:none}
+    .tg__lb-fig{padding-bottom:64px}
+  }
+  @keyframes tg-fade{from{opacity:0}to{opacity:1}}
+  @media (prefers-reduced-motion:reduce){
+    .tg__btn img,.tg__btn::after,.tg__lb-fig img{transition:none}
+    .tg__lb[open]{animation:none}
+  }
+</style>

@@ -20,6 +20,20 @@ notSuitableFor:
 order: 110
 image: "/img/t-barbie-arms.jpg"
 imageAlt: "A clinician in gloves applying clear gel to a client's upper arm before an arm-contouring session"
+video: "https://youtube.com/shorts/8n7uBHAVvaE"
+gallery:
+  - "/img/barbie-arms-experience-1.jpg"
+  - "/img/barbie-arms-experience-2.jpg"
+photos:
+  - src: "/img/barbie-arms-1.jpg"
+    alt: "A contouring handpiece with metal rollers gliding over gel on a client's upper arm"
+    caption: "Contouring the upper arm"
+  - src: "/img/barbie-arms-2.jpg"
+    alt: "A clinician in blue gloves spreading clear gel over a client's upper arm with a spatula"
+    caption: "Prepared with gel"
+  - src: "/img/barbie-arms-3.jpg"
+    alt: "Close-up of the roller handpiece pressed to the arm, guided by a gloved hand"
+    caption: "Close-up"
 ---
 
 ## What it actually does

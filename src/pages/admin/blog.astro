@@ -51,6 +51,7 @@ const images = Object.keys(import.meta.glob('/public/img/*.{jpg,png}'))
           </div>
         </div>
         <p class="db-err" id="edErr" hidden></p>
+        <p class="db-ok" id="edOk" role="status" hidden></p>
 
         <div class="bl-grid">
           <div class="bl-main">
@@ -208,7 +209,7 @@ const images = Object.keys(import.meta.glob('/public/img/*.{jpg,png}'))
       $('unpubBtn').hidden = !(p && p.status === 'published');
       $('viewLive').hidden = !(p && p.status === 'published');
       if (p) $('viewLive').href = `${siteUrl}/journal/${p.slug}/`;
-      $('edErr').hidden = true;
+      $('edErr').hidden = true; $('edOk').hidden = true;
       $('preview').hidden = true; $('pContent').hidden = false; $('previewBtn').classList.remove('is-on');
       refreshMeta();
     }
@@ -232,14 +233,33 @@ const images = Object.keys(import.meta.glob('/public/img/*.{jpg,png}'))
       };
     }
     const errText = (e: string) => (({ title:'Give the post a title (3+ characters).', excerpt_too_long:'Excerpt is too long (500 max).', meta_description_too_long:'Meta description is too long (170 max).', forbidden:'You do not have permission for that.' }) as any)[e] || 'Could not save.';
+    let okTimer: any;
     async function save(status?: string) {
       const body: any = collect();
       if (status) body.status = status;
-      const j = editing
-        ? await api('/api/admin/posts/' + editing.id, { method: 'PATCH', body: JSON.stringify(body) })
-        : await api('/api/admin/posts', { method: 'POST', body: JSON.stringify(body) });
-      if (!j.ok) { $('edErr').textContent = errText(j.error); $('edErr').hidden = false; return; }
-      editing = j.post; fill(editing); loadList();
+      const btns = ['publishBtn', 'draftBtn', 'unpubBtn'].map($);
+      btns.forEach((b: any) => { b.disabled = true; });
+      $('edOk').hidden = true;
+      try {
+        const coverBefore = editing?.coverImage || null;
+        const j = editing
+          ? await api('/api/admin/posts/' + editing.id, { method: 'PATCH', body: JSON.stringify(body) })
+          : await api('/api/admin/posts', { method: 'POST', body: JSON.stringify(body) });
+        if (!j.ok) { $('edErr').textContent = errText(j.error); $('edErr').hidden = false; return; }
+        editing = j.post; fill(editing); loadList();
+        // fill() resets the form — confirm what just happened so a save is never silent.
+        const what = j.post.status === 'published'
+          ? (status === 'published' ? 'Published — the post is live.' : 'Saved — the live post is updated.')
+          : 'Saved as draft.';
+        const cover = (j.post.coverImage || null) !== coverBefore ? ' Cover image updated.' : '';
+        $('edOk').textContent = '✓ ' + what + cover;
+        $('edOk').hidden = false;
+        clearTimeout(okTimer); okTimer = setTimeout(() => { $('edOk').hidden = true; }, 6000);
+      } catch (e: any) {
+        if (e.message !== 'unauth') { $('edErr').textContent = 'Could not reach the API — nothing was saved.'; $('edErr').hidden = false; }
+      } finally {
+        btns.forEach((b: any) => { b.disabled = false; });
+      }
     }
 
     // ── cover image: upload to the API + live preview ──
@@ -273,8 +293,12 @@ const images = Object.keys(import.meta.glob('/public/img/*.{jpg,png}'))
           body: file,
         });
         if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login/'); return; }
-        const j = res.status === 413 ? { ok: false, error: 'too_large' } : await res.json();
-        if (!j.ok) return upErr((({ too_large: 'Too large — keep it under 8 MB.', unsupported_type: 'Use a JPG, PNG, WebP, GIF or AVIF image.', no_image: 'That file is not an image.', forbidden: 'You do not have permission to upload.' }) as any)[j.error] || 'Upload failed — try again.');
+        const j = res.status === 413 ? { ok: false, error: 'too_large' }
+          : await res.json().catch(() => ({ ok: false, error: 'bad_response' }));
+        // Unknown codes show the server's own code + HTTP status, so a backend
+        // problem (storage, config) can be diagnosed from the screen.
+        if (!j.ok) return upErr((({ too_large: 'Too large — keep it under 8 MB.', unsupported_type: 'Use a JPG, PNG, WebP, GIF or AVIF image.', no_image: 'That file is not an image.', forbidden: 'You do not have permission to upload.' }) as any)[j.error] || `Upload failed (${j.error || 'error'}, HTTP ${res.status}) — try again.`);
+        if (!j.url) return upErr(`Upload failed (no URL returned, HTTP ${res.status}).`);
         $('pCover').value = j.url;
         coverPreview(); addImgOption(j.url);
         $('upNote').textContent = 'Uploaded ✓';

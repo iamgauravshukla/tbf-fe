@@ -20,6 +20,20 @@ notSuitableFor:
 order: 60
 image: "/img/t-warts-removal.jpg"
 imageAlt: "A fine-tipped device removing a small skin growth from a client's forehead"
+video: "https://youtube.com/shorts/DCi5jo0QzaQ"
+gallery:
+  - "/img/warts-experience-1.jpg"
+  - "/img/warts-experience-2.jpg"
+photos:
+  - src: "/img/warts-1.jpg"
+    alt: "A clinician in blue gloves touching a fine-tipped device to a small growth on a client's forehead"
+    caption: "One growth at a time"
+  - src: "/img/warts-2.jpg"
+    alt: "A fine-tipped device held above small skin growths near a client's temple"
+    caption: "Near the temple"
+  - src: "/img/warts-3.jpg"
+    alt: "Close-up of the device's fine metal tip at the skin beside a client's closed eye"
+    caption: "Close-up"
 ---
 
 ## What it actually does

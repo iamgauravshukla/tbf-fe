@@ -71,7 +71,7 @@ const waHref = waLink(`Hi ${site.name}, I'd like to ask about a treatment.`);
 
     <div class="hdr__cta">
       <a href={telLink} class="hdr__tel" data-ev="call_click" data-loc="header">{site.phoneDisplay}</a>
-      <a href="/contact/" class="btn btn--primary hdr__book" data-ev="book_click" data-loc="header">Book a consultation</a>
+      <a href="/contact/" class="btn btn--primary hdr__book" data-ev="book_click" data-loc="header">Book Free Consultation</a>
 
       <!-- Mobile menu. <details> so it opens and closes with no script and
            stays keyboard-operable; the panel drops below the sticky bar. -->
@@ -230,7 +230,7 @@ const waHref = waLink(`Hi ${site.name}, I'd like to ask about a treatment.`);
   .hdr__cta{display:flex;align-items:center;gap:var(--s3)}
   .hdr__tel{display:none;font-size:.8125rem;font-weight:600;color:var(--deep-teal);text-decoration:none;letter-spacing:.02em}
   .hdr__tel:hover{color:var(--ocean-teal)}
-  .hdr__book{display:none;padding:.85rem 1.4rem;font-size:.6875rem}
+  .hdr__book{display:none;white-space:nowrap}
 
   @media (min-width:900px){
     .hdr__mark{width:38px;height:38px}
@@ -314,7 +314,7 @@ const waHref = waLink(`Hi ${site.name}, I'd like to ask about a treatment.`);
   }
   .mobar__btn{
     display:flex;align-items:center;justify-content:center;gap:.5em;
-    min-height:54px;text-decoration:none;
+    min-height:56px;text-decoration:none;
     font-size:.6875rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
     color:var(--deep-teal);border-right:1px solid var(--line);
   }

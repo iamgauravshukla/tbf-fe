@@ -22,7 +22,7 @@ const peso = (n: number) => '₱' + n.toLocaleString('en-PH');
     <p class="tc__sum">{summary}</p>
     <div class="tc__meta">
       <span class="tc__price">{priceFrom ? `from ${peso(priceFrom)}` : 'On consultation'}</span>
-      <span class="tc__dur">{duration}</span>
+      <span class="tc__dur" title={duration}>{duration}</span>
     </div>
     <span class="tc__more">Explore<i aria-hidden="true">→</i></span>
   </div>
@@ -57,14 +57,20 @@ const peso = (n: number) => '₱' + n.toLocaleString('en-PH');
     font-family:'Playfair Display',serif;font-weight:400;font-size:1.5rem;
     color:var(--deep-teal);letter-spacing:-.018em;line-height:1.15;transition:color .25s;
   }
-  .tc__sum{font-size:.8125rem;line-height:1.8;color:var(--text-muted);margin-top:.6rem;flex:1}
+  /* Fixed slots so every card in a row is the same size and its parts line up:
+     title always takes 2 lines, summary always 4 (longer text ends in "…"). */
+  .tc__title,.tc__sum{display:-webkit-box;-webkit-box-orient:vertical;overflow:hidden}
+  .tc__title{-webkit-line-clamp:2;line-clamp:2;min-height:calc(2em * 1.15)}
+  .tc__sum{font-size:.8125rem;line-height:1.8;color:var(--text-muted);margin-top:.6rem;flex:1;
+    -webkit-line-clamp:4;line-clamp:4;min-height:calc(4em * 1.8);max-height:calc(4em * 1.8)}
   .tc__meta{
     display:flex;justify-content:space-between;gap:1rem;align-items:baseline;
     margin-top:var(--s3);padding-top:.85rem;border-top:1px solid var(--accent);
     font-size:.75rem;
   }
-  .tc__price{font-weight:700;color:var(--deep-teal);letter-spacing:.01em}
-  .tc__dur{color:var(--text-muted);font-size:.6875rem;letter-spacing:.02em}
+  .tc__price{font-weight:700;color:var(--deep-teal);letter-spacing:.01em;white-space:nowrap}
+  .tc__dur{color:var(--text-muted);font-size:.6875rem;letter-spacing:.02em;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
   .tc__more{
     margin-top:.9rem;font-size:.625rem;font-weight:700;letter-spacing:.2em;
     text-transform:uppercase;color:var(--ocean-teal);

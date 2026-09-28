@@ -72,6 +72,13 @@ const modDate = post.updatedAt && new Date(post.updatedAt) > pubDate ? new Date(
       </div>
     </header>
 
+    <!-- ══════════════ COVER (set in the editor) ══════════════ -->
+    {post.coverImage && (
+      <figure class="cover wrap" data-reveal>
+        <img src={post.coverImage} alt={post.title} width="1200" height="675" fetchpriority="high" decoding="async" />
+      </figure>
+    )}
+
     <!-- ══════════════ BODY (auto table of contents from the h2s) ══════════════ -->
     <div class="section--tight">
       <div class="wrap abody">
@@ -94,7 +101,7 @@ const modDate = post.updatedAt && new Date(post.updatedAt) > pubDate ? new Date(
               A consultation is the fastest way to find out whether any of this
               applies to you.
             </p>
-            <a href="/contact/" class="btn btn--primary aside__btn" data-ev="book_click" data-loc="journal_aside">Book a consultation</a>
+            <a href="/contact/" class="btn btn--primary aside__btn" data-ev="book_click" data-loc="journal_aside">Book Free Consultation</a>
             <a href={waLink(`Hi ${site.name}, I read "${post.title}" and have a question.`)} class="aside__wa" data-ev="whatsapp_click" data-loc="journal_aside" rel="noopener">or ask on WhatsApp</a>
           </div>
         </aside>
@@ -136,7 +143,7 @@ const modDate = post.updatedAt && new Date(post.updatedAt) > pubDate ? new Date(
           </div>
           <a href="/treatments/" class="sec-head__link">All treatments<i aria-hidden="true">→</i></a>
         </div>
-        <div class="grid g-2 g-3 rel">
+        <div class="grid g-2 g-4 rel">
           {related.map((t: any, i: number) => (
             <div data-reveal data-reveal-delay={String(i)}>
               <TreatmentCard
@@ -147,6 +154,7 @@ const modDate = post.updatedAt && new Date(post.updatedAt) > pubDate ? new Date(
                 priceFrom={t.data.priceFrom}
                 duration={t.data.duration}
                 image={t.data.image}
+                ratio="landscape"
               />
             </div>
           ))}
@@ -176,6 +184,9 @@ const modDate = post.updatedAt && new Date(post.updatedAt) > pubDate ? new Date(
     color:var(--champagne)}
 
   /* ---------------- BODY ---------------- */
+  /* Natural proportions; only a very tall image is trimmed to keep the text in reach. */
+  .cover{margin:var(--s5) auto 0;max-width:1100px}
+  .cover img{display:block;width:100%;height:auto;max-height:min(70vh,620px);object-fit:cover;background:var(--light-teal)}
   .abody{display:grid;gap:var(--s5)}
   @media (min-width:1100px){
     .abody{grid-template-columns:200px minmax(0,1fr) 300px;gap:var(--s5);align-items:start}
@@ -204,9 +215,10 @@ const modDate = post.updatedAt && new Date(post.updatedAt) > pubDate ? new Date(
 
   .aside{display:grid;gap:var(--s3)}
   @media (min-width:1100px){ .aside{position:sticky;top:104px} }
-  .aside__card{background:var(--surface-raised);padding:var(--s4);border-top:2px solid var(--accent)}
+  .aside__card{background:var(--surface-raised);padding:var(--s4) var(--s3);border-top:2px solid var(--accent)}
   .aside__h{font-size:1.35rem;margin:.6rem 0 .7rem}
-  .aside__btn{width:100%;margin-top:var(--s3)}
+  /* Standard button type; the card's slimmer padding leaves room for the label on one line. */
+  .aside__btn{width:100%;margin-top:var(--s3);white-space:nowrap;padding-inline:1rem}
   .aside__wa{display:block;text-align:center;margin-top:var(--s2);font-size:.75rem;
     color:var(--text-muted);text-decoration:none}
   .aside__wa:hover{color:var(--deep-teal);text-decoration:underline}
@@ -240,5 +252,8 @@ const modDate = post.updatedAt && new Date(post.updatedAt) > pubDate ? new Date(
   }
   .sec-head__link i{font-style:normal;transition:transform .35s cubic-bezier(.22,.61,.36,1)}
   .sec-head__link:hover i{transform:translateX(5px)}
-  .rel{gap:var(--s5) var(--s3)}
+  /* Compact: four across on desktop, landscape photos, smaller type. */
+  .rel{gap:var(--s4) var(--s3)}
+  .rel :global(.tc__title){font-size:1.15rem}
+  .rel :global(.tc__sum){font-size:.75rem;-webkit-line-clamp:3;line-clamp:3;min-height:calc(3em * 1.8);max-height:calc(3em * 1.8)}
 </style>

@@ -206,6 +206,7 @@
 .db-form input:focus-visible,.db-form select:focus-visible{outline:2px solid rgba(22,124,136,.3);border-color:var(--ocean-teal)}
 .db-formrow{display:grid;grid-template-columns:1fr 1fr;gap:var(--s3)}
 .db-err{font-size:.8125rem;color:#A0392E;background:#FBECEA;border-left:2px solid #A0392E;padding:.6rem .8rem}
+.db-ok{font-size:.8125rem;color:#1E6B4A;background:#E8F4EE;border-left:2px solid #1E6B4A;padding:.6rem .8rem}
 .db-ok{font-size:.8125rem;color:#2E7A50}
 
 /* team form */

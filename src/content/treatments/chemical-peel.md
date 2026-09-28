@@ -20,6 +20,20 @@ notSuitableFor:
 order: 30
 image: "/img/t-chemical-peel.jpg"
 imageAlt: "A clinician treating a client's underarm with a handheld applicator"
+video: "https://youtube.com/shorts/B7u7YhuLWCs"
+gallery:
+  - "/img/chemical-peel-experience-1.jpg"
+  - "/img/chemical-peel-experience-2.jpg"
+photos:
+  - src: "/img/chemical-peel-1.jpg"
+    alt: "A clinician in blue gloves treating a client's underarm with a metal handheld applicator"
+    caption: "Underarm treatment"
+  - src: "/img/chemical-peel-2.jpg"
+    alt: "A white handheld device held against a client's underarm, the skin prepared with gel"
+    caption: "Prepared with gel"
+  - src: "/img/chemical-peel-3.jpg"
+    alt: "Close-up of a handheld device with a gold tip working across the skin of the underarm"
+    caption: "Close-up"
 ---
 
 ## What it actually does

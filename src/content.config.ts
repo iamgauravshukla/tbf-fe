@@ -31,6 +31,13 @@ const treatments = defineCollection({
     /** Extra showcase images for the treatment page's experience section.
      *  Leave empty and the page falls back to curated clinic photography. */
     gallery: z.array(z.string()).default([]),
+    /** Photo gallery section (grid + full-screen viewer). Each entry is a path,
+     *  or { src, alt, caption } — alt says what is in the photo. Leave empty and
+     *  the page shows `image` plus curated clinic photography instead. */
+    photos: z.array(z.union([
+      z.string(),
+      z.object({ src: z.string(), alt: z.string().optional(), caption: z.string().optional() }),
+    ])).default([]),
 
     /** Optional treatment walkthrough video. A YouTube/Vimeo link, or a
      *  self-hosted `/video/xxx.mp4` path. When set, the treatment page shows a

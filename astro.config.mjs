@@ -27,4 +27,8 @@ export default defineConfig({
   ],
   build: { inlineStylesheets: 'auto' },
   compressHTML: true,
+  // Pre-bundle browser-side deps at dev start. Otherwise Vite discovers `marked`
+  // (admin blog editor) mid-session, re-optimizes, and the page's stale import
+  // fails with "504 Outdated Optimize Dep", leaving the editor stuck loading.
+  vite: { optimizeDeps: { include: ['marked'] } },
 });

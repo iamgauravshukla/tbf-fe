@@ -20,6 +20,17 @@ notSuitableFor:
 order: 75
 image: "/img/t-hair-pdrn.jpg"
 imageAlt: "A clinician in gloves applying treatment to a client's scalp along the hair parting with a handheld applicator"
+video: "https://youtube.com/shorts/Mz1CUnnjCOw"
+photos:
+  - src: "/img/pdrn-1.jpg"
+    alt: "A clinician in blue gloves applying treatment to a client's scalp along the hair parting with a handheld applicator"
+    caption: "Along the parting"
+  - src: "/img/pdrn-2.jpg"
+    alt: "Close-up of a handheld applicator tip working across a client's scalp"
+    caption: "Close-up"
+  - src: "/img/pdrn-3.jpg"
+    alt: "A clinician in blue gloves holding a syringe of pale yellow solution against a client's scalp"
+    caption: "The PDRN solution"
 ---
 
 ## What it actually does

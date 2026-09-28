@@ -73,10 +73,16 @@ export const site = {
   // --- media -------------------------------------------------------------
   // Photo of the clinic itself — the business `image` in structured data.
   clinicImage: "/img/t-lobby.jpg",
+  // Social sharing (Open Graph / Twitter) images. Treatment pages use their own
+  // `image:` from the frontmatter; these cover everything else.
+  // Homepage card — the brand mark. Swap for a dedicated 1200×630 image when one exists.
+  ogImageHome: "/logo/logo-vertical.png",
+  // Fallback for any page without its own image, or whose image is missing on disk.
+  ogImageDefault: "/logo/logo-vertical.png",
   // Clinic walkaround video for the homepage. A YouTube/Vimeo link or a
   // self-hosted "/video/walkaround.mp4" path. Leave empty and the homepage
   // shows a "filming soon" placeholder in its place, ready for the footage.
-  clinicVideo: "",
+  clinicVideo: "https://youtu.be/rN7_cYB_zSI",
   clinicVideoPoster: "/img/t-lobby.jpg",
 } as const;
 

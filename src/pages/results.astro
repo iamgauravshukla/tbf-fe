@@ -74,7 +74,7 @@ const standards = [
             person at your consultation — we will show you cases relevant to your
             skin, with the client's permission.
           </p>
-          <a href="/contact/" class="btn btn--primary" data-ev="book_click" data-loc="results">Book a consultation</a>
+          <a href="/contact/" class="btn btn--primary" data-ev="book_click" data-loc="results">Book Free Consultation</a>
           <p class="disclaimer empty__d">
             DEVELOPER NOTE — populate <code>cases</code> in <code>src/pages/results.astro</code>
             only after regulatory sign-off. See the comment at the top of that file.
@@ -129,7 +129,7 @@ const standards = [
   .cat-head{padding-bottom:var(--s2);border-bottom:1px solid rgba(11,79,89,.16);margin-bottom:var(--s4)}
 
   .empty{background:var(--surface-raised);border:1px solid var(--line);
-    padding:clamp(var(--s4),5vw,var(--s6));text-align:center}
+    padding:clamp(var(--s4),5vw,var(--s6)) clamp(var(--s2),5vw,var(--s6));text-align:center}
   .empty__h{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--deep-teal);margin-inline:auto}
   .empty__p{margin:var(--s2) auto var(--s4);max-width:52ch;font-size:.9375rem;line-height:1.8;color:var(--text-muted)}
   .empty__d{margin:var(--s4) auto 0;max-width:56ch}

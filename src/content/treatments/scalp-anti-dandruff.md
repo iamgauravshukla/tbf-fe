@@ -20,6 +20,20 @@ notSuitableFor:
 order: 70
 image: "/img/t-scalp-dandruff.jpg"
 imageAlt: "An airbrush applicator spraying treatment onto a client's scalp along the parting"
+video: "https://youtube.com/shorts/XS9_3FjqkwI"
+gallery:
+  - "/img/scalp-experience-1.jpg"
+  - "/img/scalp-experience-2.jpg"
+photos:
+  - src: "/img/scalp-1.jpg"
+    alt: "A clinician in blue gloves airbrushing treatment onto a client's scalp along the parting"
+    caption: "Airbrushed along the parting"
+  - src: "/img/scalp-2.jpg"
+    alt: "A client's hair and scalp under the warm glow of a red LED light panel"
+    caption: "Red LED light"
+  - src: "/img/scalp-3.jpg"
+    alt: "A client lying back while a handheld device shines blue light along the hair parting"
+    caption: "Blue light along the parting"
 ---
 
 ## What it actually does

@@ -18,7 +18,22 @@ notSuitableFor:
   - "Implants, pacemakers or metal in the treatment area"
   - "Pregnancy"
 order: 105
-image: "/img/t-treatment.jpg"
+image: "/img/rf-1.jpg"
+imageAlt: "A two-pole radio frequency handpiece on a client's cheek, just below the closed eye, over a layer of gel"
+video: "https://youtube.com/shorts/53yJ-ntIR4M"
+gallery:
+  - "/img/rf-2.jpg"
+  - "/img/rf-3.jpg"
+photos:
+  - src: "/img/rf-1.jpg"
+    alt: "A two-pole radio frequency handpiece on a client's cheek, just below the closed eye, over a layer of gel"
+    caption: "Beneath the eye"
+  - src: "/img/rf-2.jpg"
+    alt: "Close-up of the radio frequency handpiece's two metal poles on a client's cheek"
+    caption: "Close-up"
+  - src: "/img/rf-3.jpg"
+    alt: "Side view of a client lying back while the radio frequency handpiece works along the cheekbone"
+    caption: "Along the cheekbone"
 ---
 
 ## What it actually does

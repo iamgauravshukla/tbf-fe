@@ -20,6 +20,20 @@ notSuitableFor:
 order: 80
 image: "/img/t-hair-exosomes.jpg"
 imageAlt: "A needle-free device shining blue light along a client's hair parting"
+video: "https://youtube.com/shorts/0K14beCCkcI"
+gallery:
+  - "/img/exosomes-experience-1.jpg"
+  - "/img/exosomes-experience-2.jpg"
+photos:
+  - src: "/img/exosomes-1.jpg"
+    alt: "A client lying back while a needle-free device shines blue light along the hair parting"
+    caption: "Blue light along the parting"
+  - src: "/img/exosomes-2.jpg"
+    alt: "A clinician in blue gloves holding a needle-free handheld applicator to a client's parting"
+    caption: "Needle-free applicator"
+  - src: "/img/exosomes-3.jpg"
+    alt: "A clinician in blue gloves airbrushing solution onto a client's scalp along the parting"
+    caption: "Airbrushed onto the scalp"
 ---
 
 ## What it actually does

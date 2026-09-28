@@ -20,6 +20,20 @@ notSuitableFor:
 order: 50
 image: "/img/t-prp.jpg"
 imageAlt: "A microneedling pen applying PRP to the skin beside a client's nose"
+video: "https://youtube.com/shorts/3Rgti0fIJoA"
+gallery:
+  - "/img/prp-experience-1.jpg"
+  - "/img/prp-experience-2.jpg"
+photos:
+  - src: "/img/prp-1.jpg"
+    alt: "A microneedling pen applying PRP to the skin beside a client's nose"
+    caption: "Beside the nose"
+  - src: "/img/prp-2.jpg"
+    alt: "A clinician in blue gloves working a microneedling pen along a client's chin"
+    caption: "Along the chin"
+  - src: "/img/prp-3.jpg"
+    alt: "Close-up of a microneedling pen on the cheek, the client's eyes closed"
+    caption: "Close-up"
 ---
 
 ## What it actually does

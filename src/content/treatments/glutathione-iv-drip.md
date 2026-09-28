@@ -20,6 +20,20 @@ notSuitableFor:
 order: 90
 image: "/img/t-glutathione-iv.jpg"
 imageAlt: "A clinician in gloves securing an IV line on a client's arm for a glutathione drip"
+video: "https://youtube.com/shorts/JPuJTXdVVx8"
+gallery:
+  - "/img/glutathione-experience-1.jpg"
+  - "/img/glutathione-experience-2.jpg"
+photos:
+  - src: "/img/glutathione-1.jpg"
+    alt: "A clinician in blue gloves adding solution from a syringe into a yellow IV bottle"
+    caption: "Prepared fresh"
+  - src: "/img/glutathione-2.jpg"
+    alt: "A clinician in blue gloves securing an IV line on a client's arm"
+    caption: "The IV line"
+  - src: "/img/glutathione-3.jpg"
+    alt: "Close-up of gloved hands connecting a yellow IV bottle to its line"
+    caption: "Close-up"
 ---
 
 ## What it actually is

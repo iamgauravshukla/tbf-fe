@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import TreatmentCard from '../../components/TreatmentCard.astro';
 import TreatmentVideo from '../../components/TreatmentVideo.astro';
+import TreatmentGallery, { type GalleryPhoto } from '../../components/TreatmentGallery.astro';
 import BeforeAfter from '../../components/BeforeAfter.astro';
 import LeadForm from '../../components/LeadForm.astro';
 import { site, waLink, telLink } from '../../site.config';
@@ -53,6 +54,27 @@ const FALLBACK_GALLERY: Record<string, string[]> = {
 const pool = d.gallery.length ? [...d.gallery, ...FALLBACK_GALLERY[d.group]] : FALLBACK_GALLERY[d.group];
 const gallery = [...new Set(pool)].filter((i) => i !== d.image).slice(0, 2);
 const heroAlt = d.imageAlt ?? `${d.title} at ${site.name}`;
+// Button-length name: drops a trailing "(…)" or "— …", e.g. "HIFU (High-Intensity…)" → "HIFU".
+// Names still too long for one line on a phone fall back to a generic label.
+const trimmed = d.title.replace(/\s*\(.*\)\s*$/, '').replace(/\s+[—–-]\s+.*$/, '');
+const shortTitle = trimmed.length <= 22 ? trimmed : 'this treatment';
+
+// Photo gallery. Content can supply its own via `photos:`; until then it shows
+// the treatment photo plus real clinic photography not already used on this page.
+const CLINIC_PHOTOS: GalleryPhoto[] = [
+  { src: '/img/f-reception.jpg', alt: 'The Better Face reception: a marble front desk, white tiled floor and tall glass windows onto the street', caption: 'Reception' },
+  { src: '/img/t-care.jpg', alt: 'A clinician in teal scrubs treating a client lying back with a towel wrap', caption: 'In the treatment room' },
+  { src: '/img/f-brand-wall.jpg', alt: 'The gold TBF logo and tagline on dark teal panelling above the front desk', caption: 'The clinic' },
+  { src: '/img/t-clinician.jpg', alt: 'A masked clinician in a white coat treating a client with a handheld device', caption: 'Our clinicians' },
+  { src: '/img/t-lobby.jpg', alt: 'The lobby, with the gold logo above a curved front desk', caption: 'The lobby' },
+  { src: '/img/t-coat.jpg', alt: "The TBF logo embroidered on a clinician's white coat", caption: 'The details' },
+];
+const own: GalleryPhoto[] = d.photos.map((p) =>
+  typeof p === 'string' ? { src: p, alt: `${d.title} at ${site.name}` } : { alt: `${d.title} at ${site.name}`, ...p });
+const photos: GalleryPhoto[] = own.length ? own : [
+  ...(d.image ? [{ src: d.image, alt: heroAlt, caption: d.title }] : []),
+  ...CLINIC_PHOTOS.filter((p) => !gallery.includes(p.src)),
+].slice(0, 5);
 ---
 <Base
   title={d.seoTitle}
@@ -85,7 +107,7 @@ const heroAlt = d.imageAlt ?? `${d.title} at ${site.name}`;
         <hr class="rule" data-reveal data-reveal-delay="1" />
         <p class="lede" data-reveal data-reveal-delay="2">{d.summary}</p>
         <div class="thero__cta" data-reveal data-reveal-delay="3">
-          <a href="#book" class="btn btn--primary" data-ev="book_click" data-loc="treatment">Book {d.title}</a>
+          <a href="#book" class="btn btn--primary" data-ev="book_click" data-loc="treatment">Book {shortTitle}</a>
           <a href={waLink(`Hi ${site.name}, I'd like to ask about ${d.title}.`)} class="btn btn--ghost" data-ev="whatsapp_click" data-loc="treatment" rel="noopener">Ask on WhatsApp</a>
         </div>
         <p class="disclaimer thero__dis" data-reveal data-reveal-delay="3">
@@ -126,7 +148,7 @@ const heroAlt = d.imageAlt ?? `${d.title} at ${site.name}`;
             Forty-five minutes with a clinician. We assess you, explain the options
             and give you a written plan and price.
           </p>
-          <a href="#book" class="btn btn--primary aside__btn" data-ev="book_click" data-loc="treatment_aside">Book now</a>
+          <a href="#book" class="btn btn--primary aside__btn" data-ev="book_click" data-loc="treatment_aside">Book Free Consultation</a>
           <a href={telLink} class="aside__tel" data-ev="call_click" data-loc="treatment_aside">or call {site.phoneDisplay}</a>
         </div>
 
@@ -147,7 +169,8 @@ const heroAlt = d.imageAlt ?? `${d.title} at ${site.name}`;
     <div class="wrap tgal__grid">
       <figure class="tgal__img tgal__img--a zoom" data-reveal>
         <img src={gallery[0]} alt={`${d.title} at ${site.name}`} width="520" height="650" loading="lazy" decoding="async" />
-        <figcaption class="tgal__cap">In the treatment room</figcaption>
+        {/* Clinic-photo captions; hidden once a treatment supplies its own `gallery:` photos. */}
+        {!d.gallery.length && <figcaption class="tgal__cap">In the treatment room</figcaption>}
       </figure>
       <div class="tgal__in" data-reveal data-reveal-delay="1">
         <span class="eyebrow">The experience</span>
@@ -165,13 +188,16 @@ const heroAlt = d.imageAlt ?? `${d.title} at ${site.name}`;
       </div>
       <figure class="tgal__img tgal__img--b zoom" data-reveal data-reveal-delay="2">
         <img src={gallery[1]} alt={`Inside ${site.name}, where ${d.title} is performed`} width="520" height="650" loading="lazy" decoding="async" />
-        <figcaption class="tgal__cap">The Better Face clinic</figcaption>
+        {!d.gallery.length && <figcaption class="tgal__cap">The Better Face clinic</figcaption>}
       </figure>
     </div>
   </section>
 
   <!-- ══════════════ VIDEO ══════════════ -->
   <TreatmentVideo video={d.video} poster={d.videoPoster ?? d.image} title={d.title} />
+
+  <!-- ══════════════ GALLERY ══════════════ -->
+  <TreatmentGallery photos={photos} title={d.title} heading={`${d.title}, up close`} />
 
   <!-- ══════════════ SUITABILITY ══════════════ -->
   <section class="section">
@@ -348,7 +374,8 @@ const heroAlt = d.imageAlt ?? `${d.title} at ${site.name}`;
   .aside{display:grid;gap:var(--s3);position:sticky;top:96px}
   .aside__card{background:var(--surface-raised);padding:var(--s4);border-top:2px solid var(--accent)}
   .aside__h{font-size:1.4rem;margin:.6rem 0 .7rem}
-  .aside__btn{width:100%;margin-top:var(--s3)}
+  /* Narrow 330px column: slimmer side padding keeps the label on one line. */
+  .aside__btn{width:100%;margin-top:var(--s3);white-space:nowrap;padding-inline:1rem}
   .aside__tel{display:block;text-align:center;margin-top:var(--s2);font-size:.75rem;
     color:var(--text-muted);text-decoration:none}
   .aside__tel:hover{color:var(--deep-teal);text-decoration:underline}

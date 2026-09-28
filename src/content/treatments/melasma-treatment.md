@@ -20,6 +20,20 @@ notSuitableFor:
 order: 40
 image: "/img/t-melasma.jpg"
 imageAlt: "A client in protective eyewear having their face treated with a laser handpiece"
+video: "https://youtube.com/shorts/9J3bj09hUqs"
+gallery:
+  - "/img/melasma-experience-1.jpg"
+  - "/img/melasma-experience-2.jpg"
+photos:
+  - src: "/img/melasma-1.jpg"
+    alt: "A clinician in blue gloves positioning a laser handpiece over a client wearing protective eye shields"
+    caption: "Eyes protected first"
+  - src: "/img/melasma-2.jpg"
+    alt: "Side view of a laser handpiece above a client's cheek, a red aiming dot on the skin"
+    caption: "Targeting the pigment"
+  - src: "/img/melasma-3.jpg"
+    alt: "Close-up of a laser pulse on a client's cheek beside the protective eyewear"
+    caption: "Close-up"
 ---
 
 ## What it actually does

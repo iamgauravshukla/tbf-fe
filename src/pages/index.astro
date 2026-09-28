@@ -52,6 +52,7 @@ const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
   title={`${site.name} | Skin & Hair Clinic in ${site.address.region}`}
   description={`Skin, hair and wellness clinic in ${site.address.region}: HIFU, CO2 laser, melasma, PRP and hair treatments by licensed clinicians. Consultation first.`}
   path="/"
+  ogImage={site.ogImageHome}
   schemaType="home"
 >
   <!-- ══════════════ HERO ══════════════ -->
@@ -70,7 +71,7 @@ const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
           personalised treatment plans, in a calm room to have them in.
         </p>
         <div class="hero__cta" data-reveal data-reveal-delay="3">
-          <a href="#book" class="btn btn--primary" data-ev="book_click" data-loc="hero">Book a consultation<i aria-hidden="true">→</i></a>
+          <a href="#book" class="btn btn--primary" data-ev="book_click" data-loc="hero">Book Free Consultation<i aria-hidden="true">→</i></a>
           <a href="/treatments/" class="btn btn--ghost">View treatments</a>
         </div>
         <ul class="hero__trust" data-reveal data-reveal-delay="3">
@@ -83,7 +84,7 @@ const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
     </div>
 
     <div class="hero__media frame">
-      <img src="/img/f-care.jpg" alt="Close-up portrait of a woman with clear, natural-looking skin" width="900" height="1200" fetchpriority="high" decoding="async" />
+      <img src="/img/f-reception.jpg" alt="The Better Face reception: a marble front desk, white tiled floor and tall glass windows onto the street" width="1000" height="1000" fetchpriority="high" decoding="async" />
       <div class="hero__cap">
         <span>Metro Manila</span>
         <span class="hero__cap-hours">{hoursLine}</span>
@@ -106,7 +107,7 @@ const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
   <section class="section stmt">
     <div class="wrap stmt__grid">
       <figure class="stmt__img stmt__img--a zoom" data-reveal data-reveal-delay="1">
-        <img src="/img/t-lobby.jpg" alt="The reception at The Better Face" width="520" height="520" loading="lazy" decoding="async" />
+        <img src="/img/clinic-reception.jpg" alt="The Better Face reception: a gold-veined marble desk, gold-trimmed walls and tall green-framed windows onto the street" width="1000" height="1000" loading="lazy" decoding="async" />
       </figure>
       <div class="stmt__in">
         <span class="eyebrow" data-reveal>The idea</span>
@@ -118,7 +119,7 @@ const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
         <a href="/about/" class="stmt__link" data-reveal data-reveal-delay="2">About the clinic<i aria-hidden="true">→</i></a>
       </div>
       <figure class="stmt__img stmt__img--b zoom" data-reveal data-reveal-delay="2">
-        <img src="/img/t-care.jpg" alt="A treatment in progress at The Better Face" width="520" height="520" loading="lazy" decoding="async" />
+        <img src="/img/clinic-room.jpg" alt="A private treatment room at The Better Face, with a tufted grey treatment bed, a wave-edged mirror and an LED light panel" width="1000" height="1000" loading="lazy" decoding="async" />
       </figure>
     </div>
   </section>
@@ -211,6 +212,9 @@ const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
         <div class="grid g-3 jgrid">
           {posts.map((p, i) => (
             <a class="jcard" href={`/journal/${p.slug}/`} data-reveal data-reveal-delay={String(i)}>
+              {p.coverImage && (
+                <span class="jcard__media"><img src={p.coverImage} alt="" width="640" height="480" loading="lazy" decoding="async" /></span>
+              )}
               <span class="jcard__meta">
                 <span class="numeral">{String(i + 1).padStart(2, '0')}</span>
                 <span class="jcard__date">{fmtDate(p.publishedAt)}</span>
@@ -350,7 +354,7 @@ const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
   /* the two plates: a quiet pair on mobile, flanking and offset on desktop */
   .stmt__img{margin:0;background:var(--light-teal)}
   .stmt__img img{width:100%;aspect-ratio:1;object-fit:cover}
-  .stmt__img--b img{object-position:100% 50%}
+  .stmt__img--b img{object-position:40% 50%}
   @media (max-width:899px){
     .stmt__grid{grid-template-columns:1fr 1fr;gap:var(--s3)}
     .stmt__in{grid-column:1 / -1}
@@ -430,6 +434,9 @@ const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
     transition:border-color .3s,box-shadow .4s,transform .4s cubic-bezier(.22,.61,.36,1)
   }
   .jcard:hover{border-color:var(--accent);box-shadow:0 24px 44px -30px rgba(11,79,89,.4);transform:translateY(-4px)}
+  /* Cover bleeds to the card edges (cancels the card padding). */
+  .jcard__media{display:block;overflow:hidden;margin:calc(var(--s4) * -1) calc(var(--s4) * -1) var(--s3);background:var(--light-teal)}
+  .jcard__media img{display:block;width:100%;aspect-ratio:16/10;object-fit:cover}
   .jcard__meta{display:flex;align-items:baseline;gap:.9em;flex-wrap:wrap}
   .jcard__date{font-size:var(--f-micro);letter-spacing:.2em;text-transform:uppercase;font-weight:700;color:var(--deep-teal)}
   .jcard__time{font-size:var(--f-micro);letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--text-muted)}

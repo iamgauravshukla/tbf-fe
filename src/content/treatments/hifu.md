@@ -20,6 +20,20 @@ notSuitableFor:
 order: 20
 image: "/img/t-hifu.jpg"
 imageAlt: "A HIFU cartridge held against a client's jawline during a skin-tightening session"
+video: "https://youtube.com/shorts/n-K0KlolnCE"
+gallery:
+  - "/img/hifu-experience-1.jpg"
+  - "/img/hifu-experience-2.jpg"
+photos:
+  - src: "/img/hifu-1.jpg"
+    alt: "A HIFU cartridge pressed under a client's jawline, with ultrasound gel on the skin"
+    caption: "Along the jawline"
+  - src: "/img/hifu-2.jpg"
+    alt: "A HIFU cartridge marked L4-4.5 held against a client's cheek over a layer of gel"
+    caption: "The 4.5 mm cartridge"
+  - src: "/img/hifu-3.jpg"
+    alt: "A client's jaw and neck prepared with ultrasound gel before a HIFU pass"
+    caption: "Prepared with gel"
 ---
 
 ## What it actually does

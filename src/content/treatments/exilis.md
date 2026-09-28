@@ -20,6 +20,20 @@ notSuitableFor:
 order: 100
 image: "/img/t-exilis.jpg"
 imageAlt: "An Exilis handpiece in use on the skin beside a client's eye"
+video: "https://youtube.com/shorts/q-TYdh-q4Bw"
+gallery:
+  - "/img/exilis-experience-1.jpg"
+  - "/img/exilis-experience-2.jpg"
+photos:
+  - src: "/img/exilis-1.jpg"
+    alt: "An Exilis handpiece with a violet glow working over gel on the skin just below a client's eye"
+    caption: "Beneath the eye"
+  - src: "/img/exilis-2.jpg"
+    alt: "A clinician in blue gloves guiding the Exilis handpiece across the skin beside a client's eye"
+    caption: "Around the eye"
+  - src: "/img/exilis-3.jpg"
+    alt: "Close-up of the Exilis handpiece tip gliding over gel along a client's lower lid"
+    caption: "Close-up"
 ---
 
 ## What it actually does
