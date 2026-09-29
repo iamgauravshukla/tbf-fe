@@ -42,7 +42,7 @@ const values = [
       </div>
     </div>
     <div class="ahero__media">
-      <img src="/img/f-brand-wall.jpg" alt="The Better Face reception wall: the gold TBF logo and tagline on dark teal panelling above a stone front desk" width="1000" height="1000" fetchpriority="high" decoding="async" />
+      <img src="/img/f-reception.jpg" alt="The Better Face reception: a marble front desk, white tiled floor and tall glass windows onto the street" width="1000" height="1000" fetchpriority="high" decoding="async" />
     </div>
   </section>
 
@@ -146,11 +146,11 @@ const values = [
   }
   .ahero__inner{max-width:34rem}
   .ahero__h{margin-top:.8rem}
-  /* Square photo shown whole, never cropped. Any spare space around it is the
-     wall colour of the photo, so the two read as one surface. */
-  .ahero__media{position:relative;display:flex;align-items:center;justify-content:center;background:#0d2b2b;overflow:hidden}
-  /* Largest square that fits the column AND the screen below the ~88px header. */
-  .ahero__media img{display:block;width:min(100%,calc(100vh - 88px),760px);width:min(100%,calc(100svh - 88px),760px);height:auto;aspect-ratio:1/1}
+  /* Photo fills the whole column edge to edge (same as the homepage hero). The
+     crop leans toward the desk and windows, the photo's subject. */
+  .ahero__media{position:relative;min-height:52vh;background:var(--light-teal);overflow:hidden}
+  .ahero__media img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:55% 60%}
+  @media (min-width:900px){ .ahero__media{min-height:0} }
 
   /* ---------------- STATEMENT ---------------- */
   .stmt__in{max-width:54rem;margin-inline:auto;text-align:center}

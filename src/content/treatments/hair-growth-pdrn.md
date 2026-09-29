@@ -21,6 +21,9 @@ order: 75
 image: "/img/t-hair-pdrn.jpg"
 imageAlt: "A clinician in gloves applying treatment to a client's scalp along the hair parting with a handheld applicator"
 video: "https://youtube.com/shorts/Mz1CUnnjCOw"
+gallery:
+  - "/img/pdrn-experience-1.jpg"
+  - "/img/pdrn-experience-2.jpg"
 photos:
   - src: "/img/pdrn-1.jpg"
     alt: "A clinician in blue gloves applying treatment to a client's scalp along the hair parting with a handheld applicator"
