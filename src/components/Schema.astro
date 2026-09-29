@@ -18,7 +18,7 @@ interface Props {
   /** Page's main image (treatment hero / article cover). */
   image?: string;
   breadcrumbs?: { name: string; path: string }[];
-  article?: { title: string; description: string; date: Date; modified?: Date; author: string };
+  article?: { title: string; description: string; date: Date; modified?: Date; author?: string };
 }
 const { type = 'home', path = '/', serviceName, serviceDescription, serviceType, price, image, breadcrumbs = [], article } = Astro.props;
 
@@ -113,7 +113,8 @@ const articleLd = type === 'article' && article ? {
   image: abs(image || '/logo/logo-vertical.png'),
   datePublished: article.date.toISOString(),
   dateModified: (article.modified ?? article.date).toISOString(),
-  author: { '@type': 'Person', name: article.author },
+  // Named author only when one is shown on the page; otherwise the clinic.
+  author: article.author ? { '@type': 'Person', name: article.author } : { '@id': BUSINESS_ID },
   publisher: { '@id': BUSINESS_ID },
 } : null;
 

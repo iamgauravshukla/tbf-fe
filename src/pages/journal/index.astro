@@ -41,7 +41,6 @@ const [lead, ...rest] = posts;
             )}
             <h2 class="lead__t">{lead.title}</h2>
             <p class="lede lead__d">{lead.excerpt || lead.metaDescription}</p>
-            <span class="lead__by">{lead.authorName}{lead.authorRole && ` · ${lead.authorRole}`}</span>
             <span class="lead__more">Read the guide<i aria-hidden="true">→</i></span>
           </div>
         </a>
@@ -62,7 +61,6 @@ const [lead, ...rest] = posts;
               <span class="jcard__date">{fmtDate(p.publishedAt)} · {p.readMins} min</span>
               <h3 class="jcard__t">{p.title}</h3>
               <p class="jcard__d">{p.excerpt || p.metaDescription}</p>
-              <span class="jcard__by">{p.authorName}</span>
               <span class="jcard__more">Read<i aria-hidden="true">→</i></span>
             </a>
           ))}
@@ -113,7 +111,6 @@ const [lead, ...rest] = posts;
   .lead__t{font-size:clamp(1.8rem,1.2rem + 2.2vw,3rem);transition:color .25s}
   .lead:hover .lead__t{color:var(--ocean-teal)}
   .lead__d{margin-top:var(--s3)}
-  .lead__by{display:block;margin-top:var(--s3);font-size:.6875rem;font-weight:600;color:var(--deep-teal)}
   .lead__more{display:inline-flex;align-items:center;gap:.6em;margin-top:var(--s3);
     font-size:.625rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ocean-teal)}
   .lead__more i{font-style:normal;transition:transform .35s cubic-bezier(.22,.61,.36,1)}
@@ -131,7 +128,6 @@ const [lead, ...rest] = posts;
     transition:color .25s}
   .jcard:hover .jcard__t{color:var(--ocean-teal)}
   .jcard__d{font-size:.8125rem;line-height:1.8;color:var(--text-muted);flex:1}
-  .jcard__by{font-size:.6875rem;color:var(--deep-teal);font-weight:600;margin-top:var(--s3)}
   .jcard__more{margin-top:.8rem;font-size:.625rem;font-weight:700;letter-spacing:.2em;
     text-transform:uppercase;color:var(--ocean-teal);display:inline-flex;align-items:center;gap:.6em}
   .jcard__more i{font-style:normal;transition:transform .35s cubic-bezier(.22,.61,.36,1)}

@@ -83,7 +83,7 @@ export const site = {
   // self-hosted "/video/walkaround.mp4" path. Leave empty and the homepage
   // shows a "filming soon" placeholder in its place, ready for the footage.
   clinicVideo: "https://youtu.be/rN7_cYB_zSI",
-  clinicVideoPoster: "/img/t-lobby.jpg",
+  clinicVideoPoster: "/img/clinic-video-poster.jpg",
 } as const;
 
 // Placeholder guards. Structured data must never publish a "TODO" address or

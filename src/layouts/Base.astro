@@ -13,7 +13,7 @@ interface Props {
   schemaType?: 'home' | 'service' | 'article';
   serviceName?: string; serviceDescription?: string; serviceType?: string; price?: number | null;
   breadcrumbs?: { name: string; path: string }[];
-  article?: { title: string; description: string; date: Date; modified?: Date; author: string };
+  article?: { title: string; description: string; date: Date; modified?: Date; author?: string };
 }
 const p = Astro.props;
 const isArticle = p.schemaType === 'article' && !!p.article;

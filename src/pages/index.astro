@@ -134,7 +134,7 @@ const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
     <div class="wrap">
       <div class="proof__box" data-reveal>
         <div class="proof__media zoom frame">
-          <img src="/img/f-expert.jpg" alt="A practitioner treating a client at The Better Face" width="900" height="1100" loading="lazy" decoding="async" />
+          <img src="/img/f-consultation.jpg" alt="A clinician in a white coat talking a client through her skin assessment on a tablet" width="500" height="500" loading="lazy" decoding="async" />
         </div>
         <div class="proof__panel inverse">
           <div class="proof__inner">
@@ -222,7 +222,6 @@ const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
               </span>
               <h3 class="jcard__t">{p.title}</h3>
               <p class="jcard__d">{p.excerpt || p.metaDescription}</p>
-              <span class="jcard__by">{p.authorName}<em>{p.authorRole}</em></span>
               <span class="jcard__more">Read<i aria-hidden="true">→</i></span>
             </a>
           ))}
@@ -376,7 +375,7 @@ const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
   }
   @media (min-width:860px){ .proof__box{grid-template-columns:.82fr 1.18fr;align-items:stretch} }
   .proof__media{position:relative;min-height:300px;background:var(--ocean-teal)}
-  .proof__media img{width:100%;height:100%;object-fit:cover;min-height:300px}
+  .proof__media img{width:100%;height:100%;object-fit:cover;object-position:62% center;min-height:300px}
   @media (min-width:860px){ .proof__media{min-height:0} .proof__media img{min-height:100%} }
   .proof__panel{padding:var(--s5) var(--gutter)}
   @media (min-width:600px){ .proof__panel{padding:var(--s6)} }
@@ -447,8 +446,6 @@ const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
   }
   .jcard:hover .jcard__t{color:var(--ocean-teal)}
   .jcard__d{font-size:.8125rem;line-height:1.8;color:var(--text-muted);flex:1}
-  .jcard__by{display:grid;font-size:.75rem;color:var(--deep-teal);font-weight:600;margin-top:var(--s3);line-height:1.5}
-  .jcard__by em{font-style:normal;font-weight:400;font-size:.6875rem;color:var(--text-muted)}
   .jcard__more{
     margin-top:1rem;font-size:.625rem;font-weight:700;letter-spacing:.2em;text-transform:uppercase;
     color:var(--ocean-teal);display:inline-flex;align-items:center;gap:.6em

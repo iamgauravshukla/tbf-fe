@@ -125,7 +125,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   /* ---- grid: a swipeable strip on phones, a bento grid from tablet up ---- */
   .tg__grid{
     list-style:none;margin:0;padding:0;display:grid;grid-auto-flow:column;grid-auto-columns:78%;
-    gap:var(--s2);overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;
+    gap:var(--s2);overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;scrollbar-width:none;
     margin-inline:calc(var(--gutter) * -1);padding-inline:var(--gutter);scroll-padding-inline:var(--gutter);
   }
   .tg__grid::-webkit-scrollbar{display:none}

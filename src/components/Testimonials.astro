@@ -87,7 +87,7 @@ const { items } = Astro.props;
 
   /* rail: one card per view on phones, two from 760px up */
   .tm__rail{
-    display:flex;gap:var(--s3);overflow-x:auto;overscroll-behavior-x:contain;
+    display:flex;gap:var(--s3);overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;
     scroll-snap-type:x mandatory;padding-bottom:var(--s1);scrollbar-width:none
   }
   .tm__rail::-webkit-scrollbar{display:none}

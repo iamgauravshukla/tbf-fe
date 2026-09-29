@@ -174,7 +174,7 @@ const rails = GROUPS
   /* --- the rail: 3 per view desktop, 2 per view mobile, swipe + snap --- */
   .ts__rail{
     display:flex;gap:var(--s3);
-    overflow-x:auto;overscroll-behavior-x:contain;
+    overflow-x:auto;overflow-y:hidden;overscroll-behavior-x:contain;
     scroll-snap-type:x mandatory;scroll-behavior:smooth;
     scrollbar-width:none;-webkit-overflow-scrolling:touch;
     padding-bottom:6px;

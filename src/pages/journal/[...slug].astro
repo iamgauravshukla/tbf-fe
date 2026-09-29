@@ -45,7 +45,7 @@ const modDate = post.updatedAt && new Date(post.updatedAt) > pubDate ? new Date(
   ogImage={post.coverImage || undefined}
   ogImageAlt={post.title}
   schemaType="article"
-  article={{ title: post.title, description: post.metaDescription || post.excerpt, date: pubDate, modified: modDate, author: post.authorName }}
+  article={{ title: post.title, description: post.metaDescription || post.excerpt, date: pubDate, modified: modDate }}
   breadcrumbs={[
     { name: 'Home', path: '/' },
     { name: 'Journal', path: '/journal/' },
@@ -65,8 +65,6 @@ const modDate = post.updatedAt && new Date(post.updatedAt) > pubDate ? new Date(
         <hr class="rule rule--center" data-reveal data-reveal-delay="1" />
         <p class="lede ahero__lede" data-reveal data-reveal-delay="2">{post.excerpt || post.metaDescription}</p>
         <div class="byline" data-reveal data-reveal-delay="3">
-          <span class="byline__n">{post.authorName}</span>
-          {post.authorRole && <span class="byline__r">{post.authorRole}</span>}
           <time datetime={pubDate.toISOString()} class="byline__d">{fmtDate(post.publishedAt)}</time>
         </div>
       </div>
@@ -108,28 +106,18 @@ const modDate = post.updatedAt && new Date(post.updatedAt) > pubDate ? new Date(
       </div>
     </div>
 
-    <!-- ══════════════ AUTHOR / NEXT ══════════════ -->
-    <div class="section--tight sunken">
-      <div class="wrap author" data-reveal>
-        <div class="author__body">
-          <span class="eyebrow">Written by</span>
-          <h2 class="author__n">{post.authorName}</h2>
-          {post.authorRole && <p class="author__r">{post.authorRole}</p>}
-          <p class="small author__b">
-            Part of the clinical team at {site.name}. Articles here are written by
-            the people who deliver the treatments — not by an agency — and are
-            reviewed before publication.
-          </p>
-        </div>
-        {next && (
+    <!-- ══════════════ NEXT ══════════════ -->
+    {next && (
+      <div class="section--tight sunken">
+        <div class="wrap author" data-reveal>
           <a href={`/journal/${next.slug}/`} class="nextup">
             <span class="eyebrow">Read next</span>
             <span class="nextup__t">{next.title}</span>
             <span class="nextup__m">Continue<i aria-hidden="true">→</i></span>
           </a>
-        )}
+        </div>
       </div>
-    </div>
+    )}
   </article>
 
   <!-- ══════════════ RELATED TREATMENTS ══════════════ -->
@@ -178,8 +166,6 @@ const modDate = post.updatedAt && new Date(post.updatedAt) > pubDate ? new Date(
   .ahero__lede{margin-inline:auto}
   .byline{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;
     gap:.6em var(--s3);margin-top:var(--s5)}
-  .byline__n{font-size:.8125rem;font-weight:700;color:var(--deep-teal)}
-  .byline__r{font-size:.6875rem;color:var(--text-muted)}
   .byline__d{font-size:.5625rem;letter-spacing:.2em;text-transform:uppercase;font-weight:600;
     color:var(--champagne)}
 
@@ -225,11 +211,7 @@ const modDate = post.updatedAt && new Date(post.updatedAt) > pubDate ? new Date(
 
   /* ---------------- AUTHOR / NEXT ---------------- */
   .author{display:grid;gap:var(--s5)}
-  @media (min-width:800px){ .author{grid-template-columns:1.1fr .9fr;gap:var(--s6);align-items:center} }
-  .author__n{font-size:1.8rem;margin-top:.7rem}
-  .author__r{font-size:.6875rem;letter-spacing:.2em;text-transform:uppercase;font-weight:700;
-    color:var(--ocean-teal);margin-top:.5rem}
-  .author__b{margin-top:var(--s3)}
+  @media (min-width:800px){ .author{max-width:44rem} }
 
   .nextup{display:block;padding:var(--s4);background:var(--deep-teal);color:var(--ivory);text-decoration:none}
   .nextup .eyebrow{color:var(--champagne)}
