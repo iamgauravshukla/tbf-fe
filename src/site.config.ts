@@ -78,10 +78,11 @@ export const site = {
   clinicImage: "/img/t-lobby.jpg",
   // Social sharing (Open Graph / Twitter) images. Treatment pages use their own
   // `image:` from the frontmatter; these cover everything else.
-  // Homepage card — the brand mark. Swap for a dedicated 1200×630 image when one exists.
-  ogImageHome: "/logo/logo-vertical.png",
-  // Fallback for any page without its own image, or whose image is missing on disk.
-  ogImageDefault: "/logo/logo-vertical.png",
+  // Homepage card — storefront + reception, already a wide social-card shape.
+  ogImageHome: "/img/clinic-video-poster.jpg",
+  // Fallback for any page without its own image (contact, legal, landing pages…):
+  // a wide crop of the storefront photo that keeps the sign in frame.
+  ogImageDefault: "/img/og-storefront.jpg",
   // Clinic walkaround video for the homepage. A YouTube/Vimeo link or a
   // self-hosted "/video/walkaround.mp4" path. Leave empty and the homepage
   // shows a "filming soon" placeholder in its place, ready for the footage.
