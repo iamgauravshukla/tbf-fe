@@ -37,19 +37,22 @@ export const site = {
     street: "5102 Bridgeway Ave, Vivere Hotel Alabang",
     locality: "Muntinlupa City",
     region: "Metro Manila",
-    postalCode: "TODO — use the postal code Google Business Profile assigns to the pin",
+    // Left empty on purpose: fill with the postal code Google Business Profile
+    // assigns to the map pin, so the website and GBP stay byte-identical.
+    // While empty, the footer/contact just omit it and the schema address
+    // stays unpublished (see hasAddress below).
+    postalCode: "",
     country: "PH",
   },
   geo: { lat: 0, lng: 0 },                    // TODO from Google Business Profile
   mapUrl: "https://maps.google.com/?q=The+Better+Face", // TODO real place link
 
   hours: [
-    { days: "Monday – Saturday", open: "09:00", close: "19:00" },
-    { days: "Sunday", open: "Closed", close: "" },
+    { days: "Monday – Sunday", open: "09:00", close: "19:00" },
   ],
   // schema.org format — keep in sync with the human-readable list above
   hoursSpec: [
-    { days: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"], opens: "09:00", closes: "19:00" },
+    { days: ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"], opens: "09:00", closes: "19:00" },
   ],
 
   social: {
