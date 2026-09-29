@@ -20,7 +20,7 @@ notSuitableFor:
 order: 110
 image: "/img/t-barbie-arms.jpg"
 imageAlt: "A clinician in gloves applying clear gel to a client's upper arm before an arm-contouring session"
-video: "https://youtube.com/shorts/8n7uBHAVvaE"
+video: "https://youtube.com/shorts/ITpHY4RsaLU"
 gallery:
   - "/img/barbie-arms-experience-1.jpg"
   - "/img/barbie-arms-experience-2.jpg"

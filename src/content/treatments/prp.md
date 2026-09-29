@@ -20,7 +20,7 @@ notSuitableFor:
 order: 50
 image: "/img/t-prp.jpg"
 imageAlt: "A microneedling pen applying PRP to the skin beside a client's nose"
-video: "https://youtube.com/shorts/3Rgti0fIJoA"
+video: "https://youtube.com/shorts/nDb-l_eQ9kI"
 gallery:
   - "/img/prp-experience-1.jpg"
   - "/img/prp-experience-2.jpg"

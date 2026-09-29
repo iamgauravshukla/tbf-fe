@@ -20,7 +20,7 @@ notSuitableFor:
 order: 80
 image: "/img/t-hair-exosomes.jpg"
 imageAlt: "A needle-free device shining blue light along a client's hair parting"
-video: "https://youtube.com/shorts/0K14beCCkcI"
+video: "https://youtube.com/shorts/hJV7MO7GkeM"
 gallery:
   - "/img/exosomes-experience-1.jpg"
   - "/img/exosomes-experience-2.jpg"

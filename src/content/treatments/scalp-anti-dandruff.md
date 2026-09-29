@@ -20,7 +20,7 @@ notSuitableFor:
 order: 70
 image: "/img/t-scalp-dandruff.jpg"
 imageAlt: "An airbrush applicator spraying treatment onto a client's scalp along the parting"
-video: "https://youtube.com/shorts/XS9_3FjqkwI"
+video: "https://youtube.com/shorts/FLCy7StpANM"
 gallery:
   - "/img/scalp-experience-1.jpg"
   - "/img/scalp-experience-2.jpg"

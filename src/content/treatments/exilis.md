@@ -20,7 +20,7 @@ notSuitableFor:
 order: 100
 image: "/img/t-exilis.jpg"
 imageAlt: "An Exilis handpiece in use on the skin beside a client's eye"
-video: "https://youtube.com/shorts/q-TYdh-q4Bw"
+video: "https://youtube.com/shorts/cTxG7Jn3Wl4"
 gallery:
   - "/img/exilis-experience-1.jpg"
   - "/img/exilis-experience-2.jpg"

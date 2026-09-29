@@ -20,7 +20,7 @@ notSuitableFor:
 order: 105
 image: "/img/rf-1.jpg"
 imageAlt: "A two-pole radio frequency handpiece on a client's cheek, just below the closed eye, over a layer of gel"
-video: "https://youtube.com/shorts/53yJ-ntIR4M"
+video: "https://youtube.com/shorts/6q-gY5Vl13I"
 gallery:
   - "/img/rf-2.jpg"
   - "/img/rf-3.jpg"

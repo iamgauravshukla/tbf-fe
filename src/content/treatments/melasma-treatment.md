@@ -20,7 +20,7 @@ notSuitableFor:
 order: 40
 image: "/img/t-melasma.jpg"
 imageAlt: "A client in protective eyewear having their face treated with a laser handpiece"
-video: "https://youtube.com/shorts/9J3bj09hUqs"
+video: "https://youtube.com/shorts/nxtOOAjnA-I"
 gallery:
   - "/img/melasma-experience-1.jpg"
   - "/img/melasma-experience-2.jpg"

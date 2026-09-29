@@ -60,7 +60,7 @@ export const site = {
   // --- tracking -----------------------------------------------------------
   // Leave empty to disable. Nothing loads until these are filled in, so the
   // site stays fast and cookie-free during development.
-  ga4: "",            // "G-XXXXXXXXXX"
+  ga4: "G-CTFXC3FD7Y", // Google Analytics 4 measurement ID
   metaPixel: "",      // "000000000000000"
   // Where the lead form posts. Point this at the API's lead endpoint —
   // e.g. "http://localhost:4000/api/leads" in dev, your API host in production.
@@ -82,7 +82,7 @@ export const site = {
   // Clinic walkaround video for the homepage. A YouTube/Vimeo link or a
   // self-hosted "/video/walkaround.mp4" path. Leave empty and the homepage
   // shows a "filming soon" placeholder in its place, ready for the footage.
-  clinicVideo: "https://youtu.be/rN7_cYB_zSI",
+  clinicVideo: "https://youtu.be/ZSaaLSrcjOI",
   clinicVideoPoster: "/img/clinic-video-poster.jpg",
 } as const;
 

@@ -20,7 +20,7 @@ notSuitableFor:
 order: 20
 image: "/img/t-hifu.jpg"
 imageAlt: "A HIFU cartridge held against a client's jawline during a skin-tightening session"
-video: "https://youtube.com/shorts/n-K0KlolnCE"
+video: "https://youtube.com/shorts/WVW2SF0Z4Bo"
 gallery:
   - "/img/hifu-experience-1.jpg"
   - "/img/hifu-experience-2.jpg"

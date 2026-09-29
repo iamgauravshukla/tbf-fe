@@ -20,7 +20,7 @@ notSuitableFor:
 order: 90
 image: "/img/t-glutathione-iv.jpg"
 imageAlt: "A clinician in gloves securing an IV line on a client's arm for a glutathione drip"
-video: "https://youtube.com/shorts/JPuJTXdVVx8"
+video: "https://youtube.com/shorts/Mz9Uq5UUIrM"
 gallery:
   - "/img/glutathione-experience-1.jpg"
   - "/img/glutathione-experience-2.jpg"

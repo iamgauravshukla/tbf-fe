@@ -20,7 +20,7 @@ notSuitableFor:
 order: 30
 image: "/img/t-chemical-peel.jpg"
 imageAlt: "A clinician treating a client's underarm with a handheld applicator"
-video: "https://youtube.com/shorts/B7u7YhuLWCs"
+video: "https://youtube.com/shorts/PGiW0ovcAZc"
 gallery:
   - "/img/chemical-peel-experience-1.jpg"
   - "/img/chemical-peel-experience-2.jpg"

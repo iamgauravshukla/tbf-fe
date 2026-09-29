@@ -20,7 +20,7 @@ notSuitableFor:
 order: 10
 image: "/img/t-co2-laser.jpg"
 imageAlt: "A CO2 fractional laser handpiece on a client's cheek, its red aiming light visible on the skin"
-video: "https://youtube.com/shorts/SnRmw3IfMDo"
+video: "https://youtube.com/shorts/DQB9LN0oLBc"
 gallery:
   - "/img/co2-experience-1.jpg"
   - "/img/co2-experience-2.jpg"

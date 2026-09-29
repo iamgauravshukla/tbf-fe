@@ -20,7 +20,7 @@ notSuitableFor:
 order: 60
 image: "/img/t-warts-removal.jpg"
 imageAlt: "A fine-tipped device removing a small skin growth from a client's forehead"
-video: "https://youtube.com/shorts/DCi5jo0QzaQ"
+video: "https://youtube.com/shorts/ASh0lmRdKPc"
 gallery:
   - "/img/warts-experience-1.jpg"
   - "/img/warts-experience-2.jpg"
