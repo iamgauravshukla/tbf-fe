@@ -37,7 +37,7 @@ const steps = [
           <a href={telLink} class="direct__tel" data-ev="call_click" data-loc="contact">{site.phoneDisplay}</a>
           <div class="direct__row">
             <a href={waLink(`Hi ${site.name}, I'd like to book a consultation.`)} class="btn btn--wa" data-ev="whatsapp_click" data-loc="contact" rel="noopener">Message on WhatsApp</a>
-            <a href={`mailto:${site.email}`} class="direct__mail">{site.email}</a>
+            <a href={`mailto:${site.email}`} class="direct__mail" data-ev="email_click" data-loc="contact">{site.email}</a>
           </div>
         </div>
       </div>

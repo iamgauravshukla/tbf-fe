@@ -23,8 +23,7 @@ const ready = Boolean(site.formEndpoint);
   class:list={['lf', { 'lf--compact': compact }]}
   action={site.formEndpoint || '#'}
   method="POST"
-  data-ev="form_submit"
-  data-loc={source}
+  data-form-loc={source}
 >
   <input type="hidden" name="source" value={source} />
   <!-- Redirect target after a successful POST. Formspree reads `_next`;

@@ -2,16 +2,25 @@
 // Nothing loads unless an ID is set in src/site.config.ts, so development and
 // pre-launch stay fast and cookie-free.
 //
-// EVENT MAP — every CTA on the site carries data-ev and data-loc.
-//   book_click      header | hero | mobile_bar | treatment | landing
-//   call_click      header | footer | mobile_bar | landing
-//   whatsapp_click  mobile_bar | landing | treatment
-//   form_submit     contact | landing:<slug>
-//   generate_lead   fired on /thank-you/ — this is the conversion
+// EVENT MAP — annotated CTAs carry data-ev + data-loc; the rest is automatic.
+//   book_click      header | hero | mobile_bar | treatment | landing | …
+//   call_click      header | footer | mobile_bar | landing | auto
+//   whatsapp_click  mobile_bar | landing | treatment | auto
+//   email_click     contact | auto
+//   video_play      treatment
+//   form_start      first interaction with a lead form (once per page)
+//   form_submit     the form's real submit event, with the chosen treatment
+//   page_not_found  fired on /404
+//   generate_lead   fired once per session on /thank-you/ — the conversion
 //
-// Mark generate_lead as the GA4 key event and the Meta "Lead" standard event.
-// Do NOT mark form_submit as the conversion: it fires before validation and
-// will over-report against ad spend.
+// "auto" = the fallback in the click listener below: any tel:, wa.me or
+// mailto: link with no data-ev (legal pages, links inside blog posts) still
+// tracks, so new pages are covered without annotation.
+//
+// In the GA4 UI: mark generate_lead as the key event (and the Meta "Lead"
+// standard event), and leave Enhanced Measurement on for scroll + outbound.
+// Do NOT mark form_submit as the conversion: it fires before the API accepts
+// the lead and will over-report against ad spend.
 import { site } from '../site.config';
 const { ga4, metaPixel } = site;
 ---
@@ -41,17 +50,58 @@ const { ga4, metaPixel } = site;
 
 {(ga4 || metaPixel) && (
   <script is:inline>
-    // One delegated listener for every CTA. ~400 bytes, no framework.
-    document.addEventListener('click', function (e) {
-      var el = e.target.closest('[data-ev]');
-      if (!el) return;
-      var name = el.getAttribute('data-ev');
-      var loc  = el.getAttribute('data-loc') || 'unknown';
-      if (window.gtag) window.gtag('event', name, { location: loc, page: location.pathname });
-      if (window.fbq) {
-        if (name === 'call_click' || name === 'whatsapp_click') window.fbq('trackCustom', 'Contact', { method: name, location: loc });
-        if (name === 'book_click') window.fbq('trackCustom', 'InitiateBooking', { location: loc });
+    (function () {
+      function send(name, params) {
+        if (window.gtag) window.gtag('event', name, params);
+        if (window.fbq) {
+          if (name === 'call_click' || name === 'whatsapp_click' || name === 'email_click')
+            window.fbq('trackCustom', 'Contact', { method: name, location: params.location });
+          if (name === 'book_click') window.fbq('trackCustom', 'InitiateBooking', { location: params.location });
+          if (name === 'form_submit') window.fbq('trackCustom', 'FormSubmit', { location: params.location });
+        }
       }
-    }, { passive: true });
+
+      // One delegated listener for every CTA — annotated first, then the
+      // automatic fallback for contact links that carry no data-ev.
+      document.addEventListener('click', function (e) {
+        if (!e.target || !e.target.closest) return;
+        var el = e.target.closest('[data-ev], a[href]');
+        if (!el) return;
+        var name = el.getAttribute('data-ev');
+        var loc  = el.getAttribute('data-loc');
+        if (!name) {
+          var href = el.getAttribute('href') || '';
+          if (href.indexOf('tel:') === 0) name = 'call_click';
+          else if (/wa\.me|api\.whatsapp\.com/.test(href)) name = 'whatsapp_click';
+          else if (href.indexOf('mailto:') === 0) name = 'email_click';
+          if (!name) return;
+          loc = loc || 'auto';
+        }
+        if (name === 'form_submit') return; // tracked on the submit event below
+        send(name, { location: loc || 'unknown', page: location.pathname });
+      }, { passive: true });
+
+      // Lead forms (marked with data-form-loc): form_start once per page on
+      // the first interaction, form_submit only on the real submit event —
+      // i.e. after native validation has passed, as the POST leaves the page.
+      var started = false;
+      document.addEventListener('focusin', function (e) {
+        if (started || !e.target || !e.target.closest) return;
+        var f = e.target.closest('form[data-form-loc]');
+        if (!f) return;
+        started = true;
+        send('form_start', { location: f.getAttribute('data-form-loc'), page: location.pathname });
+      });
+      document.addEventListener('submit', function (e) {
+        var f = e.target && e.target.closest ? e.target.closest('form[data-form-loc]') : null;
+        if (!f) return;
+        var t = f.elements && f.elements.treatment && f.elements.treatment.value;
+        send('form_submit', {
+          location: f.getAttribute('data-form-loc'),
+          treatment: t || '(none)',
+          page: location.pathname,
+        });
+      });
+    })();
   </script>
 )}

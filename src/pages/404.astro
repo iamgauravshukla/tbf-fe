@@ -28,6 +28,12 @@ import { site, telLink } from '../site.config';
   </section>
 </Base>
 
+<script is:inline>
+  // Which URLs people are landing on that don't exist — usually a broken ad
+  // link or an old listing. Check GA4 → page_not_found → page / referrer.
+  if (window.gtag) window.gtag('event', 'page_not_found', { page: location.pathname, referrer: document.referrer || '(direct)' });
+</script>
+
 <style>
   .nf{text-align:center}
   .nf__in{max-width:36rem;margin-inline:auto}
