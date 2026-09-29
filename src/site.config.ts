@@ -34,10 +34,10 @@ export const site = {
   whatsapp: "639277708969",                   // digits only, no + or spaces
   email: "hello@thebetterface.com",           // TODO confirm business email
   address: {
-    street: "TODO — Street address",
-    locality: "TODO — City",
+    street: "5102 Bridgeway Ave, Vivere Hotel Alabang",
+    locality: "Muntinlupa City",
     region: "Metro Manila",
-    postalCode: "TODO",
+    postalCode: "TODO — use the postal code Google Business Profile assigns to the pin",
     country: "PH",
   },
   geo: { lat: 0, lng: 0 },                    // TODO from Google Business Profile
