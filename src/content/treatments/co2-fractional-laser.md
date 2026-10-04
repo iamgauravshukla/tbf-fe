@@ -5,7 +5,11 @@ metaDescription: "CO₂ fractional laser resurfacing for acne scars, pores, text
 group: "Skin"
 category: "Laser"
 summary: "A resurfacing laser that makes controlled micro-injuries to trigger skin renewal and collagen, softening scars, pores, texture and fine lines."
-priceFrom: null
+priceFrom: 6500
+priceRegular: 9000
+promoPrice: 1499
+promoScope: "First session · full face"
+priceUnit: session
 duration: "45–60 minutes, plus numbing time"
 course: "Often 1–3 sessions, several weeks apart"
 downtime: "Redness and flaking for 5–7 days, longer after deeper settings"

@@ -5,7 +5,11 @@ metaDescription: "A follicle-stimulation scalp therapy using PDRN to support a h
 group: "Hair"
 category: "Hair Restoration"
 summary: "A follicle-stimulation scalp therapy using PDRN to support a healthier scalp environment and the appearance of thinning hair, as part of a regrowth plan."
-priceFrom: null
+priceFrom: 5500
+priceRegular: 8000
+promoPrice: 1499
+promoScope: "First session"
+priceUnit: session
 duration: "45–60 minutes"
 course: "Typically a course over several months, as part of a plan"
 downtime: "Minimal — mild scalp sensitivity"

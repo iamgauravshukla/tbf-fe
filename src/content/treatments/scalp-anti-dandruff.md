@@ -5,7 +5,11 @@ metaDescription: "A deep-cleansing scalp treatment for dandruff, flaking, itch a
 group: "Hair"
 category: "Scalp"
 summary: "A deep-cleansing treatment that clears buildup, oil and flakes and helps soothe an itchy, dry or dandruff-prone scalp."
-priceFrom: null
+priceFrom: 1800
+priceRegular: 2500
+promoPrice: 799
+promoScope: "First session"
+priceUnit: session
 duration: "45–60 minutes"
 course: "Often a short course, 1–2 weeks apart"
 downtime: "None"

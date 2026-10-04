@@ -37,7 +37,7 @@ const treatmentNames = (await getCollection('treatments', ({ data }) => !data.dr
 
 const peso = (n: number) => '₱' + n.toLocaleString('en-PH');
 const facts = [
-  { k: 'From',     v: d.priceFrom ? peso(d.priceFrom) : 'On consultation' },
+  { k: 'Price',    v: d.priceFrom ? `${peso(d.priceFrom)} / ${d.priceUnit}` : 'On consultation' },
   { k: 'Session',  v: d.duration },
   { k: 'Course',   v: d.course },
   { k: 'Downtime', v: d.downtime },
@@ -142,6 +142,25 @@ const photos: GalleryPhoto[] = own.length ? own : [
       <article class="prose" data-reveal><Content /></article>
 
       <aside class="aside">
+        {d.priceFrom && (
+          <div class="aside__price" data-reveal>
+            <span class="eyebrow">Pricing</span>
+            <p class="aside__priceline">
+              {d.priceRegular && <span class="aside__was">{peso(d.priceRegular)}</span>}
+              <span class="aside__now">{peso(d.priceFrom)}</span>
+              <span class="aside__unit">/ {d.priceUnit}</span>
+            </p>
+            {d.promoPrice && (
+              <div class="aside__promo">
+                <span class="aside__promo-tag">First-visit offer</span>
+                <span class="aside__promo-val">{peso(d.promoPrice)}</span>
+                {d.promoScope && <span class="aside__promo-scope">{d.promoScope}</span>}
+                <span class="aside__promo-note">One per client, first visit only</span>
+              </div>
+            )}
+            <p class="aside__price-fine">Consultation first. Package prices lower the per-session cost.</p>
+          </div>
+        )}
         <div class="aside__card" data-reveal data-reveal-delay="1">
           <span class="eyebrow">Book</span>
           <h2 class="aside__h">Start with a consultation</h2>
@@ -191,6 +210,50 @@ const photos: GalleryPhoto[] = own.length ? own : [
         <img src={gallery[1]} alt={`Inside ${site.name}, where ${d.title} is performed`} width="520" height="650" loading="lazy" decoding="async" />
         {!d.gallery.length && <figcaption class="tgal__cap">The Better Face clinic</figcaption>}
       </figure>
+    </div>
+  </section>
+
+  <!-- ══════════════ HOW YOUR VISIT WORKS (shared care standard) ══════════════ -->
+  <section class="section steps">
+    <div class="wrap">
+      <div class="sec-head steps__head" data-reveal>
+        <div>
+          <span class="eyebrow">Every treatment, every time</span>
+          <h2>How your visit works</h2>
+        </div>
+      </div>
+      <ol class="steps__list">
+        <li data-reveal>
+          <span class="steps__n">1</span>
+          <h3 class="steps__h">Assessment</h3>
+          <p>We look at your skin or scalp and your history, and confirm {shortTitle} is right for you — or recommend something that is.</p>
+        </li>
+        <li data-reveal data-reveal-delay="1">
+          <span class="steps__n">2</span>
+          <h3 class="steps__h">Plan &amp; consent</h3>
+          <p>We explain what to expect and answer your questions. You give written consent before anything begins.</p>
+        </li>
+        <li data-reveal data-reveal-delay="2">
+          <span class="steps__n">3</span>
+          <h3 class="steps__h">Before photos</h3>
+          <p>With your permission, so you have an honest record to measure your own progress against.</p>
+        </li>
+        <li data-reveal data-reveal-delay="3">
+          <span class="steps__n">4</span>
+          <h3 class="steps__h">Your treatment</h3>
+          <p>Carried out by a trained, licensed provider in a private, hygienic suite, checking your comfort throughout.</p>
+        </li>
+        <li data-reveal data-reveal-delay="4">
+          <span class="steps__n">5</span>
+          <h3 class="steps__h">Aftercare</h3>
+          <p>Soothing care on the day, sun protection where it matters, and clear home-care advice to take with you.</p>
+        </li>
+        <li data-reveal data-reveal-delay="5">
+          <span class="steps__n">6</span>
+          <h3 class="steps__h">Follow-up</h3>
+          <p>We record what was done and when to return, so each visit builds on the last.</p>
+        </li>
+      </ol>
     </div>
   </section>
 
@@ -373,6 +436,18 @@ const photos: GalleryPhoto[] = own.length ? own : [
   .prose :global(strong){color:var(--deep-teal);font-weight:600}
 
   .aside{display:grid;gap:var(--s3);position:sticky;top:96px}
+  .aside__price{background:var(--surface-raised);padding:var(--s4);border-top:2px solid var(--champagne)}
+  .aside__priceline{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap;margin-top:.6rem}
+  .aside__was{font-size:1rem;color:var(--text-muted);text-decoration:line-through}
+  .aside__now{font-family:'Playfair Display',serif;font-size:1.9rem;line-height:1;color:var(--deep-teal)}
+  .aside__unit{font-size:.75rem;color:var(--text-muted)}
+  .aside__promo{margin-top:var(--s3);padding:var(--s3);background:var(--light-teal);
+    display:grid;gap:.15rem;border-radius:2px}
+  .aside__promo-tag{font-size:.5625rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--ocean-teal)}
+  .aside__promo-val{font-family:'Playfair Display',serif;font-size:1.6rem;line-height:1.1;color:var(--deep-teal)}
+  .aside__promo-scope{font-size:.8125rem;color:var(--charcoal)}
+  .aside__promo-note{font-size:.6875rem;color:var(--text-muted);margin-top:.15rem}
+  .aside__price-fine{font-size:.6875rem;line-height:1.6;color:var(--text-muted);margin-top:var(--s2)}
   .aside__card{background:var(--surface-raised);padding:var(--s4);border-top:2px solid var(--accent)}
   .aside__h{font-size:1.4rem;margin:.6rem 0 .7rem}
   /* Narrow 330px column: slimmer side padding keeps the label on one line. */
@@ -388,6 +463,18 @@ const photos: GalleryPhoto[] = own.length ? own : [
   }
   .aside__link i{font-style:normal;color:var(--champagne)}
   .aside__link:hover{color:var(--ocean-teal)}
+
+  /* ---------------- HOW YOUR VISIT WORKS ---------------- */
+  .steps__head{margin-bottom:var(--s4)}
+  .steps__list{list-style:none;padding:0;margin:0;display:grid;gap:var(--s3)}
+  @media (min-width:640px){ .steps__list{grid-template-columns:1fr 1fr} }
+  @media (min-width:960px){ .steps__list{grid-template-columns:repeat(3,1fr);gap:var(--s4)} }
+  .steps__list li{position:relative;background:var(--surface-raised);border:1px solid var(--line);
+    padding:var(--s4);display:grid;gap:.4rem;align-content:start}
+  .steps__n{display:grid;place-items:center;width:30px;height:30px;border-radius:50%;
+    background:var(--light-teal);color:var(--deep-teal);font-family:'Playfair Display',serif;font-size:1rem}
+  .steps__h{font-size:1.05rem;color:var(--deep-teal);margin:.2rem 0 0}
+  .steps__list p{font-size:.875rem;line-height:1.7;color:var(--text-muted)}
 
   /* ---------------- RELATED ---------------- */
   .sec-head{display:grid;gap:var(--s3);margin-bottom:var(--s5)}

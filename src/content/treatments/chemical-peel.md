@@ -5,7 +5,11 @@ metaDescription: "A controlled exfoliating peel that lifts dull, damaged surface
 group: "Skin"
 category: "Dermatology"
 summary: "A controlled exfoliating treatment that removes damaged surface cells to reveal smoother, brighter skin — with the strength matched to you."
-priceFrom: null
+priceFrom: 1800
+priceRegular: 2500
+promoPrice: 899
+promoScope: "First visit"
+priceUnit: session
 duration: "30–45 minutes"
 course: "Often a short course, 2–4 weeks apart"
 downtime: "Mild flaking for a few days, depending on depth"

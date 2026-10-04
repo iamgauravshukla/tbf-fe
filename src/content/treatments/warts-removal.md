@@ -5,7 +5,11 @@ metaDescription: "Targeted removal of suitable superficial warts and skin growth
 group: "Skin"
 category: "Dermatology"
 summary: "Targeted removal of suitable superficial skin growths within a defined area, with the method chosen for the type, size and location."
-priceFrom: null
+priceFrom: 2500
+priceRegular: 3500
+promoPrice: 1499
+promoScope: "Unlimited suitable warts · face or neck"
+priceUnit: area
 duration: "15–30 minutes per area"
 course: "Often one visit; some lesions need review"
 downtime: "A small scab per lesion, healing over several days to two weeks"

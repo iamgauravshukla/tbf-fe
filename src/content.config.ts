@@ -15,8 +15,19 @@ const treatments = defineCollection({
     /** The small label on the card. Free-form within this list. */
     category: z.enum(['Aesthetics', 'Dermatology', 'Laser', 'Body', 'Wellness', 'Hair Removal', 'Hair Restoration', 'Scalp']),
     summary: z.string(),
-    /** Displayed as "from ₱X". Leave null to show "Price on consultation". */
+    /** Everyday price ("Our Price" on the Treatment Menu). Shown as "from ₱X"
+     *  on cards and as the standing price on the treatment page. Null → "Price
+     *  on consultation". Also used for the schema.org offer price. */
     priceFrom: z.number().nullable(),
+    /** Regular anchor price, struck through beside the everyday price. */
+    priceRegular: z.number().nullable().default(null),
+    /** One-time first-visit offer (one per client). Shown as a promo on the
+     *  treatment page only — kept off the standing price and structured data. */
+    promoPrice: z.number().nullable().default(null),
+    /** What the first-visit offer covers, e.g. "Jawline / V-line", "One area". */
+    promoScope: z.string().optional(),
+    /** Unit shown after prices on the page: per session or per area. */
+    priceUnit: z.enum(['session', 'area']).default('session'),
     duration: z.string(),
     course: z.string(),
     downtime: z.string(),
