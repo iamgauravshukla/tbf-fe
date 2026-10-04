@@ -2,12 +2,14 @@
 interface Props {
   href: string; title: string; summary: string;
   category: string; priceFrom: number | null; duration: string; image?: string;
+  /** First-visit offer. When set, the card leads with "from ₱promo · first-visit price". */
+  promoPrice?: number | null;
   /** Portrait 3:4 in the slider, landscape 3:2 in a dense grid. */
   ratio?: 'portrait' | 'landscape';
   /** Bordered white card on a tinted ground (homepage grid). Borderless otherwise. */
   chrome?: boolean;
 }
-const { href, title, summary, category, priceFrom, duration, image, ratio = 'portrait', chrome = false } = Astro.props;
+const { href, title, summary, category, priceFrom, promoPrice = null, duration, image, ratio = 'portrait', chrome = false } = Astro.props;
 const peso = (n: number) => '₱' + n.toLocaleString('en-PH');
 ---
 <a class:list={['tc', `tc--${ratio}`, { 'tc--chrome': chrome }]} href={href}>
@@ -21,7 +23,9 @@ const peso = (n: number) => '₱' + n.toLocaleString('en-PH');
     <h3 class="tc__title">{title}</h3>
     <p class="tc__sum">{summary}</p>
     <div class="tc__meta">
-      <span class="tc__price">{priceFrom ? `from ${peso(priceFrom)}` : 'On consultation'}</span>
+      {promoPrice
+        ? <span class="tc__price">from {peso(promoPrice)}<span class="tc__price-q">first-visit price</span></span>
+        : <span class="tc__price">{priceFrom ? `from ${peso(priceFrom)}` : 'On consultation'}</span>}
       <span class="tc__dur" title={duration}>{duration}</span>
     </div>
     <span class="tc__more">Explore<i aria-hidden="true">→</i></span>
@@ -64,11 +68,13 @@ const peso = (n: number) => '₱' + n.toLocaleString('en-PH');
   .tc__sum{font-size:.8125rem;line-height:1.8;color:var(--text-muted);margin-top:.6rem;flex:1;
     -webkit-line-clamp:4;line-clamp:4;min-height:calc(4em * 1.8);max-height:calc(4em * 1.8)}
   .tc__meta{
-    display:flex;justify-content:space-between;gap:1rem;align-items:baseline;
+    display:flex;justify-content:space-between;gap:1rem;align-items:center;
     margin-top:var(--s3);padding-top:.85rem;border-top:1px solid var(--accent);
     font-size:.75rem;
   }
-  .tc__price{font-weight:700;color:var(--deep-teal);letter-spacing:.01em;white-space:nowrap}
+  .tc__price{display:inline-flex;flex-direction:column;line-height:1.3;
+    font-weight:700;color:var(--deep-teal);letter-spacing:.01em;white-space:nowrap}
+  .tc__price-q{font-weight:400;font-size:.625rem;letter-spacing:.02em;color:var(--text-muted)}
   .tc__dur{color:var(--text-muted);font-size:.6875rem;letter-spacing:.02em;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
   .tc__more{
@@ -100,6 +106,7 @@ const peso = (n: number) => '₱' + n.toLocaleString('en-PH');
   :global(.inverse) .tc__title{color:var(--ivory)}
   :global(.inverse) .tc__sum{color:rgba(247,244,238,.7)}
   :global(.inverse) .tc__price{color:var(--ivory)}
+  :global(.inverse) .tc__price-q{color:rgba(247,244,238,.65)}
   :global(.inverse) .tc__dur{color:rgba(247,244,238,.6)}
   :global(.inverse) .tc__meta{border-top-color:rgba(201,166,107,.55)}
   :global(.inverse) .tc__more{color:var(--champagne)}

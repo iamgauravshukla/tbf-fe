@@ -6,6 +6,7 @@ import TreatmentGallery, { type GalleryPhoto } from '../../components/TreatmentG
 import BeforeAfter from '../../components/BeforeAfter.astro';
 import LeadForm from '../../components/LeadForm.astro';
 import { site, waLink, telLink } from '../../site.config';
+import { combosFor } from '../../combos';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -36,6 +37,8 @@ const treatmentNames = (await getCollection('treatments', ({ data }) => !data.dr
   .map((t) => t.data.title);
 
 const peso = (n: number) => '₱' + n.toLocaleString('en-PH');
+// Combos that include this treatment (empty for treatments in no combo).
+const myCombos = combosFor(entry.id);
 const facts = [
   { k: 'Price',    v: d.priceFrom ? `${peso(d.priceFrom)} / ${d.priceUnit}` : 'On consultation' },
   { k: 'Session',  v: d.duration },
@@ -288,6 +291,47 @@ const photos: GalleryPhoto[] = own.length ? own : [
   <!-- ══════════════ BEFORE / AFTER ══════════════ -->
   <BeforeAfter pairs={d.beforeAfter} title={d.title} />
 
+  <!-- ══════════════ SAVE WITH A COMBO (cross-sell) ══════════════ -->
+  {myCombos.length > 0 && (
+    <section class="section combos">
+      <div class="wrap">
+        <div class="sec-head" data-reveal>
+          <div>
+            <span class="eyebrow">Better together</span>
+            <h2>Save with a combo</h2>
+          </div>
+          <a href={waLink(`Hi ${site.name}, I'd like to ask about your combo offers.`)} class="sec-head__link" rel="noopener" data-ev="whatsapp_click" data-loc="treatment_combo">Ask about combos<i aria-hidden="true">→</i></a>
+        </div>
+        <p class="combos__intro">Pair {shortTitle} with another treatment in one visit for one lower price. First visit only, one combo per client — it cannot be stacked with a single-treatment first-visit offer.</p>
+        <div class="combos__grid">
+          {myCombos.map((c, i) => (
+            <div class="combo" data-reveal data-reveal-delay={String(i % 3)}>
+              <h3 class="combo__name">{c.name}</h3>
+              <p class="combo__tag">{c.tagline}</p>
+              <ul class="combo__items">
+                {c.items.map((it) => (
+                  <li class={it.slug === entry.id ? 'is-this' : ''}>
+                    {it.slug && it.slug !== entry.id
+                      ? <a href={`/treatments/${it.slug}/`}>{it.label}</a>
+                      : <span>{it.label}{it.slug === entry.id && <em> · this treatment</em>}</span>}
+                    <span class="combo__ip">{peso(it.price)}</span>
+                  </li>
+                ))}
+              </ul>
+              <div class="combo__price">
+                <span class="combo__now">{peso(c.price)}</span>
+                <span class="combo__was">worth {peso(c.value)}</span>
+                <span class="combo__save">save {peso(c.value - c.price)}</span>
+              </div>
+              <p class="combo__best"><strong>Best for</strong> · {c.bestFor}</p>
+              <a href={waLink(`Hi ${site.name}, I'd like to book the "${c.name}" combo (${peso(c.price)}, first visit).`)} class="btn btn--primary combo__btn" rel="noopener" data-ev="book_click" data-loc="treatment_combo">Book this combo</a>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
   <!-- ══════════════ BOOK (this treatment pre-selected) ══════════════ -->
   <section class="tbook inverse" id="book">
     <div class="wrap tbook__in">
@@ -337,6 +381,7 @@ const photos: GalleryPhoto[] = own.length ? own : [
               summary={t.data.summary}
               category={t.data.category}
               priceFrom={t.data.priceFrom}
+              promoPrice={t.data.promoPrice}
               duration={t.data.duration}
               image={t.data.image}
             />
@@ -475,6 +520,35 @@ const photos: GalleryPhoto[] = own.length ? own : [
     background:var(--light-teal);color:var(--deep-teal);font-family:'Playfair Display',serif;font-size:1rem}
   .steps__h{font-size:1.05rem;color:var(--deep-teal);margin:.2rem 0 0}
   .steps__list p{font-size:.875rem;line-height:1.7;color:var(--text-muted)}
+
+  /* ---------------- SAVE WITH A COMBO ---------------- */
+  .combos{background:var(--surface-raised)}
+  .combos__intro{max-width:52ch;font-size:.9375rem;line-height:1.8;color:var(--text-muted);
+    margin:calc(-1 * var(--s3)) 0 var(--s5)}
+  .combos__grid{display:grid;gap:var(--s3)}
+  @media (min-width:680px){ .combos__grid{grid-template-columns:1fr 1fr} }
+  @media (min-width:1000px){ .combos__grid{grid-template-columns:repeat(3,1fr);gap:var(--s4)} }
+  .combo{display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);
+    border-top:3px solid var(--champagne);padding:var(--s4)}
+  .combo__name{font-family:'Playfair Display',serif;font-weight:400;font-size:1.35rem;
+    color:var(--deep-teal);letter-spacing:-.015em}
+  .combo__tag{font-size:.8125rem;color:var(--text-muted);margin-top:.2rem}
+  .combo__items{list-style:none;padding:0;margin:var(--s3) 0;display:grid;gap:.5rem}
+  .combo__items li{display:flex;justify-content:space-between;gap:.8rem;align-items:baseline;
+    font-size:.875rem;line-height:1.4;padding-bottom:.5rem;border-bottom:1px solid var(--line-soft)}
+  .combo__items a{color:var(--ocean-teal);text-decoration:none}
+  .combo__items a:hover{color:var(--deep-teal);text-decoration:underline}
+  .combo__items .is-this{color:var(--charcoal)}
+  .combo__items .is-this em{font-style:normal;font-size:.625rem;letter-spacing:.1em;text-transform:uppercase;color:var(--champagne)}
+  .combo__ip{color:var(--text-muted);white-space:nowrap}
+  .combo__price{display:flex;align-items:baseline;flex-wrap:wrap;gap:.6rem;margin-top:var(--s2)}
+  .combo__now{font-family:'Playfair Display',serif;font-size:1.7rem;line-height:1;color:var(--deep-teal)}
+  .combo__was{font-size:.8125rem;color:var(--text-muted);text-decoration:line-through}
+  .combo__save{font-size:.625rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--ocean-teal);background:var(--light-teal);padding:.25rem .5rem;border-radius:2px}
+  .combo__best{font-size:.75rem;line-height:1.6;color:var(--text-muted);margin:var(--s2) 0 var(--s3)}
+  .combo__best strong{color:var(--deep-teal);font-weight:600}
+  .combo__btn{width:100%;margin-top:auto}
 
   /* ---------------- RELATED ---------------- */
   .sec-head{display:grid;gap:var(--s3);margin-bottom:var(--s5)}
