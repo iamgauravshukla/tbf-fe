@@ -64,7 +64,7 @@ export const site = {
   // Leave empty to disable. Nothing loads until these are filled in, so the
   // site stays fast and cookie-free during development.
   ga4: "G-CTFXC3FD7Y", // Google Analytics 4 measurement ID
-  metaPixel: "",      // "000000000000000"
+  metaPixel: "1761773535045212", // Meta (Facebook) Pixel ID
   // Where the lead form posts. Point this at the API's lead endpoint —
   // e.g. "http://localhost:4000/api/leads" in dev, your API host in production.
   formEndpoint: `${API_BASE}/api/leads`,

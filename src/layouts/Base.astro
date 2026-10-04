@@ -14,6 +14,8 @@ interface Props {
   serviceName?: string; serviceDescription?: string; serviceType?: string; price?: number | null;
   breadcrumbs?: { name: string; path: string }[];
   article?: { title: string; description: string; date: Date; modified?: Date; author?: string };
+  /** Fires ViewContent (Meta) + view_item (GA4) on load — set on service/offer pages. */
+  viewContent?: { name: string; category?: string; id?: string };
 }
 const p = Astro.props;
 const isArticle = p.schemaType === 'article' && !!p.article;
@@ -29,6 +31,7 @@ const isArticle = p.schemaType === 'article' && !!p.article;
     <Schema type={p.schemaType} path={p.path} serviceName={p.serviceName} serviceDescription={p.serviceDescription}
             serviceType={p.serviceType} price={p.price} image={p.ogImage}
             breadcrumbs={p.breadcrumbs} article={p.article} />
+    {p.viewContent && <meta name="tbf:view-content" content={JSON.stringify(p.viewContent)} />}
     <Analytics />
   </head>
   <body>

@@ -58,8 +58,11 @@ const { posts } = await fetchPosts('?limit=2');
       if (sessionStorage.getItem('tbf_lead')) return;
       sessionStorage.setItem('tbf_lead', '1');
     } catch (e) { /* private mode — fall through and fire once */ }
-    if (window.gtag) window.gtag('event', 'generate_lead', { currency: 'PHP', value: 1 });
-    if (window.fbq) window.fbq('track', 'Lead');
+    // The treatment the lead enquired about, stashed by the form on submit.
+    var treat = '';
+    try { treat = sessionStorage.getItem('tbf_lead_treatment') || ''; sessionStorage.removeItem('tbf_lead_treatment'); } catch (e) {}
+    if (window.gtag) window.gtag('event', 'generate_lead', { currency: 'PHP', value: 1, item_name: treat || undefined });
+    if (window.fbq) window.fbq('track', 'Lead', { content_name: treat || undefined, currency: 'PHP', value: 1 });
   })();
 </script>
 

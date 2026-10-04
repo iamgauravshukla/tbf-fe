@@ -2,25 +2,32 @@
 // Nothing loads unless an ID is set in src/site.config.ts, so development and
 // pre-launch stay fast and cookie-free.
 //
-// EVENT MAP — annotated CTAs carry data-ev + data-loc; the rest is automatic.
-//   book_click      header | hero | mobile_bar | treatment | landing | …
-//   call_click      header | footer | mobile_bar | landing | auto
-//   whatsapp_click  mobile_bar | landing | treatment | auto
-//   email_click     contact | auto
-//   video_play      treatment
-//   form_start      first interaction with a lead form (once per page)
-//   form_submit     the form's real submit event, with the chosen treatment
-//   page_not_found  fired on /404
-//   generate_lead   fired once per session on /thank-you/ — the conversion
+// EVENT MAP — one GA4 event per interaction, mapped to a Meta standard event
+// where a meaningful one exists. GA4 name → Meta event:
+//   book_click      → Schedule        header | hero | mobile_bar | treatment | …
+//   call_click      → Contact         header | footer | mobile_bar | landing | auto
+//   whatsapp_click  → Contact         mobile_bar | landing | treatment | auto
+//   email_click     → Contact         contact | auto
+//   view_item       → ViewContent     treatment + landing pages (from a meta tag)
+//   video_play      → —               treatment (GA only)
+//   form_start      → —               first interaction with a lead form (GA only)
+//   form_submit     → —               real submit event, carries the treatment (GA only)
+//   page_not_found  → —               /404 (GA only)
+//   generate_lead   → Lead            once per session on /thank-you/ — THE conversion
 //
 // "auto" = the fallback in the click listener below: any tel:, wa.me or
 // mailto: link with no data-ev (legal pages, links inside blog posts) still
 // tracks, so new pages are covered without annotation.
 //
-// In the GA4 UI: mark generate_lead as the key event (and the Meta "Lead"
-// standard event), and leave Enhanced Measurement on for scroll + outbound.
-// Do NOT mark form_submit as the conversion: it fires before the API accepts
-// the lead and will over-report against ad spend.
+// Meta base code fires PageView on every load (MPA — real navigations, so no
+// SPA double-count). ViewContent + Lead carry content_name so Events Manager
+// and dynamic-ads audiences can break down by treatment.
+//
+// In the GA4 UI: mark generate_lead as the key event; in Meta Events Manager
+// mark Lead as a conversion (and optionally Contact). Leave GA4 Enhanced
+// Measurement on for scroll + outbound. Do NOT make form_submit a conversion
+// on either platform: it fires before the API accepts the lead, so Lead on
+// /thank-you/ is the single source of truth and avoids over-reporting spend.
 import { site } from '../site.config';
 const { ga4, metaPixel } = site;
 ---
@@ -38,14 +45,17 @@ const { ga4, metaPixel } = site;
 )}
 
 {metaPixel && (
-  <script is:inline define:vars={{ metaPixel }}>
-    !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-    n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
-    (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', metaPixel); fbq('track','PageView');
-  </script>
+  <>
+    <script is:inline define:vars={{ metaPixel }}>
+      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
+      (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+      fbq('init', metaPixel); fbq('track','PageView');
+    </script>
+    <noscript set:html={`<img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=${metaPixel}&ev=PageView&noscript=1" />`} />
+  </>
 )}
 
 {(ga4 || metaPixel) && (
@@ -54,12 +64,37 @@ const { ga4, metaPixel } = site;
       function send(name, params) {
         if (window.gtag) window.gtag('event', name, params);
         if (window.fbq) {
+          // Map to Meta STANDARD events so they're optimizable and show up in
+          // Events Manager without custom setup. location rides as content_name.
           if (name === 'call_click' || name === 'whatsapp_click' || name === 'email_click')
-            window.fbq('trackCustom', 'Contact', { method: name, location: params.location });
-          if (name === 'book_click') window.fbq('trackCustom', 'InitiateBooking', { location: params.location });
-          if (name === 'form_submit') window.fbq('trackCustom', 'FormSubmit', { location: params.location });
+            window.fbq('track', 'Contact', { method: name, content_name: params.location });
+          else if (name === 'book_click')
+            window.fbq('track', 'Schedule', { content_name: params.location });
+          // form_submit / form_start / video_play stay GA-only on purpose —
+          // Lead on /thank-you/ is the one conversion (see header note).
         }
       }
+
+      // ViewContent / view_item — per-page metadata set by the layout as a meta
+      // tag. Fired on load (not on a click), so Meta can build "viewed HIFU"
+      // retargeting audiences and match dynamic ads.
+      function fireView() {
+        var m = document.querySelector('meta[name="tbf:view-content"]');
+        if (!m) return;
+        var d; try { d = JSON.parse(m.getAttribute('content') || '{}'); } catch (e) { return; }
+        if (!d || !d.name) return;
+        if (window.gtag) window.gtag('event', 'view_item', {
+          items: [{ item_id: d.id || d.name, item_name: d.name, item_category: d.category }],
+        });
+        if (window.fbq) window.fbq('track', 'ViewContent', {
+          content_name: d.name,
+          content_category: d.category,
+          content_ids: d.id ? [d.id] : undefined,
+          content_type: 'product',
+        });
+      }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fireView);
+      else fireView();
 
       // One delegated listener for every CTA — annotated first, then the
       // automatic fallback for contact links that carry no data-ev.
@@ -96,6 +131,10 @@ const { ga4, metaPixel } = site;
         var f = e.target && e.target.closest ? e.target.closest('form[data-form-loc]') : null;
         if (!f) return;
         var t = f.elements && f.elements.treatment && f.elements.treatment.value;
+        // Carry the chosen treatment to /thank-you/ so the Lead event there can
+        // name it (thank-you is a static page reached via redirect, so it has
+        // no other way to know what was enquired about).
+        try { sessionStorage.setItem('tbf_lead_treatment', t || ''); } catch (e) {}
         send('form_submit', {
           location: f.getAttribute('data-form-loc'),
           treatment: t || '(none)',

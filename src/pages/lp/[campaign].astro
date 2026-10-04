@@ -16,6 +16,7 @@ const { c } = Astro.props;
   description={c.metaDescription}
   path={`/lp/${c.slug}/`}
   waMessage={c.waMessage}
+  viewContent={{ name: c.title, category: 'Landing', id: c.slug }}
 >
   <!-- ---------- HERO + FORM ABOVE THE FOLD ---------- -->
   <section class="lph inverse">

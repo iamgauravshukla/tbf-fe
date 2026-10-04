@@ -8,14 +8,19 @@ import Schema from '../components/Schema.astro';
 import Analytics from '../components/Analytics.astro';
 import { site, waLink, telLink } from '../site.config';
 
-interface Props { title: string; description: string; path: string; waMessage: string; }
-const { title, description, path, waMessage } = Astro.props;
+interface Props {
+  title: string; description: string; path: string; waMessage: string;
+  /** Fires ViewContent (Meta) + view_item (GA4) on load — the ad's landing content. */
+  viewContent?: { name: string; category?: string; id?: string };
+}
+const { title, description, path, waMessage, viewContent } = Astro.props;
 ---
 <!doctype html>
 <html lang={site.language}>
   <head>
     <Head title={title} description={description} path={path} noindex={true} />
     <Schema type="home" path={path} />
+    {viewContent && <meta name="tbf:view-content" content={JSON.stringify(viewContent)} />}
     <Analytics />
   </head>
   <body>

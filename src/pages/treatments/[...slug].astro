@@ -87,6 +87,7 @@ const photos: GalleryPhoto[] = own.length ? own : [
   serviceDescription={d.summary}
   serviceType={d.category}
   price={d.priceFrom}
+  viewContent={{ name: d.title, category: d.group, id: entry.id }}
   breadcrumbs={[
     { name: 'Home', path: '/' },
     { name: 'Treatments', path: '/treatments/' },
