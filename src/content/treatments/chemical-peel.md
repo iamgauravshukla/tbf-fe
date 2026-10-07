@@ -5,8 +5,7 @@ metaDescription: "A controlled exfoliating peel that lifts dull, damaged surface
 group: "Skin"
 category: "Dermatology"
 summary: "A controlled exfoliating treatment that removes damaged surface cells to reveal smoother, brighter skin — with the strength matched to you."
-priceFrom: 1800
-priceRegular: 2500
+priceFrom: 4000
 promoPrice: 899
 promoScope: "First visit"
 priceUnit: session

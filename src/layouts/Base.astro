@@ -48,9 +48,21 @@ const isArticle = p.schemaType === 'article' && !!p.article;
             if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
           });
         }, { rootMargin: '0px 0px -12% 0px', threshold: 0.08 });
-        addEventListener('DOMContentLoaded', function () {
-          document.querySelectorAll('[data-reveal]').forEach(function (el) { io.observe(el); });
-        });
+        function start() {
+          var els = document.querySelectorAll('[data-reveal]');
+          // Reveal whatever is already on screen synchronously, so above-the-fold
+          // content (hero, CTAs) is never left blank waiting for a scroll or a
+          // late first IntersectionObserver callback. Runs on DOMContentLoaded,
+          // which fires regardless of tab visibility, so it can't be paused.
+          var vh = window.innerHeight || document.documentElement.clientHeight;
+          els.forEach(function (el) {
+            var r = el.getBoundingClientRect();
+            if (r.top < vh && r.bottom > 0) el.classList.add('is-in');
+            else io.observe(el);
+          });
+        }
+        if (document.readyState === 'loading') addEventListener('DOMContentLoaded', start);
+        else start();
       })();
     </script>
     <Header />

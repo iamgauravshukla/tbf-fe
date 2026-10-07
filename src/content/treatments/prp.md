@@ -5,8 +5,7 @@ metaDescription: "Platelet-rich plasma from your own blood, used to support skin
 group: "Skin"
 category: "Aesthetics"
 summary: "Uses platelet-rich plasma prepared from your own blood to support skin renewal, and to complement scalp and hair-restoration programs."
-priceFrom: 8500
-priceRegular: 12000
+priceFrom: 22000
 promoPrice: 1999
 promoScope: "One area"
 priceUnit: session

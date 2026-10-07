@@ -5,8 +5,7 @@ metaDescription: "A gentle, non-surgical program for melasma, dark patches and u
 group: "Skin"
 category: "Dermatology"
 summary: "A gentle, non-surgical program to improve melasma, dark patches and uneven tone — tailored to your skin, with minimal downtime."
-priceFrom: 4500
-priceRegular: 6500
+priceFrom: 18000
 promoPrice: 1299
 promoScope: "First session"
 priceUnit: session

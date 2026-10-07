@@ -5,8 +5,7 @@ metaDescription: "A targeted arm-contouring program for a slimmer, more defined 
 group: "Wellness"
 category: "Body"
 summary: "A targeted arm-contouring program designed for a slimmer, more defined upper arm, with the method customised to your body goals."
-priceFrom: 4999
-priceRegular: 7500
+priceFrom: 15000
 promoPrice: 999
 promoScope: "First session"
 priceUnit: session

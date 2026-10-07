@@ -5,8 +5,7 @@ metaDescription: "HIFU delivers focused ultrasound beneath the skin to support c
 group: "Skin"
 category: "Aesthetics"
 summary: "Focused ultrasound delivered beneath the skin to support collagen and improve firmness, lift and facial contour — without surgery or injectables."
-priceFrom: 11999
-priceRegular: 18000
+priceFrom: 35000
 promoPrice: 1999
 promoScope: "Jawline / V-line"
 priceUnit: session

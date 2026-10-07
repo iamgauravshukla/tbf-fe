@@ -5,8 +5,7 @@ metaDescription: "An intravenous glutathione wellness drip, with formulation and
 group: "Wellness"
 category: "Wellness"
 summary: "An intravenous wellness drip containing glutathione, an antioxidant involved in the body's natural antioxidant processes. Assessed before administration."
-priceFrom: 1800
-priceRegular: 3000
+priceFrom: 6500
 promoPrice: 799
 promoScope: "First drip"
 priceUnit: session

@@ -1,12 +1,11 @@
 ---
-title: "Hair Growth with PDRN"
-seoTitle: "PDRN Hair Growth Treatment | Thinning Hair | The Better Face"
-metaDescription: "A follicle-stimulation scalp therapy using PDRN to support a healthier scalp and thinning hair, as part of a regrowth plan. Assessed first. The Better Face."
+title: "Hair Growth with Salmon Sperm PDRN"
+seoTitle: "Salmon Sperm PDRN Hair Growth | Thinning Hair | The Better Face"
+metaDescription: "A regenerative scalp therapy using PDRN polynucleotides, purified from salmon DNA, to support thinning hair within a regrowth plan. Assessed first."
 group: "Hair"
 category: "Hair Restoration"
-summary: "A follicle-stimulation scalp therapy using PDRN to support a healthier scalp environment and the appearance of thinning hair, as part of a regrowth plan."
-priceFrom: 5500
-priceRegular: 8000
+summary: "A regenerative scalp therapy powered by PDRN — polynucleotides purified from salmon DNA — to support a healthier scalp and the appearance of thinning hair, as part of a considered regrowth plan."
+priceFrom: 18500
 promoPrice: 1499
 promoScope: "First session"
 priceUnit: session
@@ -42,10 +41,15 @@ photos:
 
 ## What it actually does
 
-PDRN is used here as a follicle-stimulation scalp therapy — the aim is to support
-a healthier environment around the follicle, the conditions in which existing hair
-is more likely to hold and thicken. It is designed as one part of a hair-regrowth
-program, not a stand-alone fix.
+PDRN stands for polydeoxyribonucleotide — long chains of purified DNA, drawn from
+salmon, whose building blocks are remarkably compatible with human skin and scalp.
+These polynucleotides are the same regenerative molecule behind the premium
+"salmon DNA" treatments made famous in Korean aesthetics.
+
+On the scalp, we use it as a follicle-stimulation therapy: the aim is to support a
+healthier environment around the follicle — the conditions in which existing hair is
+more likely to hold and thicken. It is designed as one part of a hair-regrowth plan,
+not a stand-alone fix.
 
 We assess the scalp and the pattern of thinning first, because the therapy supports
 follicles that are still active. It cannot bring back hair where the follicle is no

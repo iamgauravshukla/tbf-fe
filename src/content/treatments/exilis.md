@@ -5,8 +5,7 @@ metaDescription: "Exilis uses energy-based heat to tighten skin and contour targ
 group: "Wellness"
 category: "Body"
 summary: "A non-invasive treatment using energy-based technology to heat targeted tissue for skin tightening and gentle body contouring."
-priceFrom: 5500
-priceRegular: 8000
+priceFrom: 18000
 promoPrice: 1499
 promoScope: "One area"
 priceUnit: area

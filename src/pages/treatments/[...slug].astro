@@ -40,7 +40,7 @@ const peso = (n: number) => '₱' + n.toLocaleString('en-PH');
 // Combos that include this treatment (empty for treatments in no combo).
 const myCombos = combosFor(entry.id);
 const facts = [
-  { k: 'Price',    v: d.priceFrom ? `${peso(d.priceFrom)} / ${d.priceUnit}` : 'On consultation' },
+  { k: 'First visit', v: d.promoPrice ? `from ${peso(d.promoPrice)}` : (d.priceFrom ? `${peso(d.priceFrom)} / ${d.priceUnit}` : 'On consultation') },
   { k: 'Session',  v: d.duration },
   { k: 'Course',   v: d.course },
   { k: 'Downtime', v: d.downtime },
@@ -145,23 +145,17 @@ const photos: GalleryPhoto[] = own.length ? own : [
       <article class="prose" data-reveal><Content /></article>
 
       <aside class="aside">
-        {d.priceFrom && (
+        {d.promoPrice && (
           <div class="aside__price" data-reveal>
-            <span class="eyebrow">Pricing</span>
+            <span class="eyebrow">First-visit promo</span>
             <p class="aside__priceline">
-              {d.priceRegular && <span class="aside__was">{peso(d.priceRegular)}</span>}
-              <span class="aside__now">{peso(d.priceFrom)}</span>
-              <span class="aside__unit">/ {d.priceUnit}</span>
+              <span class="aside__now">{peso(d.promoPrice)}</span>
+              {d.promoScope && <span class="aside__unit">{d.promoScope}</span>}
             </p>
-            {d.promoPrice && (
-              <div class="aside__promo">
-                <span class="aside__promo-tag">First-visit offer</span>
-                <span class="aside__promo-val">{peso(d.promoPrice)}</span>
-                {d.promoScope && <span class="aside__promo-scope">{d.promoScope}</span>}
-                <span class="aside__promo-note">One per client, first visit only</span>
-              </div>
+            <p class="aside__promo-note">One promo per treatment · first visit only</p>
+            {d.priceFrom && (
+              <p class="aside__price-reg">Regular <s>{peso(d.priceFrom)}</s> / {d.priceUnit} · packages save 25–50%</p>
             )}
-            <p class="aside__price-fine">Consultation first. Package prices lower the per-session cost.</p>
           </div>
         )}
         <div class="aside__card" data-reveal data-reveal-delay="1">
@@ -483,16 +477,12 @@ const photos: GalleryPhoto[] = own.length ? own : [
   .aside{display:grid;gap:var(--s3);position:sticky;top:96px}
   .aside__price{background:var(--surface-raised);padding:var(--s4);border-top:2px solid var(--champagne)}
   .aside__priceline{display:flex;align-items:baseline;gap:.5rem;flex-wrap:wrap;margin-top:.6rem}
-  .aside__was{font-size:1rem;color:var(--text-muted);text-decoration:line-through}
-  .aside__now{font-family:'Playfair Display',serif;font-size:1.9rem;line-height:1;color:var(--deep-teal)}
-  .aside__unit{font-size:.75rem;color:var(--text-muted)}
-  .aside__promo{margin-top:var(--s3);padding:var(--s3);background:var(--light-teal);
-    display:grid;gap:.15rem;border-radius:2px}
-  .aside__promo-tag{font-size:.5625rem;letter-spacing:.18em;text-transform:uppercase;font-weight:700;color:var(--ocean-teal)}
-  .aside__promo-val{font-family:'Playfair Display',serif;font-size:1.6rem;line-height:1.1;color:var(--deep-teal)}
-  .aside__promo-scope{font-size:.8125rem;color:var(--charcoal)}
-  .aside__promo-note{font-size:.6875rem;color:var(--text-muted);margin-top:.15rem}
-  .aside__price-fine{font-size:.6875rem;line-height:1.6;color:var(--text-muted);margin-top:var(--s2)}
+  .aside__now{font-family:'Playfair Display',serif;font-size:2rem;line-height:1;color:var(--deep-teal)}
+  .aside__unit{font-size:.8125rem;color:var(--charcoal)}
+  .aside__promo-note{font-size:.6875rem;color:var(--text-muted);margin-top:.35rem}
+  .aside__price-reg{font-size:.75rem;line-height:1.6;color:var(--text-muted);
+    margin-top:var(--s2);padding-top:var(--s2);border-top:1px solid var(--line)}
+  .aside__price-reg s{color:var(--text-muted)}
   .aside__card{background:var(--surface-raised);padding:var(--s4);border-top:2px solid var(--accent)}
   .aside__h{font-size:1.4rem;margin:.6rem 0 .7rem}
   /* Narrow 330px column: slimmer side padding keeps the label on one line. */

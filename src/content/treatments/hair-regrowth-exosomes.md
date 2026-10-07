@@ -5,8 +5,7 @@ metaDescription: "Topical, needle-free exosome scalp care to support a healthier
 group: "Hair"
 category: "Hair Restoration"
 summary: "Topical, needle-free exosome scalp care that supports a healthier scalp environment and the appearance of thinning hair — no injections, no microneedling."
-priceFrom: 4500
-priceRegular: 6500
+priceFrom: 20000
 promoPrice: 1299
 promoScope: "First session"
 priceUnit: session

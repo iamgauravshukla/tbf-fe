@@ -5,8 +5,7 @@ metaDescription: "Radio frequency skin tightening and contouring for the face or
 group: "Wellness"
 category: "Body"
 summary: "Non-invasive radio frequency that warms the deeper layers of skin to support tightening and gentle contouring, on the face or body."
-priceFrom: 1500
-priceRegular: 2500
+priceFrom: 6000
 promoPrice: 499
 promoScope: "One area"
 priceUnit: area
