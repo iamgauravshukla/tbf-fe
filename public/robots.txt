@@ -5,5 +5,8 @@ Allow: /
 # they never compete with the SEO service pages for the same keyword.
 Disallow: /lp/
 
+# The dashboard is noindex already; keep crawlers out of it entirely too.
+Disallow: /admin/
+
 Sitemap: https://thebetterface.com/sitemap-index.xml
 Sitemap: https://thebetterface.com/sitemap-posts.xml

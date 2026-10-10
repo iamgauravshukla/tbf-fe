@@ -6,7 +6,8 @@ export const prerender = false;
 
 import Base from '../../layouts/Base.astro';
 import TreatmentCard from '../../components/TreatmentCard.astro';
-import { site, waLink } from '../../site.config';
+import { site, messengerLink } from '../../site.config';
+import MessengerIcon from '../../components/MessengerIcon.astro';
 import { getEntry } from 'astro:content';
 import { fetchPost, fetchPosts, renderMarkdown, fmtDate } from '../../lib/blog';
 
@@ -100,7 +101,7 @@ const modDate = post.updatedAt && new Date(post.updatedAt) > pubDate ? new Date(
               applies to you.
             </p>
             <a href="/contact/" class="btn btn--primary aside__btn" data-ev="book_click" data-loc="journal_aside">Book Free Consultation</a>
-            <a href={waLink(`Hi ${site.name}, I read "${post.title}" and have a question.`)} class="aside__wa" data-ev="whatsapp_click" data-loc="journal_aside" rel="noopener">or ask on WhatsApp</a>
+            <a href={messengerLink} class="aside__wa" data-ev="whatsapp_click" data-loc="journal_aside" target="_blank" rel="noopener"><MessengerIcon />Messenger</a>
           </div>
         </aside>
       </div>
@@ -206,8 +207,9 @@ const modDate = post.updatedAt && new Date(post.updatedAt) > pubDate ? new Date(
   .aside__h{font-size:1.35rem;margin:.6rem 0 .7rem}
   /* Standard button type; the card's slimmer padding leaves room for the label on one line. */
   .aside__btn{width:100%;margin-top:var(--s3);white-space:nowrap;padding-inline:1rem}
-  .aside__wa{display:block;text-align:center;margin-top:var(--s2);font-size:.75rem;
-    color:var(--text-muted);text-decoration:none}
+  .aside__wa{display:flex;align-items:center;justify-content:center;gap:.4em;margin-top:var(--s2);font-size:.75rem;
+    color:#0084FF;text-decoration:none}
+  .aside__wa svg{width:14px;height:14px;fill:currentColor}
   .aside__wa:hover{color:var(--deep-teal);text-decoration:underline}
 
   /* ---------------- AUTHOR / NEXT ---------------- */

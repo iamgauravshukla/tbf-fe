@@ -5,7 +5,8 @@ import TreatmentVideo from '../../components/TreatmentVideo.astro';
 import TreatmentGallery, { type GalleryPhoto } from '../../components/TreatmentGallery.astro';
 import BeforeAfter from '../../components/BeforeAfter.astro';
 import LeadForm from '../../components/LeadForm.astro';
-import { site, waLink, telLink } from '../../site.config';
+import { site, messengerLink, telLink } from '../../site.config';
+import MessengerIcon from '../../components/MessengerIcon.astro';
 import { combosFor } from '../../combos';
 import { getCollection, render } from 'astro:content';
 
@@ -112,7 +113,7 @@ const photos: GalleryPhoto[] = own.length ? own : [
         <p class="lede" data-reveal data-reveal-delay="2">{d.summary}</p>
         <div class="thero__cta" data-reveal data-reveal-delay="3">
           <a href="#book" class="btn btn--primary" data-ev="book_click" data-loc="treatment">Book {shortTitle}</a>
-          <a href={waLink(`Hi ${site.name}, I'd like to ask about ${d.title}.`)} class="btn btn--ghost" data-ev="whatsapp_click" data-loc="treatment" rel="noopener">Ask on WhatsApp</a>
+          <a href={messengerLink} class="btn btn--ghost" data-ev="whatsapp_click" data-loc="treatment" target="_blank" rel="noopener"><MessengerIcon />Messenger</a>
         </div>
         <p class="disclaimer thero__dis" data-reveal data-reveal-delay="3">
           All treatments require a consultation. Results vary between individuals.
@@ -294,7 +295,7 @@ const photos: GalleryPhoto[] = own.length ? own : [
             <span class="eyebrow">Better together</span>
             <h2>Save with a combo</h2>
           </div>
-          <a href={waLink(`Hi ${site.name}, I'd like to ask about your combo offers.`)} class="sec-head__link" rel="noopener" data-ev="whatsapp_click" data-loc="treatment_combo">Ask about combos<i aria-hidden="true">→</i></a>
+          <a href={messengerLink} class="sec-head__link" target="_blank" rel="noopener" data-ev="whatsapp_click" data-loc="treatment_combo">Ask about combos<i aria-hidden="true">→</i></a>
         </div>
         <p class="combos__intro">Pair {shortTitle} with another treatment in one visit for one lower price. First visit only, one combo per client — it cannot be stacked with a single-treatment first-visit offer.</p>
         <div class="combos__grid">
@@ -318,7 +319,7 @@ const photos: GalleryPhoto[] = own.length ? own : [
                 <span class="combo__save">save {peso(c.value - c.price)}</span>
               </div>
               <p class="combo__best"><strong>Best for</strong> · {c.bestFor}</p>
-              <a href={waLink(`Hi ${site.name}, I'd like to book the "${c.name}" combo (${peso(c.price)}, first visit).`)} class="btn btn--primary combo__btn" rel="noopener" data-ev="book_click" data-loc="treatment_combo">Book this combo</a>
+              <a href={messengerLink} class="btn btn--primary combo__btn" target="_blank" rel="noopener" data-ev="book_click" data-loc="treatment_combo">Book this combo</a>
             </div>
           ))}
         </div>
@@ -343,7 +344,7 @@ const photos: GalleryPhoto[] = own.length ? own : [
           <li>We say no when a treatment is not right for you</li>
         </ul>
         <div class="tbook__alt">
-          <a href={waLink(`Hi ${site.name}, I'd like to book ${d.title}.`)} class="btn btn--wa" data-ev="whatsapp_click" data-loc="treatment_book" rel="noopener">Message on WhatsApp</a>
+          <a href={messengerLink} class="btn btn--wa" data-ev="whatsapp_click" data-loc="treatment_book" target="_blank" rel="noopener"><MessengerIcon />Messenger</a>
           <p class="tbook__tel"><span>or call <a href={telLink} data-ev="call_click" data-loc="treatment_book">{site.phoneDisplay}</a></span></p>
         </div>
       </div>

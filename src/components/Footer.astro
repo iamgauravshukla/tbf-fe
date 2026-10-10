@@ -1,8 +1,8 @@
 ---
-import { site, telLink, waLink } from '../site.config';
+import { site, telLink, messengerLink } from '../site.config';
+import MessengerIcon from './MessengerIcon.astro';
 const year = new Date().getFullYear();
 const open = site.hours[0];
-const waHref = waLink(`Hi ${site.name}, I'd like to book a consultation.`);
 ---
 <footer class="ftr inverse">
   <span class="ftr__watermark" aria-hidden="true"></span>
@@ -32,9 +32,9 @@ const waHref = waLink(`Hi ${site.name}, I'd like to book a consultation.`);
         <p class="ftr__hoursline">{open.days} · {open.open} – {open.close}</p>
         <div class="ftr__actions">
           <a href="/contact/" class="btn btn--light" data-ev="book_click" data-loc="footer">Book Free Consultation</a>
-          <a href={waHref} class="ftr__wa" data-ev="whatsapp_click" data-loc="footer" rel="noopener">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2m0 2a8 8 0 1 1-4.1 14.9l-.3-.2-2.5.7.7-2.4-.2-.3A8 8 0 0 1 12 4m-2.6 4c-.2 0-.5.1-.7.4-.2.3-.8.8-.8 2s.8 2.3.9 2.5c.1.2 1.6 2.6 4 3.5 2 .8 2.4.6 2.8.6.5 0 1.4-.6 1.6-1.1.2-.6.2-1 .1-1.1l-.6-.3-1.4-.7c-.2-.1-.4-.1-.5.1l-.7.9c-.1.2-.3.2-.5.1a6.5 6.5 0 0 1-3.2-2.8c-.1-.2 0-.4.1-.5l.4-.5.2-.4v-.4l-.7-1.6c-.1-.4-.3-.4-.5-.4z"/></svg>
-            WhatsApp
+          <a href={messengerLink} class="ftr__wa" data-ev="whatsapp_click" data-loc="footer" target="_blank" rel="noopener">
+            <MessengerIcon />
+            Messenger
           </a>
         </div>
       </div>

@@ -15,9 +15,9 @@
 //   page_not_found  → —               /404 (GA only)
 //   generate_lead   → Lead            once per session on /thank-you/ — THE conversion
 //
-// "auto" = the fallback in the click listener below: any tel:, wa.me or
-// mailto: link with no data-ev (legal pages, links inside blog posts) still
-// tracks, so new pages are covered without annotation.
+// "auto" = the fallback in the click listener below: any tel:, m.me (Messenger),
+// wa.me or mailto: link with no data-ev (legal pages, links inside blog posts)
+// still tracks, so new pages are covered without annotation.
 //
 // Meta base code fires PageView on every load (MPA — real navigations, so no
 // SPA double-count). ViewContent + Lead carry content_name so Events Manager
@@ -107,7 +107,7 @@ const { ga4, metaPixel } = site;
         if (!name) {
           var href = el.getAttribute('href') || '';
           if (href.indexOf('tel:') === 0) name = 'call_click';
-          else if (/wa\.me|api\.whatsapp\.com/.test(href)) name = 'whatsapp_click';
+          else if (/m\.me|messenger\.com|wa\.me|api\.whatsapp\.com/.test(href)) name = 'whatsapp_click';
           else if (href.indexOf('mailto:') === 0) name = 'email_click';
           if (!name) return;
           loc = loc || 'auto';

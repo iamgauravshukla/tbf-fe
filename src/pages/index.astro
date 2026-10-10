@@ -4,7 +4,8 @@ import TreatmentSlider from '../components/TreatmentSlider.astro';
 import TreatmentVideo from '../components/TreatmentVideo.astro';
 import Testimonials from '../components/Testimonials.astro';
 import LeadForm from '../components/LeadForm.astro';
-import { site, waLink, telLink } from '../site.config';
+import { site, messengerLink, telLink } from '../site.config';
+import MessengerIcon from '../components/MessengerIcon.astro';
 import { getCollection } from 'astro:content';
 
 // Journal teasers come from the blog API at BUILD time and fail soft — if the
@@ -246,7 +247,7 @@ const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
           <li>We say no when a treatment is not right for you</li>
         </ul>
         <div class="band__alt">
-          <a href={waLink(`Hi ${site.name}, I'd like to book a consultation.`)} class="btn btn--wa" data-ev="whatsapp_click" data-loc="band" rel="noopener">Message on WhatsApp</a>
+          <a href={messengerLink} class="btn btn--wa" data-ev="whatsapp_click" data-loc="band" target="_blank" rel="noopener"><MessengerIcon />Messenger</a>
           <p class="band__tel">
             <span>or call <a href={telLink} data-ev="call_click" data-loc="band">{site.phoneDisplay}</a></span>
             <span class="band__hours">{hoursLine}</span>

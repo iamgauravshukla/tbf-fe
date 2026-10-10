@@ -32,6 +32,7 @@ export const site = {
   phoneDisplay: "0927 770 8969",
   phoneE164: "+639277708969",
   whatsapp: "639277708969",                   // digits only, no + or spaces
+  messenger: "TheBetterFace",                  // Facebook Page username → m.me/<this>
   email: "hello@thebetterface.com",           // TODO confirm business email
   address: {
     street: "5102 Bridgeway Ave, Vivere Hotel Alabang",
@@ -101,5 +102,9 @@ export const hasGeo = site.geo.lat !== 0 && site.geo.lng !== 0;
 
 export const waLink = (message: string) =>
   `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(message)}`;
+
+// Facebook Messenger deep link to the Page chat. Unlike WhatsApp, m.me cannot
+// pre-fill the message text, so the chat opens blank for the visitor to type.
+export const messengerLink = `https://m.me/${site.messenger}`;
 
 export const telLink = `tel:${site.phoneE164}`;

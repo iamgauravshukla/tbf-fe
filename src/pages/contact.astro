@@ -1,7 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 import LeadForm from '../components/LeadForm.astro';
-import { site, waLink, telLink } from '../site.config';
+import { site, messengerLink, telLink } from '../site.config';
+import MessengerIcon from '../components/MessengerIcon.astro';
 import { getCollection } from 'astro:content';
 
 const labels = (await getCollection('treatments', ({ data }) => !data.draft))
@@ -16,7 +17,7 @@ const steps = [
 ---
 <Base
   title={`Book a Consultation in ${site.address.region} | ${site.name}`}
-  description={`Book a skin, hair or wellness consultation at ${site.name} in ${site.address.region}. Call ${site.phoneDisplay}, WhatsApp or send an enquiry. We reply within one working day.`}
+  description={`Book a skin, hair or wellness consultation at ${site.name} in ${site.address.region}. Call ${site.phoneDisplay}, message us on Messenger or send an enquiry. We reply within one working day.`}
   path="/contact/"
   breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Book a consultation', path: '/contact/' }]}
 >
@@ -36,7 +37,7 @@ const steps = [
         <div class="direct" data-reveal data-reveal-delay="3">
           <a href={telLink} class="direct__tel" data-ev="call_click" data-loc="contact">{site.phoneDisplay}</a>
           <div class="direct__row">
-            <a href={waLink(`Hi ${site.name}, I'd like to book a consultation.`)} class="btn btn--wa" data-ev="whatsapp_click" data-loc="contact" rel="noopener">Message on WhatsApp</a>
+            <a href={messengerLink} class="btn btn--wa" data-ev="whatsapp_click" data-loc="contact" target="_blank" rel="noopener"><MessengerIcon />Messenger</a>
             <a href={`mailto:${site.email}`} class="direct__mail" data-ev="email_click" data-loc="contact">{site.email}</a>
           </div>
         </div>

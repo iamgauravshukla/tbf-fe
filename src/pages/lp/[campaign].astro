@@ -4,7 +4,8 @@
 import Landing from '../../layouts/Landing.astro';
 import LeadForm from '../../components/LeadForm.astro';
 import { campaigns } from '../../campaigns';
-import { site, waLink, telLink } from '../../site.config';
+import { site, messengerLink, telLink } from '../../site.config';
+import MessengerIcon from '../../components/MessengerIcon.astro';
 
 export function getStaticPaths() {
   return campaigns.map((c) => ({ params: { campaign: c.slug }, props: { c } }));
@@ -37,7 +38,7 @@ const { c } = Astro.props;
 
         <div class="lph__alt">
           <a href={telLink} class="btn btn--light" data-ev="call_click" data-loc={`landing:${c.slug}`}>Call {site.phoneDisplay}</a>
-          <a href={waLink(c.waMessage)} class="btn btn--outline-light" data-ev="whatsapp_click" data-loc={`landing:${c.slug}`} rel="noopener">WhatsApp us</a>
+          <a href={messengerLink} class="btn btn--outline-light" data-ev="whatsapp_click" data-loc={`landing:${c.slug}`} target="_blank" rel="noopener"><MessengerIcon />Messenger</a>
         </div>
       </div>
 
@@ -106,7 +107,7 @@ const { c } = Astro.props;
       </p>
       <div class="close__cta">
         <a href={telLink} class="btn btn--light" data-ev="call_click" data-loc={`landing_foot:${c.slug}`}>Call {site.phoneDisplay}</a>
-        <a href={waLink(c.waMessage)} class="btn btn--outline-light" data-ev="whatsapp_click" data-loc={`landing_foot:${c.slug}`} rel="noopener">WhatsApp us</a>
+        <a href={messengerLink} class="btn btn--outline-light" data-ev="whatsapp_click" data-loc={`landing_foot:${c.slug}`} target="_blank" rel="noopener"><MessengerIcon />Messenger</a>
       </div>
       <p class="disclaimer close__d">All treatments require a consultation. Results vary between individuals.</p>
     </div>

@@ -156,8 +156,10 @@ img,picture,video{max-width:100%;height:auto;display:block}
 .btn--light:hover{background:#fff;color:var(--deep-teal)}
 .btn--outline-light{background:transparent;color:var(--ivory);border-color:rgba(247,244,238,.55)}
 .btn--outline-light:hover{background:rgba(247,244,238,.12);color:var(--ivory)}
-.btn--wa{background:#1F9E55;color:#fff}
-.btn--wa:hover{background:#17803F;color:#fff}
+/* Messenger CTA (class name kept for event tracking). */
+.btn--wa{background:#0084FF;color:#fff}
+.btn--wa:hover{background:#0067CC;color:#fff}
+.btn svg{width:18px;height:18px;fill:currentColor;margin-right:.5rem;vertical-align:-3px}
 
 /* ---------- cards ---------- */
 .card{background:var(--surface-raised);border:1px solid var(--line)}

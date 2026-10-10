@@ -6,7 +6,8 @@ import '../styles/global.css';
 import Head from '../components/Head.astro';
 import Schema from '../components/Schema.astro';
 import Analytics from '../components/Analytics.astro';
-import { site, waLink, telLink } from '../site.config';
+import MessengerIcon from '../components/MessengerIcon.astro';
+import { site, messengerLink, telLink } from '../site.config';
 
 interface Props {
   title: string; description: string; path: string; waMessage: string;
@@ -45,7 +46,7 @@ const { title, description, path, waMessage, viewContent } = Astro.props;
 
     <div class="lp-bar">
       <a href={telLink} class="lp-bar__btn" data-ev="call_click" data-loc="landing_bar">Call now</a>
-      <a href={waLink(waMessage)} class="lp-bar__btn lp-bar__btn--wa" data-ev="whatsapp_click" data-loc="landing_bar" rel="noopener">WhatsApp us</a>
+      <a href={messengerLink} class="lp-bar__btn lp-bar__btn--wa" data-ev="whatsapp_click" data-loc="landing_bar" target="_blank" rel="noopener"><MessengerIcon />Messenger</a>
     </div>
 
     <style>
@@ -58,11 +59,12 @@ const { title, description, path, waMessage, viewContent } = Astro.props;
       @media (min-width:900px){ .lp-ftr{margin-bottom:0} }
       .lp-bar{position:fixed;left:0;right:0;bottom:0;z-index:60;display:grid;grid-template-columns:1fr 1fr;padding-bottom:env(safe-area-inset-bottom)}
       .lp-bar__btn{
-        display:flex;align-items:center;justify-content:center;min-height:56px;text-decoration:none;
+        display:flex;align-items:center;justify-content:center;gap:.5em;min-height:56px;text-decoration:none;
         font-size:.6875rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
         background:var(--deep-teal);color:var(--ivory)
       }
-      .lp-bar__btn--wa{background:#1F9E55;color:#fff}
+      .lp-bar__btn svg{width:16px;height:16px;fill:currentColor}
+      .lp-bar__btn--wa{background:#0084FF;color:#fff}
       @media (min-width:900px){ .lp-bar{display:none} }
     </style>
   </body>
