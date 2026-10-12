@@ -63,7 +63,7 @@ const { title, description, path, waMessage, viewContent } = Astro.props;
         font-size:.6875rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
         background:var(--deep-teal);color:var(--ivory)
       }
-      .lp-bar__btn svg{width:16px;height:16px;fill:currentColor}
+      .lp-bar__btn :global(svg){width:16px;height:16px;fill:currentColor}
       .lp-bar__btn--wa{background:#0084FF;color:#fff}
       @media (min-width:900px){ .lp-bar{display:none} }
     </style>

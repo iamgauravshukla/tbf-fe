@@ -303,7 +303,7 @@ const path = Astro.url.pathname;
     font-size:.6875rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
     color:#0084FF;text-decoration:none;
   }
-  .mnav__wa svg{width:15px;height:15px;fill:currentColor}
+  .mnav__wa :global(svg){width:15px;height:15px;fill:currentColor}
   .mnav__hours{width:100%;font-size:.75rem;color:var(--text-muted)}
   @media (min-width:900px){ .mnav{display:none} }
 
@@ -320,7 +320,7 @@ const path = Astro.url.pathname;
     font-size:.6875rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
     color:var(--deep-teal);border-right:1px solid var(--line);
   }
-  .mobar__btn svg{width:16px;height:16px;fill:currentColor}
+  .mobar__btn :global(svg){width:16px;height:16px;fill:currentColor}
   .mobar__btn--wa{color:#0084FF}
   .mobar__btn--book{background:var(--deep-teal);color:var(--ivory);border-right:0;letter-spacing:.06em}
   @media (min-width:900px){ .mobar{display:none} }
