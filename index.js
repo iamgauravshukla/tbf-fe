@@ -1,9 +1,9 @@
 // Production entry point for hosts that start a Node app from a root file
-// (Hostinger's "Entry file" setting defaults to index.js). It boots the Astro
-// standalone server that `astro build` writes to dist/server/entry.mjs.
+// (Hostinger's "Entry file" setting defaults to index.js). It boots the same
+// server dist/index.js does — the Astro standalone handler behind the
+// canonical-host and legacy redirects (see hostinger.entry.js, which the build
+// copies to dist/index.js).
 //
-// HOST must be 0.0.0.0 so the platform's reverse proxy can reach the server —
-// without it the adapter binds to localhost only and the site times out.
-// PORT is injected by the host and picked up by the adapter automatically.
-process.env.HOST = process.env.HOST || '0.0.0.0';
-await import('./dist/server/entry.mjs');
+// PORT is injected by the host; HOST defaults to 0.0.0.0 in that file so the
+// platform's reverse proxy can reach the server.
+await import('./dist/index.js');

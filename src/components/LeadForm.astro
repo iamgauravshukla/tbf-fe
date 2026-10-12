@@ -30,7 +30,7 @@ const ready = Boolean(site.formEndpoint);
        Netlify Forms uses an `action` attribute instead. /thank-you/ is where
        the generate_lead conversion fires, so whatever endpoint you use MUST
        land there or the conversion never records. -->
-  <input type="hidden" name="_next" value={new URL('/thank-you/', site.url).href} />
+  <input type="hidden" name="_next" value={site.formReturnUrl} />
   <!-- honeypot: bots fill it, humans never see it -->
   <p class="lf__hp"><label>Leave this empty<input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label></p>
 

@@ -11,8 +11,9 @@ import { getCollection } from 'astro:content';
 // Journal teasers come from the blog API at BUILD time and fail soft — if the
 // API is unreachable during a build, the section simply hides. The live list
 // is on /journal/ (server-rendered).
-import { fetchPosts, fmtDate } from '../lib/blog';
-const { posts } = await fetchPosts('?limit=3');
+// Only full guides (see isIndexable) — the homepage's links carry the most weight.
+import { fetchPosts, fmtDate, isIndexable } from '../lib/blog';
+const posts = (await fetchPosts('?limit=20')).posts.filter(isIndexable).slice(0, 3);
 
 const treatmentNames = (await getCollection('treatments', ({ data }) => !data.draft))
   .sort((a, b) => a.data.order - b.data.order)
@@ -50,8 +51,8 @@ const hoursLine = `${open.days} · ${open.open} – ${open.close}`;
 
 ---
 <Base
-  title={`${site.name} | Skin & Hair Clinic in ${site.address.region}`}
-  description={`Skin, hair and wellness clinic in ${site.address.region}: HIFU, CO2 laser, melasma, PRP and hair treatments by licensed clinicians. Consultation first.`}
+  title={`${site.name} | Skin & Hair Clinic in ${site.locationLabel}`}
+  description={`Skin, hair and wellness clinic in ${site.locationLabel}, ${site.address.region}: HIFU, CO2 laser, melasma, PRP and hair treatments by licensed clinicians.`}
   path="/"
   ogImage={site.ogImageHome}
   schemaType="home"

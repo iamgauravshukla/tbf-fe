@@ -89,8 +89,7 @@ const open = site.hours[0];
           Results vary between individuals. Images on this site are unretouched and dated.
         </p>
         <p class="ftr__reg">
-          PRC / DOH registration — TODO
-          <span class="ftr__reg-sep">·</span><a href="/privacy/">Privacy</a>
+          {site.registration && <>{site.registration}<span class="ftr__reg-sep">·</span></>}<a href="/privacy/">Privacy</a>
           <span class="ftr__reg-sep">·</span><a href="/terms/">Terms</a>
           <span class="ftr__reg-sep">·</span><a href="/consent/">Treatment consent</a>
         </p>

@@ -16,8 +16,8 @@ const steps = [
 ];
 ---
 <Base
-  title={`Book a Consultation in ${site.address.region} | ${site.name}`}
-  description={`Book a skin, hair or wellness consultation at ${site.name} in ${site.address.region}. Call ${site.phoneDisplay}, message us on Messenger or send an enquiry. We reply within one working day.`}
+  title={`Book a Consultation in ${site.locationLabel} | ${site.name}`}
+  description={`Book a skin, hair or wellness consultation at ${site.name}, Vivere Hotel Alabang, Muntinlupa. Call ${site.phoneDisplay}, message us on Messenger or send an enquiry.`}
   path="/contact/"
   breadcrumbs={[{ name: 'Home', path: '/' }, { name: 'Book a consultation', path: '/contact/' }]}
 >
@@ -84,10 +84,10 @@ const steps = [
           </div>
         </div>
 
-        <p class="visit__note" data-reveal data-reveal-delay="3">
-          Parking, access and the nearest landmark — <strong>TODO, add these once
-          the address is final.</strong> They are the two things people call to ask.
-        </p>
+        {/* TODO — add parking, access and the nearest landmark here as a
+            <p class="visit__note"> once confirmed. They are the two things people
+            call to ask. (Kept out of the page until then: a visible "TODO" on
+            the live site reads as unfinished.) */}
 
         <a href="#enquiry" class="btn btn--light visit__btn" data-ev="book_click" data-loc="contact_visit">Send an enquiry</a>
       </div>

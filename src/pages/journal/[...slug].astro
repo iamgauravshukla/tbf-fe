@@ -9,7 +9,7 @@ import TreatmentCard from '../../components/TreatmentCard.astro';
 import { site, messengerLink } from '../../site.config';
 import MessengerIcon from '../../components/MessengerIcon.astro';
 import { getEntry } from 'astro:content';
-import { fetchPost, fetchPosts, renderMarkdown, fmtDate } from '../../lib/blog';
+import { fetchPost, fetchPosts, renderMarkdown, fmtDate, isIndexable, metaDescriptionFor, seoTitleFor, relatedFor } from '../../lib/blog';
 
 const slug = String(Astro.params.slug || '').replace(/\/$/, '');
 const post = await fetchPost(slug);
@@ -29,24 +29,27 @@ const { html, toc } = renderMarkdown(post.content);
 const { posts: latest } = await fetchPosts('?limit=4');
 const next = latest.find((p) => p.slug !== post.slug) ?? null;
 
-// Related treatments come from the post's `related` slugs — the internal link
-// from education content to the commercial page.
+// Related treatments come from the post's `related` slugs (or, when none were
+// picked, the treatments its title names) — the internal link from education
+// content to the commercial page.
 const related = (
-  await Promise.all((post.related || []).map((s) => Promise.resolve(getEntry('treatments', s)).catch(() => null)))
+  await Promise.all(relatedFor(post).map((s) => Promise.resolve(getEntry('treatments', s)).catch(() => null)))
 ).filter(Boolean);
 
 const pubDate = new Date(post.publishedAt);
 // Only report a modified date that is real and not earlier than publication.
 const modDate = post.updatedAt && new Date(post.updatedAt) > pubDate ? new Date(post.updatedAt) : undefined;
+const description = metaDescriptionFor(post);
 ---
 <Base
-  title={post.seoTitle || post.title}
-  description={post.metaDescription || post.excerpt}
+  title={seoTitleFor(post)}
+  description={description}
   path={`/journal/${post.slug}/`}
+  noindex={!isIndexable(post)}
   ogImage={post.coverImage || undefined}
   ogImageAlt={post.title}
   schemaType="article"
-  article={{ title: post.title, description: post.metaDescription || post.excerpt, date: pubDate, modified: modDate }}
+  article={{ title: post.title, description, date: pubDate, modified: modDate }}
   breadcrumbs={[
     { name: 'Home', path: '/' },
     { name: 'Journal', path: '/journal/' },

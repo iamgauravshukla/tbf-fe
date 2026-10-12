@@ -28,9 +28,13 @@ const related = (await getCollection('treatments', ({ data }) => !data.draft))
   })
   .slice(0, 3);
 
-// Blog posts that mention this treatment (build-time fetch, fails soft).
-import { fetchPosts } from '../../lib/blog';
-const { posts } = await fetchPosts(`?related=${entry.id}&limit=2`);
+// Journal guides about this treatment (build-time fetch, fails soft): the
+// editor's `related` picks, or the treatments a post's title names. Only
+// indexable guides — no point sending readers and crawlers to an intro stub.
+import { fetchPosts, isIndexable, relatedFor } from '../../lib/blog';
+const posts = (await fetchPosts('?limit=100')).posts
+  .filter((p) => isIndexable(p) && relatedFor(p).includes(entry.id))
+  .slice(0, 2);
 
 // Full treatment list for the booking dropdown, this treatment pre-selected.
 const treatmentNames = (await getCollection('treatments', ({ data }) => !data.draft))

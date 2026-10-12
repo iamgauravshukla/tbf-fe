@@ -4,7 +4,7 @@
 //
 // Everything is emitted as ONE @graph so the nodes reference each other by @id
 // (page → website → business, service → provider) instead of repeating data.
-import { site, hasAddress, hasGeo } from '../site.config';
+import { site, hasAddress, hasPostalCode, hasGeo, hasMapPlace } from '../site.config';
 
 interface Props {
   type?: 'home' | 'service' | 'article';
@@ -44,20 +44,20 @@ const business = {
   slogan: site.tagline,
   currenciesAccepted: 'PHP',
   areaServed: { '@type': 'AdministrativeArea', name: site.address.region },
-  // Region and country are known; street, city and postcode are only
-  // published once they are real (see hasAddress in site.config.ts).
+  // The same address the footer and /contact/ show. Each part is published
+  // only once it is real (see the guards in site.config.ts).
   address: {
     '@type': 'PostalAddress',
     ...(hasAddress ? {
       streetAddress: site.address.street,
       addressLocality: site.address.locality,
-      postalCode: site.address.postalCode,
     } : {}),
+    ...(hasPostalCode ? { postalCode: site.address.postalCode } : {}),
     addressRegion: site.address.region,
     addressCountry: site.address.country,
   },
   ...(hasGeo ? { geo: { '@type': 'GeoCoordinates', latitude: site.geo.lat, longitude: site.geo.lng } } : {}),
-  ...(hasAddress ? { hasMap: site.mapUrl } : {}),
+  ...(hasMapPlace ? { hasMap: site.mapUrl } : {}),
   openingHoursSpecification: site.hoursSpec.map((h) => ({
     '@type': 'OpeningHoursSpecification',
     dayOfWeek: h.days,

@@ -75,10 +75,8 @@ const standards = [
             skin, with the client's permission.
           </p>
           <a href="/contact/" class="btn btn--primary" data-ev="book_click" data-loc="results">Book Free Consultation</a>
-          <p class="disclaimer empty__d">
-            DEVELOPER NOTE — populate <code>cases</code> in <code>src/pages/results.astro</code>
-            only after regulatory sign-off. See the comment at the top of that file.
-          </p>
+          {/* DEVELOPER NOTE — populate `cases` only after regulatory sign-off.
+              See the comment at the top of this file. */}
         </div>
       ) : (
         <div class="grid g-2 g-3">

@@ -57,5 +57,70 @@ export function renderMarkdown(md: string): { html: string; toc: { slug: string;
   return { html, toc };
 }
 
+// ---------------------------------------------------------------------------
+// SEO helpers — shared by the post page, the posts sitemap and the treatment
+// pages so all three agree on what is indexable and how it is described.
+// ---------------------------------------------------------------------------
+
+/** A post under ~200 words (the API reports readMins 1) is an intro, not a
+ *  guide. It stays readable on the site but is noindexed and kept out of the
+ *  sitemap until it is written up — at which point it is picked up
+ *  automatically, no code change needed. */
+export const isIndexable = (p: Pick<PostSummary, 'readMins'>) => (p.readMins ?? 0) >= 2;
+
+/** Trim to `max` chars at a sentence end if one is close, else at a word. */
+function clampText(text: string, max: number): string {
+  const t = text.replace(/\s+/g, ' ').trim();
+  if (t.length <= max) return t;
+  const cut = t.slice(0, max);
+  const sentence = cut.lastIndexOf('. ');
+  if (sentence >= max * 0.55) return cut.slice(0, sentence + 1);
+  return cut.slice(0, cut.lastIndexOf(' ')).replace(/[,;:\s—–-]+$/, '') + '…';
+}
+
+/** The editor's meta description when it is a complete sentence of sensible
+ *  length; otherwise one built from the excerpt. Imported posts carry a meta
+ *  description hard-cut at 170 characters mid-word ("…sensit"), which would
+ *  otherwise be shown as-is in search results. */
+export function metaDescriptionFor(p: Pick<PostSummary, 'metaDescription' | 'excerpt' | 'title'>): string {
+  const md = (p.metaDescription || '').trim();
+  if (md && md.length <= 160 && /[.!?…)"”’]$/.test(md)) return md;
+  return clampText(p.excerpt || md || p.title, 155);
+}
+
+/** The editor's SEO title, with the brand appended when it is missing and
+ *  there is room for it before Google truncates (~65 characters). */
+export function seoTitleFor(p: Pick<PostSummary, 'seoTitle' | 'title'>): string {
+  const t = (p.seoTitle || p.title).trim();
+  const withBrand = `${t} | ${site.name}`;
+  return t.includes(site.name) || withBrand.length > 65 ? t : withBrand;
+}
+
+/** Treatment pages a post is about, read from its title and slug. Used only
+ *  when the editor has not picked `related` treatments, so every guide links
+ *  to the service it discusses (and the service page links back). */
+const TOPICS: [RegExp, string[]][] = [
+  [/\bhifu\b/i, ['hifu']],
+  [/\bco2\b|co₂|fractional laser|acne scar/i, ['co2-fractional-laser']],
+  [/melasma|pigmentation|dark patch/i, ['melasma-treatment']],
+  [/chemical peel/i, ['chemical-peel']],
+  [/\bprp\b|platelet/i, ['prp']],
+  [/\bpdrn\b/i, ['hair-growth-pdrn']],
+  [/exosome/i, ['hair-regrowth-exosomes']],
+  [/hair loss|thinning hair|hair specialist/i, ['hair-growth-pdrn', 'hair-regrowth-exosomes']],
+  [/dandruff/i, ['scalp-anti-dandruff']],
+  [/glutathione/i, ['glutathione-iv-drip']],
+  [/exilis/i, ['exilis']],
+  [/radio ?frequency/i, ['radio-frequency']],
+  [/\bwarts?\b/i, ['warts-removal']],
+  [/pimple|cystic/i, ['pimple-injection']],
+];
+export function relatedFor(p: Pick<PostSummary, 'related' | 'title' | 'slug'>): string[] {
+  if (p.related?.length) return p.related;
+  const text = `${p.title} ${p.slug.replace(/-/g, ' ')}`;
+  const ids = TOPICS.filter(([re]) => re.test(text)).flatMap(([, s]) => s);
+  return [...new Set(ids)].slice(0, 4);
+}
+
 export const fmtDate = (iso: string) =>
   new Date(iso).toLocaleDateString('en-PH', { day: 'numeric', month: 'long', year: 'numeric' });
