@@ -1,0 +1,428 @@
+---
+// ============================================================================
+// PRICE LIST  —  shareable client-facing treatment menu
+//
+// A standalone, unlisted page the team can share as a link
+// (https://www.thebetterface.com/price-list/). Deliberately `noindex` and kept
+// out of the sitemap/nav — see astro.config.mjs sitemap filter. To make it a
+// public, indexed page: remove `noindex` below, drop the `/price-list` line
+// from the sitemap filter, and link it from Header/Footer.
+//
+// >>> SINGLE SOURCE OF PRICES <<<  Update the arrays below and rebuild.
+// Figures ported from "TBF Price List Client" (Vivere Hotel Alabang, Oct 2026).
+// All prices in PHP.
+// ============================================================================
+import Base from '../layouts/Base.astro';
+import { site, messengerLink, telLink } from '../site.config';
+
+const peso = (n: number) => '₱' + n.toLocaleString('en-PH');
+
+// ── Single treatments ─────────────────────────────────────────────────────
+// regular = standard rate per session/area · promo = first-visit promo price
+const singles: {
+  group: string;
+  items: { name: string; desc: string; regular: number; promo: number; promoNote: string }[];
+}[] = [
+  {
+    group: 'Hair & Scalp',
+    items: [
+      { name: 'Scalp Anti-Dandruff Treatment', desc: 'Deep-cleanse, de-flake & soothe · per session', regular: 12000, promo: 799, promoNote: 'First session' },
+      { name: 'Hair Growth with Salmon Sperm PDRN', desc: 'Salmon DNA follicle-stimulation therapy · per session', regular: 18500, promo: 1499, promoNote: 'First session' },
+      { name: 'Needle-Free Hair Growth with Exosomes', desc: 'Topical exosome scalp care · no needles · per session', regular: 20000, promo: 1299, promoNote: 'First session' },
+      { name: 'PRP (Platelet-Rich Plasma)', desc: "Face or scalp, client's own plasma · per session", regular: 22000, promo: 1999, promoNote: 'One area' },
+    ],
+  },
+  {
+    group: 'Skin Correction',
+    items: [
+      { name: 'CO₂ Fractional Laser', desc: 'Scars, pores, texture · full face · per session', regular: 25000, promo: 1499, promoNote: 'First session · full face' },
+      { name: 'Non-Invasive Melasma Treatment', desc: 'Customised pigment program · per session', regular: 18000, promo: 1299, promoNote: 'First session' },
+      { name: 'Chemical Peel', desc: 'Brightening / acne / texture peel · per session', regular: 4000, promo: 899, promoNote: 'First visit' },
+      { name: 'Warts Removal', desc: 'Superficial growths, after assessment · per area', regular: 8000, promo: 1499, promoNote: 'Unlimited suitable warts · face or neck' },
+      { name: 'Pimple Injection', desc: 'Flattens stubborn pimples fast · per injection', regular: 900, promo: 200, promoNote: 'Per pimple · first visit' },
+    ],
+  },
+  {
+    group: 'Lift, Contour & Body',
+    items: [
+      { name: 'HIFU', desc: 'Full face & jawline lift · per session', regular: 35000, promo: 1999, promoNote: 'Jawline / V-line' },
+      { name: 'Exilis Treatment', desc: 'Tightening / contouring · per area', regular: 18000, promo: 1499, promoNote: 'One area' },
+      { name: 'Radio Frequency (RF)', desc: 'Skin tightening & contour · face or body · per area', regular: 6000, promo: 499, promoNote: 'One area' },
+      { name: 'Barbie Slimming Arms', desc: 'Customised upper-arm contour · per session', regular: 15000, promo: 999, promoNote: 'First session' },
+    ],
+  },
+  {
+    group: 'Wellness',
+    items: [
+      { name: 'Glutathione IV Drip', desc: 'Antioxidant drip, after screening · per session', regular: 6500, promo: 799, promoNote: 'First drip' },
+    ],
+  },
+];
+
+// ── Combo offers (first-visit price for two+ treatments in one visit) ───────
+const combos: {
+  name: string; tag: string; parts: [string, number][]; value: number; price: number; bestFor: string;
+}[] = [
+  { name: 'Scalp Revival', tag: 'Clean scalp, stronger roots', parts: [['Scalp Anti-Dandruff', 12000], ['PRP', 22000]], value: 34000, price: 2499, bestFor: 'Dandruff with early hair fall' },
+  { name: 'Needle-Free Hair Starter', tag: 'Detox, then nourish · no needles', parts: [['Scalp Anti-Dandruff', 12000], ['Needle-Free Exosome Scalp', 20000]], value: 32000, price: 1799, bestFor: 'Thinning hair, needle-shy clients' },
+  { name: 'Glass Skin Glow', tag: 'Resurface outside, glow inside', parts: [['Chemical Peel', 4000], ['Glutathione IV Drip', 6500]], value: 10500, price: 1499, bestFor: 'Dullness, uneven tone' },
+  { name: 'Clear & Even', tag: 'Pigment care, inside and out', parts: [['Melasma Treatment', 18000], ['Glutathione IV Drip', 6500]], value: 24500, price: 1799, bestFor: 'Melasma, dark patches' },
+  { name: 'Lift & Resurface', tag: 'Lift first, then laser renewal', parts: [['HIFU', 35000], ['CO₂ Fractional Laser', 25000]], value: 60000, price: 3499, bestFor: 'Acne scars, pores, loose skin' },
+  { name: 'V-Line Sculpt', tag: 'Lift and tighten the jawline', parts: [['HIFU', 35000], ['Exilis', 18000]], value: 53000, price: 2999, bestFor: 'Jowls, double chin' },
+  { name: 'Barbie Body', tag: 'Slimmer arms, smoother middle', parts: [['Barbie Slimming Arms', 15000], ['Exilis · tummy or love handles', 18000]], value: 33000, price: 2499, bestFor: 'Upper arms, love handles' },
+  { name: 'Glow & Tone', tag: 'The easy first visit', parts: [['Glutathione IV Drip', 6500], ['Radio Frequency (RF)', 6000]], value: 12500, price: 1299, bestFor: 'Dull skin, soft contours' },
+  { name: 'Smooth & Bright', tag: 'Hair-free, glowing underarms-to-face', parts: [['Laser Hair Removal (underarm)', 4500], ['Carbon Laser Peel', 8500]], value: 13000, price: 999, bestFor: 'Hair removal + whitening in one visit' },
+  { name: 'Glass Glow Deluxe', tag: 'Deep cleanse, then laser brightening', parts: [['Hydrafacial', 12000], ['Pico Laser', 15000]], value: 27000, price: 1299, bestFor: 'Dark spots, dull or congested skin' },
+  { name: 'Clear & Sculpt', tag: 'Calm the skin, tone the body', parts: [['Acne Treatment Facial', 4500], ['EMS Body Sculpting', 18000]], value: 22500, price: 1299, bestFor: 'Breakouts plus body-toning goals' },
+  { name: 'The Better Face', tag: 'Signature 4-in-1 experience', parts: [['HIFU', 35000], ['Exilis', 18000], ['Glutathione IV Drip', 6500], ['Hyaluronic Skin Booster', 25000]], value: 84500, price: 4999, bestFor: 'Special occasions · book 4+ weeks ahead' },
+];
+
+// ── Session packages (available any time, not only first visit) ─────────────
+const packages: {
+  group: string;
+  items: { name: string; desc: string; sessions: number; value: number; price: number; per: number }[];
+}[] = [
+  {
+    group: 'Hair & Scalp',
+    items: [
+      { name: 'Scalp Detox 5', desc: '5 × Scalp Anti-Dandruff', sessions: 5, value: 60000, price: 38999, per: 7800 },
+      { name: 'PDRN Follicle 6', desc: '6 × PDRN hair growth', sessions: 6, value: 111000, price: 71999, per: 12000 },
+      { name: 'Needle-Free Exosome 6', desc: '6 × topical exosome scalp sessions', sessions: 6, value: 120000, price: 77999, per: 13000 },
+      { name: 'PRP Hair 3', desc: '3 × PRP scalp', sessions: 3, value: 66000, price: 48999, per: 16333 },
+      { name: 'Complete Hair Program', desc: '3 × PRP + 3 × PDRN + 3 × Needle-Free Exosome · on separate visits', sessions: 9, value: 181500, price: 98999, per: 11000 },
+    ],
+  },
+  {
+    group: 'Skin',
+    items: [
+      { name: 'CO₂ Scar Program 3', desc: '3 × CO₂ Fractional, 4–6 wks apart', sessions: 3, value: 75000, price: 55999, per: 18666 },
+      { name: 'Melasma Clear 6', desc: '6 × Melasma sessions', sessions: 6, value: 108000, price: 69999, per: 11666 },
+      { name: 'Peel Series 6', desc: '6 × Chemical Peel', sessions: 6, value: 24000, price: 14999, per: 2500 },
+      { name: 'Melasma + Peel Program', desc: '6 × Melasma + 3 × Chemical Peel · on alternating visits', sessions: 9, value: 120000, price: 65999, per: 7333 },
+    ],
+  },
+  {
+    group: 'Lift & Body',
+    items: [
+      { name: 'HIFU Year Plan', desc: '2 × HIFU full face & jaw (6 mos apart)', sessions: 2, value: 70000, price: 51999, per: 26000 },
+      { name: 'Exilis 6', desc: '6 × Exilis, per area', sessions: 6, value: 108000, price: 69999, per: 11666 },
+      { name: 'Barbie Arms 6', desc: '6 × Barbie Slimming Arms', sessions: 6, value: 90000, price: 57999, per: 9666 },
+      { name: 'Body Contour Program', desc: '6 × Barbie Arms + 6 × Exilis + 6 × RF · scheduled by your doctor', sessions: 18, value: 234000, price: 116999, per: 6500 },
+      { name: 'RF 10', desc: '10 × Radio Frequency, per area', sessions: 10, value: 60000, price: 32999, per: 3300 },
+    ],
+  },
+  {
+    group: 'Wellness',
+    items: [
+      { name: 'Gluta 6', desc: '6 × IV drips + 1 free facial', sessions: 6, value: 39000, price: 24999, per: 4166 },
+      { name: 'Gluta 10', desc: '10 × IV drips', sessions: 10, value: 65000, price: 34999, per: 3500 },
+    ],
+  },
+];
+---
+<Base
+  title="Price List | The Better Face — Alabang"
+  description="Treatment menu and prices for The Better Face, Alabang: single treatments, first-visit promos, combo offers and multi-session packages. Prices in PHP."
+  path="/price-list/"
+  noindex={true}
+>
+  <h1 class="visually-hidden">Price List — The Better Face</h1>
+
+  <!-- ░░ In-page jump nav (slim sticky index) ░░ -->
+  <nav class="jump" aria-label="Price list sections">
+    <div class="wrap jump__in">
+      <a href="#single">Treatments</a>
+      <a href="#combos">Combos</a>
+      <a href="#packages">Packages</a>
+    </div>
+  </nav>
+
+  <!-- ░░ Single treatments ░░ -->
+  <section class="section" id="single">
+    <div class="wrap">
+      <div class="cat-head">
+        <h2>Single Treatments</h2>
+        <p class="small">Per session or area. The teal price is your first-visit promo — the regular rate is shown beneath it.</p>
+      </div>
+
+      {singles.map((grp) => (
+        <div class="tgroup" data-reveal>
+          <h3 class="tgroup__h">{grp.group}</h3>
+          <ul class="items">
+            {grp.items.map((it) => (
+              <li class="item">
+                <div class="item__info">
+                  <span class="item__name">{it.name}</span>
+                  <span class="item__desc">{it.desc}</span>
+                  <span class="item__note">{it.promoNote}</span>
+                </div>
+                <div class="item__price">
+                  <span class="item__plabel">first visit</span>
+                  <span class="item__promo">{peso(it.promo)}</span>
+                  <span class="item__reg">{peso(it.regular)}</span>
+                </div>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+
+      <div class="notes">
+        <div class="notes__item"><strong>Consultation first.</strong> Every treatment follows a consultation. Our doctor assesses suitability for IV drips, PRP, PDRN, lasers and wart removal.</div>
+        <div class="notes__item"><strong>Results vary.</strong> Treatments help improve the appearance of skin, scalp and body concerns. Individual results and the number of sessions needed vary.</div>
+        <div class="notes__item"><strong>Needle-free exosomes.</strong> Our exosome scalp treatment is topical and needle-free.</div>
+        <div class="notes__item"><strong>Booking.</strong> Reserve your slot with a ₱300 deposit via GCash — fully deducted from your bill.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ Combo offers ░░ -->
+  <section class="section sunken" id="combos">
+    <div class="wrap">
+      <div class="cat-head">
+        <h2>Combo Offers</h2>
+        <p class="small">
+          Two or more treatments, one visit, one price. Combo prices are for your
+          first visit; “value” is what the same treatments cost separately.
+        </p>
+      </div>
+
+      <div class="grid g-2 g-3 combos">
+        {combos.map((c) => (
+          <article class="combo" data-reveal>
+            <header class="combo__head">
+              <h3 class="combo__name">{c.name}</h3>
+              <p class="combo__tag">{c.tag}</p>
+            </header>
+            <ul class="combo__parts">
+              {c.parts.map((p) => (
+                <li><span>{p[0]}</span><span class="combo__partp">{peso(p[1])}</span></li>
+              ))}
+              <li class="combo__value"><span>Value</span><span class="combo__partp">{peso(c.value)}</span></li>
+            </ul>
+            <div class="combo__price">
+              <span class="combo__plabel">Combo price</span>
+              <span class="combo__pval">{peso(c.price)}</span>
+            </div>
+            <p class="combo__best"><span>Best for</span> {c.bestFor}</p>
+          </article>
+        ))}
+      </div>
+
+      <div class="notes">
+        <div class="notes__item"><strong>One promo per treatment.</strong> If you have availed a single-treatment promo, any combo that includes that same treatment is no longer available to you, and vice versa.</div>
+        <div class="notes__item"><strong>Doctor-planned.</strong> Treatments are scheduled in a safe order on the same day, or within 14 days where your doctor advises.</div>
+        <div class="notes__item"><strong>First visit only.</strong> One combo per client. Combos cannot be used together with other promos or discounts.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ Session packages ░░ -->
+  <section class="section" id="packages">
+    <div class="wrap">
+      <div class="cat-head">
+        <h2>Session Packages</h2>
+        <p class="small">
+          Most treatments show their best results over a series. Packages lock in a
+          lower price per session and are available any time — not only on your first visit.
+        </p>
+      </div>
+
+      {packages.map((grp) => (
+        <div class="pgroup" data-reveal>
+          <h3 class="tgroup__h">{grp.group}</h3>
+          <div class="ptable-wrap">
+            <table class="ptable">
+              <thead>
+                <tr>
+                  <th scope="col">Package</th>
+                  <th scope="col" class="num">Sessions</th>
+                  <th scope="col" class="num">Value</th>
+                  <th scope="col" class="num">Package price</th>
+                  <th scope="col" class="num">Per session</th>
+                </tr>
+              </thead>
+              <tbody>
+                {grp.items.map((it) => (
+                  <tr>
+                    <th scope="row" class="pname">
+                      <span class="pname__t">{it.name}</span>
+                      <span class="pname__d">{it.desc}</span>
+                    </th>
+                    <td class="num" data-label="Sessions">{it.sessions}</td>
+                    <td class="num pval-strike" data-label="Value">{peso(it.value)}</td>
+                    <td class="num pval-price" data-label="Package price">{peso(it.price)}</td>
+                    <td class="num" data-label="Per session">{peso(it.per)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      ))}
+
+      <div class="notes">
+        <div class="notes__item"><strong>Easy payment.</strong> 0% instalment via credit card on packages ₱5,000 and up (3 months) and ₱15,000 and up (6 months).</div>
+        <div class="notes__item"><strong>Validity.</strong> Sessions are valid for 12 months from purchase. Packages are non-transferable and non-refundable once started.</div>
+        <div class="notes__item"><strong>Credit from first visit.</strong> Any first-visit offer or combo paid is deducted when you buy a package within 7 days.</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ░░ Booking CTA ░░ -->
+  <section class="section inverse book">
+    <div class="wrap book__in">
+      <span class="eyebrow">Book your visit</span>
+      <h2>Ready when you are.</h2>
+      <p class="lede">
+        Message us on Facebook or Instagram, or call the clinic. Private suites
+        inside Vivere Hotel, Alabang · easy parking. Reserve your slot with a ₱300
+        GCash deposit, fully deducted from your bill.
+      </p>
+      <div class="book__actions">
+        <a href={messengerLink} class="btn btn--light" data-ev="book_click" data-loc="pricelist_cta">Message to book</a>
+        <a href={telLink} class="btn btn--outline-light" data-ev="call_click" data-loc="pricelist_cta">Call {site.phoneDisplay}</a>
+      </div>
+      <p class="disclaimer">
+        {site.legalName} · {site.address.street}, {site.address.locality}.
+        All treatments require a consultation; results vary between individuals.
+        Prices in PHP and subject to change.
+      </p>
+    </div>
+  </section>
+
+</Base>
+
+<style>
+  /* anchors clear the sticky site header + sticky jump index */
+  #single, #combos, #packages { scroll-margin-top: 120px; }
+
+  /* ── Slim sticky section index ───────────────────────────────── */
+  .jump {
+    position: sticky; top: 64px; z-index: 40;
+    background: color-mix(in srgb, var(--surface) 90%, transparent);
+    -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line-soft);
+  }
+  .jump__in { display: flex; justify-content: center; flex-wrap: wrap; gap: var(--s2) var(--s4); padding-block: .85rem; }
+  .jump a {
+    font-size: var(--f-micro); font-weight: 600; letter-spacing: .2em; text-transform: uppercase;
+    color: var(--text-muted); text-decoration: none; padding: .15rem 0;
+    border-bottom: 1px solid transparent; transition: color .2s, border-color .2s;
+  }
+  .jump a:hover { color: var(--deep-teal); border-bottom-color: var(--accent); }
+
+  /* ── Section head ─────────────────────────────────────────────── */
+  .cat-head { margin-bottom: var(--s4); }
+  .cat-head h2 { margin-bottom: var(--s2); }
+  .cat-head h2::after {
+    content: ''; display: block; width: 40px; height: 1px; background: var(--accent); margin-top: var(--s2);
+  }
+  .cat-head .small { max-width: 56ch; }
+
+  /* ── Single treatments — editorial price menu ─────────────────── */
+  .tgroup { margin-bottom: var(--s5); }
+  .tgroup__h {
+    font-family: 'Playfair Display', serif; font-weight: 500; font-size: 1.3rem; color: var(--deep-teal);
+    letter-spacing: .005em; margin-bottom: var(--s1);
+  }
+  .items { list-style: none; padding: 0; margin: 0; }
+  .item {
+    display: flex; align-items: flex-start; justify-content: space-between; gap: var(--s3);
+    padding: var(--s3) 0; border-top: 1px solid var(--line-soft);
+  }
+  .item__info { min-width: 0; }
+  .item__name { display: block; font-weight: 600; font-size: 1rem; color: var(--charcoal); line-height: 1.4; }
+  .item__desc { display: block; font-size: var(--f-small); color: var(--text-muted); line-height: 1.6; margin-top: .25rem; max-width: 46ch; }
+  .item__note {
+    display: inline-block; margin-top: .5rem; font-size: var(--f-micro); letter-spacing: .08em; text-transform: uppercase;
+    color: var(--ocean-teal); background: var(--surface-sunken); padding: .2rem .5rem; border-radius: 2px; line-height: 1.5;
+  }
+  .item__price { flex: none; text-align: right; display: flex; flex-direction: column; align-items: flex-end; min-width: 6rem; }
+  .item__plabel { font-size: var(--f-micro); letter-spacing: .16em; text-transform: uppercase; color: var(--text-muted); line-height: 1; }
+  .item__promo {
+    font-family: 'Playfair Display', serif; font-weight: 500; font-size: 1.55rem; color: var(--ocean-teal);
+    line-height: 1.15; white-space: nowrap; margin-top: .15rem;
+  }
+  .item__reg {
+    font-size: var(--f-small); color: var(--text-muted); white-space: nowrap; margin-top: .1rem;
+    text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--text-muted) 55%, transparent);
+  }
+
+  /* ── Combo cards ──────────────────────────────────────────────── */
+  .combos { align-items: stretch; }
+  .combo {
+    background: var(--surface-raised); border: 1px solid var(--line);
+    padding: clamp(var(--s3), 4vw, var(--s4)); display: flex; flex-direction: column;
+    transition: transform .3s cubic-bezier(.22,.61,.36,1), box-shadow .3s;
+  }
+  .combo:hover { transform: translateY(-3px); box-shadow: 0 34px 60px -46px rgba(11,79,89,.5); }
+  .combo__name { font-family: 'Playfair Display', serif; font-weight: 500; font-size: 1.35rem; color: var(--deep-teal); line-height: 1.15; }
+  .combo__tag { font-size: var(--f-small); color: var(--text-muted); margin-top: .3rem; }
+  .combo__parts { list-style: none; padding: 0; margin: var(--s3) 0 0; display: grid; gap: .5rem; }
+  .combo__parts li { display: flex; justify-content: space-between; gap: var(--s2); font-size: var(--f-small); color: var(--charcoal); line-height: 1.5; }
+  .combo__partp { color: var(--text-muted); white-space: nowrap; }
+  .combo__value { border-top: 1px solid var(--line-soft); padding-top: .55rem; margin-top: .25rem; font-weight: 600; }
+  .combo__value .combo__partp { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--text-muted) 55%, transparent); }
+  .combo__price {
+    display: flex; align-items: baseline; justify-content: space-between; gap: var(--s2);
+    margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid rgba(201,166,107,.5);
+  }
+  .combo__plabel { font-size: var(--f-micro); letter-spacing: .16em; text-transform: uppercase; color: var(--text-muted); }
+  .combo__pval { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 1.85rem; color: var(--ocean-teal); line-height: 1; }
+  .combo__best { font-size: var(--f-small); color: var(--text-muted); margin-top: var(--s3); line-height: 1.6; }
+  .combo__best span { display: inline-block; font-weight: 700; color: var(--deep-teal); text-transform: uppercase; letter-spacing: .14em; font-size: var(--f-micro); margin-right: .45rem; }
+
+  /* ── Package tables ───────────────────────────────────────────── */
+  .pgroup { margin-bottom: var(--s5); }
+  .ptable-wrap { width: 100%; }
+  .ptable { width: 100%; border-collapse: collapse; }
+  .ptable thead th {
+    text-align: left; font-size: var(--f-micro); font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+    color: var(--text-muted); padding: 0 var(--s2) .6rem; border-bottom: 1px solid var(--line);
+  }
+  .ptable th.num, .ptable td.num { text-align: right; white-space: nowrap; }
+  .ptable tbody tr { border-bottom: 1px solid var(--line-soft); }
+  .ptable td, .ptable tbody th { padding: var(--s3) var(--s2); vertical-align: middle; }
+  .pname { text-align: left; font-weight: 600; }
+  .pname__t { display: block; color: var(--charcoal); font-size: 1rem; }
+  .pname__d { display: block; font-size: var(--f-small); font-weight: 400; color: var(--text-muted); margin-top: .2rem; max-width: 44ch; line-height: 1.55; }
+  .pval-strike { color: var(--text-muted); text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--text-muted) 55%, transparent); }
+  .pval-price { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 1.2rem; color: var(--ocean-teal); }
+
+  /* Stacked cards on phones */
+  @media (max-width: 699px) {
+    .ptable, .ptable tbody, .ptable tr, .ptable tbody th, .ptable td { display: block; width: 100%; }
+    .ptable thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+    .ptable tbody tr { border: 1px solid var(--line); background: var(--surface-raised); padding: var(--s3); margin-bottom: var(--s3); }
+    .ptable tbody th.pname { padding: 0 0 var(--s2); margin-bottom: var(--s2); border-bottom: 1px solid var(--line-soft); }
+    .ptable td { padding: .4rem 0; display: flex; align-items: baseline; justify-content: space-between; gap: var(--s2); text-align: right; }
+    .ptable td::before { content: attr(data-label); font-size: var(--f-micro); letter-spacing: .12em; text-transform: uppercase; color: var(--text-muted); font-weight: 700; }
+    .ptable td.pval-price { font-size: 1.2rem; }
+  }
+
+  /* ── Notes ────────────────────────────────────────────────────── */
+  .notes { display: grid; gap: var(--s3); margin-top: var(--s5); padding-top: var(--s3); border-top: 1px solid var(--line); }
+  @media (min-width: 720px) { .notes { grid-template-columns: repeat(2, 1fr); gap: var(--s3) var(--s5); } }
+  .notes__item { font-size: var(--f-small); line-height: 1.7; color: var(--text-muted); }
+  .notes__item strong { display: block; color: var(--deep-teal); margin-bottom: .1rem; }
+
+  /* ── Booking CTA ──────────────────────────────────────────────── */
+  .book__in { max-width: 46rem; }
+  .book h2 { margin: .5rem 0 var(--s2); }
+  .book__actions { display: flex; flex-wrap: wrap; gap: var(--s2); margin: var(--s4) 0 var(--s3); }
+
+  /* ── Print / Save as PDF ──────────────────────────────────────── */
+  @media print {
+    .jump, .book__actions { display: none !important; }
+    .jump { position: static; }
+    .book { background: #fff !important; color: var(--charcoal) !important; }
+    .book h2 { color: var(--deep-teal) !important; }
+    .book p, .book .lede, .book .disclaimer { color: var(--charcoal) !important; }
+    .section, .section--tight { padding-block: var(--s3); }
+    .sunken { background: #fff !important; }
+    .combo:hover { transform: none; box-shadow: none; }
+    .tgroup, .pgroup, .combo, .ptable tbody tr { break-inside: avoid; }
+    a[href]::after { content: ''; }
+  }
+</style>
