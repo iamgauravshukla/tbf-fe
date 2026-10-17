@@ -9,7 +9,7 @@
 // from the sitemap filter, and link it from Header/Footer.
 //
 // >>> SINGLE SOURCE OF PRICES <<<  Update the arrays below and rebuild.
-// Figures ported from "TBF Price List Client" (Vivere Hotel Alabang, Oct 2026).
+// Figures ported from "TBF Price List Client – New Combo" (Vivere Hotel Alabang, 17 Oct 2026).
 // All prices in PHP.
 // ============================================================================
 import Base from '../layouts/Base.astro';
@@ -26,18 +26,20 @@ const singles: {
   {
     group: 'Hair & Scalp',
     items: [
-      { name: 'Scalp Anti-Dandruff Treatment', desc: 'Deep-cleanse, de-flake & soothe · per session', regular: 12000, promo: 799, promoNote: 'First session' },
-      { name: 'Hair Growth with Salmon Sperm PDRN', desc: 'Salmon DNA follicle-stimulation therapy · per session', regular: 18500, promo: 1499, promoNote: 'First session' },
-      { name: 'Needle-Free Hair Growth with Exosomes', desc: 'Topical exosome scalp care · no needles · per session', regular: 20000, promo: 1299, promoNote: 'First session' },
-      { name: 'PRP (Platelet-Rich Plasma)', desc: "Face or scalp, client's own plasma · per session", regular: 22000, promo: 1999, promoNote: 'One area' },
+      { name: 'Scalp Detox for Dandruff', desc: 'Deep-cleanse, de-flake & soothe · per session', regular: 12000, promo: 799, promoNote: 'First session' },
+      { name: 'PDRN Hair Regrowth (Salmon DNA)', desc: 'Salmon DNA follicle-stimulation therapy · per session', regular: 18500, promo: 1499, promoNote: 'First session' },
+      { name: 'Exosome Hair Regrowth (Needle-Free)', desc: 'Topical exosome scalp care · no needles · per session', regular: 20000, promo: 1299, promoNote: 'First session' },
+      { name: 'PRP · Scalp Hair Regrowth or PRP Facial', desc: "Client's own plasma · face or scalp · per session", regular: 22000, promo: 1999, promoNote: 'One area' },
     ],
   },
   {
-    group: 'Skin Correction',
+    group: 'Facials & Skin Correction',
     items: [
-      { name: 'CO₂ Fractional Laser', desc: 'Scars, pores, texture · full face · per session', regular: 25000, promo: 1499, promoNote: 'First session · full face' },
-      { name: 'Non-Invasive Melasma Treatment', desc: 'Customised pigment program · per session', regular: 18000, promo: 1299, promoNote: 'First session' },
+      { name: 'Hydra Glow Facial', desc: 'Cleanse, exfoliate, extract & hydrate · per session', regular: 12000, promo: 999, promoNote: 'First visit' },
+      { name: 'Acne Clear Facial', desc: 'Deep cleanse, extraction & calming care · per session', regular: 4500, promo: 799, promoNote: 'First visit' },
       { name: 'Chemical Peel', desc: 'Brightening / acne / texture peel · per session', regular: 4000, promo: 899, promoNote: 'First visit' },
+      { name: 'CO₂ Fractional Laser', desc: 'Scars, pores, texture · full face · per session', regular: 25000, promo: 1499, promoNote: 'First session · full face' },
+      { name: 'Pico Laser · Non-Invasive Melasma Treatment', desc: 'Melasma, dark spots, uneven tone · customised pigment program · per session', regular: 18000, promo: 1299, promoNote: 'First session' },
       { name: 'Warts Removal', desc: 'Superficial growths, after assessment · per area', regular: 8000, promo: 1499, promoNote: 'Unlimited suitable warts · face or neck' },
       { name: 'Pimple Injection', desc: 'Flattens stubborn pimples fast · per injection', regular: 900, promo: 200, promoNote: 'Per pimple · first visit' },
     ],
@@ -45,7 +47,9 @@ const singles: {
   {
     group: 'Lift, Contour & Body',
     items: [
-      { name: 'HIFU', desc: 'Full face & jawline lift · per session', regular: 35000, promo: 1999, promoNote: 'Jawline / V-line' },
+      { name: '12D HIFU Lift · Jawline & V-line', desc: '12-depth focused ultrasound · lift & firm · per session', regular: 14000, promo: 1999, promoNote: 'Jawline / V-line' },
+      { name: '12D HIFU Lift · Full Face', desc: 'Full face & jawline · per session', regular: 20000, promo: 3999, promoNote: 'Full face' },
+      { name: '7D HIFU Lift · Jawline & V-line', desc: '7-depth focused ultrasound · per session', regular: 10000, promo: 1499, promoNote: 'Jawline / V-line' },
       { name: 'Exilis Treatment', desc: 'Tightening / contouring · per area', regular: 18000, promo: 1499, promoNote: 'One area' },
       { name: 'Radio Frequency (RF)', desc: 'Skin tightening & contour · face or body · per area', regular: 6000, promo: 499, promoNote: 'One area' },
       { name: 'Barbie Slimming Arms', desc: 'Customised upper-arm contour · per session', regular: 15000, promo: 999, promoNote: 'First session' },
@@ -63,18 +67,15 @@ const singles: {
 const combos: {
   name: string; tag: string; parts: [string, number][]; value: number; price: number; bestFor: string;
 }[] = [
-  { name: 'Scalp Revival', tag: 'Clean scalp, stronger roots', parts: [['Scalp Anti-Dandruff', 12000], ['PRP', 22000]], value: 34000, price: 2499, bestFor: 'Dandruff with early hair fall' },
-  { name: 'Needle-Free Hair Starter', tag: 'Detox, then nourish · no needles', parts: [['Scalp Anti-Dandruff', 12000], ['Needle-Free Exosome Scalp', 20000]], value: 32000, price: 1799, bestFor: 'Thinning hair, needle-shy clients' },
-  { name: 'Glass Skin Glow', tag: 'Resurface outside, glow inside', parts: [['Chemical Peel', 4000], ['Glutathione IV Drip', 6500]], value: 10500, price: 1499, bestFor: 'Dullness, uneven tone' },
-  { name: 'Clear & Even', tag: 'Pigment care, inside and out', parts: [['Melasma Treatment', 18000], ['Glutathione IV Drip', 6500]], value: 24500, price: 1799, bestFor: 'Melasma, dark patches' },
-  { name: 'Lift & Resurface', tag: 'Lift first, then laser renewal', parts: [['HIFU', 35000], ['CO₂ Fractional Laser', 25000]], value: 60000, price: 3499, bestFor: 'Acne scars, pores, loose skin' },
-  { name: 'V-Line Sculpt', tag: 'Lift and tighten the jawline', parts: [['HIFU', 35000], ['Exilis', 18000]], value: 53000, price: 2999, bestFor: 'Jowls, double chin' },
-  { name: 'Barbie Body', tag: 'Slimmer arms, smoother middle', parts: [['Barbie Slimming Arms', 15000], ['Exilis · tummy or love handles', 18000]], value: 33000, price: 2499, bestFor: 'Upper arms, love handles' },
-  { name: 'Glow & Tone', tag: 'The easy first visit', parts: [['Glutathione IV Drip', 6500], ['Radio Frequency (RF)', 6000]], value: 12500, price: 1299, bestFor: 'Dull skin, soft contours' },
-  { name: 'Smooth & Bright', tag: 'Hair-free, glowing underarms-to-face', parts: [['Laser Hair Removal (underarm)', 4500], ['Carbon Laser Peel', 8500]], value: 13000, price: 999, bestFor: 'Hair removal + whitening in one visit' },
-  { name: 'Glass Glow Deluxe', tag: 'Deep cleanse, then laser brightening', parts: [['Hydrafacial', 12000], ['Pico Laser', 15000]], value: 27000, price: 1299, bestFor: 'Dark spots, dull or congested skin' },
-  { name: 'Clear & Sculpt', tag: 'Calm the skin, tone the body', parts: [['Acne Treatment Facial', 4500], ['EMS Body Sculpting', 18000]], value: 22500, price: 1299, bestFor: 'Breakouts plus body-toning goals' },
-  { name: 'The Better Face', tag: 'Signature 4-in-1 experience', parts: [['HIFU', 35000], ['Exilis', 18000], ['Glutathione IV Drip', 6500], ['Hyaluronic Skin Booster', 25000]], value: 84500, price: 4999, bestFor: 'Special occasions · book 4+ weeks ahead' },
+  { name: 'Head-to-Face Reset', tag: 'Scalp detox, regrowth, then a glow', parts: [['Scalp Detox for Dandruff', 12000], ['Needle-free Exosome', 20000], ['Hydra Glow Facial', 12000]], value: 44000, price: 1999, bestFor: 'Dandruff, thinning hair, tired skin' },
+  { name: 'Hair Regrowth Power Trio', tag: 'Clean scalp, PRP roots, exosome boost', parts: [['Scalp Detox for Dandruff', 12000], ['PRP · Scalp', 22000], ['Needle-free Exosome', 20000]], value: 54000, price: 2499, bestFor: 'Hair fall, thinning, dandruff' },
+  { name: 'Lift & Glow Trio', tag: '12D lift, hydra glow, RF firming', parts: [['12D HIFU · Jawline & V-line', 14000], ['Hydra Glow Facial', 12000], ['Radio Frequency (RF) · face', 6000]], value: 32000, price: 2499, bestFor: 'Jawline lift plus fresh, firm skin' },
+  { name: 'Melasma & Glow Trio', tag: 'Pico for pigment, hydra, glow drip', parts: [['Pico Laser · Melasma', 18000], ['Hydra Glow Facial', 12000], ['Glutathione IV Drip', 6500]], value: 36500, price: 1999, bestFor: 'Melasma, dark spots, dull skin' },
+  { name: 'Acne Rescue Trio', tag: 'Clear breakouts, flatten pimples, hydrate', parts: [['Acne Clear Facial', 4500], ['3 × Pimple Injection', 2700], ['Hydra Glow Facial', 12000]], value: 19200, price: 1499, bestFor: 'Active breakouts, clogged pores' },
+  { name: '12D Lift & Resurface', tag: '12D lift, then laser renewal', parts: [['12D HIFU · Jawline & V-line', 14000], ['CO₂ Fractional Laser', 25000]], value: 39000, price: 2999, bestFor: 'Acne scars, pores, loose skin' },
+  { name: 'Arms, Tummy & Jaw Sculpt', tag: 'Three areas in one visit', parts: [['Barbie Slimming Arms', 15000], ['Exilis · tummy', 18000], ['7D HIFU · Jawline & V-line', 10000]], value: 43000, price: 2499, bestFor: 'Upper arms, tummy, soft jawline' },
+  { name: 'First-Visit Glow Pass', tag: 'Four treatments to try us out', parts: [['Chemical Peel', 4000], ['Glutathione IV Drip', 6500], ['Radio Frequency (RF)', 6000], ['Pimple Injection', 900]], value: 17400, price: 1299, bestFor: 'First-timers, quick refresh' },
+  { name: 'The Better Face', tag: 'Signature 4-in-1 experience', parts: [['12D HIFU · Full Face', 20000], ['Hydra Glow Facial', 12000], ['Glutathione IV Drip', 6500], ['Hyaluronic Skin Booster', 25000]], value: 63500, price: 5499, bestFor: 'Special occasions · book 4+ weeks ahead' },
 ];
 
 // ── Session packages (available any time, not only first visit) ─────────────
@@ -85,26 +86,26 @@ const packages: {
   {
     group: 'Hair & Scalp',
     items: [
-      { name: 'Scalp Detox 5', desc: '5 × Scalp Anti-Dandruff', sessions: 5, value: 60000, price: 38999, per: 7800 },
-      { name: 'PDRN Follicle 6', desc: '6 × PDRN hair growth', sessions: 6, value: 111000, price: 71999, per: 12000 },
-      { name: 'Needle-Free Exosome 6', desc: '6 × topical exosome scalp sessions', sessions: 6, value: 120000, price: 77999, per: 13000 },
-      { name: 'PRP Hair 3', desc: '3 × PRP scalp', sessions: 3, value: 66000, price: 48999, per: 16333 },
-      { name: 'Complete Hair Program', desc: '3 × PRP + 3 × PDRN + 3 × Needle-Free Exosome · on separate visits', sessions: 9, value: 181500, price: 98999, per: 11000 },
+      { name: 'Scalp Detox 5', desc: '5 × Scalp Detox for Dandruff', sessions: 5, value: 60000, price: 38999, per: 7800 },
+      { name: 'PDRN Follicle 6', desc: '6 × PDRN Hair Regrowth', sessions: 6, value: 111000, price: 71999, per: 12000 },
+      { name: 'Exosome Regrowth 6', desc: '6 × Exosome Hair Regrowth (needle-free)', sessions: 6, value: 120000, price: 77999, per: 13000 },
+      { name: 'PRP Hair 3', desc: '3 × PRP Scalp Hair Regrowth', sessions: 3, value: 66000, price: 48999, per: 16333 },
+      { name: 'Complete Hair Program', desc: '3 × PRP + 3 × PDRN + 3 × Exosome · on separate visits', sessions: 9, value: 181500, price: 98999, per: 11000 },
     ],
   },
   {
     group: 'Skin',
     items: [
       { name: 'CO₂ Scar Program 3', desc: '3 × CO₂ Fractional, 4–6 wks apart', sessions: 3, value: 75000, price: 55999, per: 18666 },
-      { name: 'Melasma Clear 6', desc: '6 × Melasma sessions', sessions: 6, value: 108000, price: 69999, per: 11666 },
+      { name: 'Melasma Clear 6', desc: '6 × Pico Laser melasma sessions', sessions: 6, value: 108000, price: 69999, per: 11666 },
       { name: 'Peel Series 6', desc: '6 × Chemical Peel', sessions: 6, value: 24000, price: 14999, per: 2500 },
-      { name: 'Melasma + Peel Program', desc: '6 × Melasma + 3 × Chemical Peel · on alternating visits', sessions: 9, value: 120000, price: 65999, per: 7333 },
+      { name: 'Melasma + Peel Program', desc: '6 × Pico Laser melasma + 3 × Chemical Peel · on alternating visits', sessions: 9, value: 120000, price: 65999, per: 7333 },
     ],
   },
   {
     group: 'Lift & Body',
     items: [
-      { name: 'HIFU Year Plan', desc: '2 × HIFU full face & jaw (6 mos apart)', sessions: 2, value: 70000, price: 51999, per: 26000 },
+      { name: '12D HIFU Year Plan', desc: '2 × 12D HIFU full face (6 mos apart)', sessions: 2, value: 40000, price: 29999, per: 15000 },
       { name: 'Exilis 6', desc: '6 × Exilis, per area', sessions: 6, value: 108000, price: 69999, per: 11666 },
       { name: 'Barbie Arms 6', desc: '6 × Barbie Slimming Arms', sessions: 6, value: 90000, price: 57999, per: 9666 },
       { name: 'Body Contour Program', desc: '6 × Barbie Arms + 6 × Exilis + 6 × RF · scheduled by your doctor', sessions: 18, value: 234000, price: 116999, per: 6500 },
@@ -142,7 +143,7 @@ const packages: {
     <div class="wrap">
       <div class="cat-head">
         <h2>Single Treatments</h2>
-        <p class="small">Per session or area. The teal price is your first-visit promo — the regular rate is shown beneath it.</p>
+        <p class="small">Per session or area. The teal price is your first-visit promo — one promo per treatment, first visit only — with the regular rate beneath it. Packages save 25–50% on regular prices.</p>
       </div>
 
       {singles.map((grp) => (
@@ -168,10 +169,10 @@ const packages: {
       ))}
 
       <div class="notes">
-        <div class="notes__item"><strong>Consultation first.</strong> Every treatment follows a consultation. Our doctor assesses suitability for IV drips, PRP, PDRN, lasers and wart removal.</div>
+        <div class="notes__item"><strong>Consultation first.</strong> Every treatment follows a free consultation. Our doctor assesses suitability for IV drips, PRP, PDRN, lasers and wart removal.</div>
         <div class="notes__item"><strong>Results vary.</strong> Treatments help improve the appearance of skin, scalp and body concerns. Individual results and the number of sessions needed vary.</div>
-        <div class="notes__item"><strong>Needle-free exosomes.</strong> Our exosome scalp treatment is topical and needle-free.</div>
-        <div class="notes__item"><strong>Booking.</strong> Reserve your slot with a ₱300 deposit via GCash — fully deducted from your bill.</div>
+        <div class="notes__item"><strong>7D or 12D HIFU?</strong> 12D works at more depths in one session; 7D is our entry lift. We'll advise which suits you at your consultation.</div>
+        <div class="notes__item"><strong>Booking.</strong> Message us your name and mobile number. No deposit needed — we'll send a booking card and reminders.</div>
       </div>
     </div>
   </section>
@@ -276,8 +277,8 @@ const packages: {
       <h2>Ready when you are.</h2>
       <p class="lede">
         Message us on Facebook or Instagram, or call the clinic. Private suites
-        inside Vivere Hotel, Alabang · easy parking. Reserve your slot with a ₱300
-        GCash deposit, fully deducted from your bill.
+        inside Vivere Hotel, Alabang · easy parking. No deposit needed — message
+        us your name and mobile number and we'll send a booking card and reminders.
       </p>
       <div class="book__actions">
         <a href={messengerLink} class="btn btn--light" data-ev="book_click" data-loc="pricelist_cta">Message to book</a>

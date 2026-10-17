@@ -1,13 +1,13 @@
 ---
-title: "HIFU (High-Intensity Focused Ultrasound)"
-seoTitle: "HIFU Skin Tightening | Non-Surgical Lift | The Better Face"
-metaDescription: "HIFU delivers focused ultrasound beneath the skin to support collagen and improve firmness, lift and facial contour. Consultation first at The Better Face."
+title: "7D & 12D HIFU Lift"
+seoTitle: "7D & 12D HIFU Lift | Non-Surgical Skin Tightening | The Better Face"
+metaDescription: "7D and 12D HIFU at The Better Face: focused ultrasound to firm the jawline, V-line and full face without surgery. We advise which tier at consultation."
 group: "Skin"
 category: "Aesthetics"
-summary: "Focused ultrasound delivered beneath the skin to support collagen and improve firmness, lift and facial contour — without surgery or injectables."
-priceFrom: 35000
-promoPrice: 1999
-promoScope: "Jawline / V-line"
+summary: "Focused ultrasound delivered beneath the skin to support collagen and improve firmness, lift and facial contour — without surgery or injectables. Choose 7D, our entry lift, or 12D, which works at more depths in one session."
+priceFrom: 10000
+promoPrice: 1499
+promoScope: "Jawline / V-line · 7D"
 priceUnit: session
 duration: "60–90 minutes"
 course: "Usually one session, reviewed at 12 weeks"
@@ -48,6 +48,15 @@ the months that follow.
 
 It remodels collagen slowly, so the result builds rather than appears. Anyone
 promising an instant facelift from a machine is overselling it.
+
+## 7D or 12D?
+
+Both are HIFU — the number is how many depths the device treats. **7D** is our
+entry lift for the jawline and V-line, at ₱10,000 per session (first-visit promo
+₱1,499). **12D** works at more depths in one session: jawline and V-line at
+₱14,000 (first-visit promo ₱1,999), or the full face and jawline at ₱20,000
+(first-visit promo ₱3,999). Which tier suits your skin is a clinical call — we
+advise at your free consultation, not at the till.
 
 ## What to expect
 

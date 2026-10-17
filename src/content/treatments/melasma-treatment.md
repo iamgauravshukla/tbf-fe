@@ -1,10 +1,10 @@
 ---
-title: "Non-Invasive Melasma Treatment"
-seoTitle: "Melasma & Dark Patches Treatment | The Better Face"
-metaDescription: "A gentle, non-surgical program for melasma, dark patches and uneven tone, customised to your skin, with minimal downtime. The Better Face."
+title: "Pico Laser · Non-Invasive Melasma Treatment"
+seoTitle: "Pico Laser Melasma Treatment | Dark Spots & Uneven Tone | The Better Face"
+metaDescription: "A gentle Pico laser program for melasma, dark spots and uneven tone, customised to your skin, with minimal downtime. The Better Face."
 group: "Skin"
-category: "Dermatology"
-summary: "A gentle, non-surgical program to improve melasma, dark patches and uneven tone — tailored to your skin, with minimal downtime."
+category: "Laser"
+summary: "A gentle, non-invasive Pico laser program to improve melasma, dark spots and uneven tone — tailored to your skin, with minimal downtime."
 priceFrom: 18000
 promoPrice: 1299
 promoScope: "First session"

@@ -1,6 +1,6 @@
 ---
-title: "Scalp Anti-Dandruff Treatment"
-seoTitle: "Anti-Dandruff Scalp Treatment | The Better Face"
+title: "Scalp Detox for Dandruff"
+seoTitle: "Scalp Detox for Dandruff | Anti-Dandruff Scalp Treatment | The Better Face"
 metaDescription: "A deep-cleansing scalp treatment for dandruff, flaking, itch and buildup, assessed by a clinician first. Book at The Better Face."
 group: "Hair"
 category: "Scalp"

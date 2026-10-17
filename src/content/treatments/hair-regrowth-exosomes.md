@@ -1,6 +1,6 @@
 ---
-title: "Needle-Free Hair Growth with Exosomes"
-seoTitle: "Needle-Free Exosome Hair Treatment | The Better Face"
+title: "Exosome Hair Regrowth (Needle-Free)"
+seoTitle: "Exosome Hair Regrowth · Needle-Free | The Better Face"
 metaDescription: "Topical, needle-free exosome scalp care to support a healthier scalp and the look of thinning hair, as part of a regrowth plan. The Better Face."
 group: "Hair"
 category: "Hair Restoration"

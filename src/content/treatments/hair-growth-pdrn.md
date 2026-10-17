@@ -1,6 +1,6 @@
 ---
-title: "Hair Growth with Salmon Sperm PDRN"
-seoTitle: "Salmon Sperm PDRN Hair Growth | Thinning Hair | The Better Face"
+title: "PDRN Hair Regrowth (Salmon DNA)"
+seoTitle: "PDRN Hair Regrowth (Salmon DNA) | Thinning Hair | The Better Face"
 metaDescription: "A regenerative scalp therapy using PDRN polynucleotides, purified from salmon DNA, to support thinning hair within a regrowth plan. Assessed first."
 group: "Hair"
 category: "Hair Restoration"
