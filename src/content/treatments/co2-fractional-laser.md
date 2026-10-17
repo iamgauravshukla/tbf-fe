@@ -22,21 +22,21 @@ notSuitableFor:
   - "A recent tan, or a history of keloid scarring we have not discussed"
 order: 10
 image: "/img/t-co2-laser.jpg"
-imageAlt: "A CO2 fractional laser handpiece on a client's cheek, its red aiming light visible on the skin"
+imageAlt: "A CO2 fractional laser handpiece on a client's forehead, its red aiming beam on the skin, the client wearing protective eye shields"
 video: "https://youtube.com/shorts/DQB9LN0oLBc"
 gallery:
   - "/img/co2-experience-1.jpg"
   - "/img/co2-experience-2.jpg"
 photos:
   - src: "/img/co2-laser-1.jpg"
-    alt: "A CO2 fractional laser handpiece held against a client's cheek, its grid of aiming dots and red guide light on the skin"
-    caption: "The laser grid"
-  - src: "/img/co2-laser-2.jpg"
-    alt: "Side view of the CO2 laser handpiece on a client's cheek beside the nose, the red aiming light visible"
+    alt: "Side view of a client lying back in protective eye shields while a gloved hand guides the CO2 laser handpiece to the forehead"
     caption: "During treatment"
+  - src: "/img/co2-laser-2.jpg"
+    alt: "A gloved hand holding the CO2 fractional laser handpiece just above a client's forehead, the client wearing eye shields"
+    caption: "The handpiece"
   - src: "/img/co2-laser-3.jpg"
-    alt: "Close-up of the CO2 laser frame pressed to the skin, the red guide beam lighting the treatment area"
-    caption: "Precision close-up"
+    alt: "A gloved hand selecting the treatment on the CO2 laser machine's touchscreen"
+    caption: "Setting the treatment"
 ---
 
 ## What it actually does

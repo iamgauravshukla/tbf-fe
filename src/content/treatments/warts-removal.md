@@ -22,21 +22,21 @@ notSuitableFor:
   - "Removal on the day without an assessment"
 order: 60
 image: "/img/t-warts-removal.jpg"
-imageAlt: "A fine-tipped device removing a small skin growth from a client's forehead"
+imageAlt: "A clinician steadying a client's head with one gloved hand while touching a fine-tipped device to the forehead"
 video: "https://youtube.com/shorts/ASh0lmRdKPc"
 gallery:
   - "/img/warts-experience-1.jpg"
   - "/img/warts-experience-2.jpg"
 photos:
   - src: "/img/warts-1.jpg"
-    alt: "A clinician in blue gloves touching a fine-tipped device to a small growth on a client's forehead"
+    alt: "A clinician in blue gloves touching a fine-tipped device to a client's forehead at the hairline"
     caption: "One growth at a time"
   - src: "/img/warts-2.jpg"
     alt: "A fine-tipped device held above small skin growths near a client's temple"
     caption: "Near the temple"
   - src: "/img/warts-3.jpg"
-    alt: "Close-up of the device's fine metal tip at the skin beside a client's closed eye"
-    caption: "Close-up"
+    alt: "A gloved hand holding the slim white removal device, its fine metal tip pointing forward"
+    caption: "The device"
 ---
 
 ## What it actually does

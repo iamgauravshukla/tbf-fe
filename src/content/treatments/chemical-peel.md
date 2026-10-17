@@ -22,21 +22,21 @@ notSuitableFor:
   - "Pregnancy for certain peel types — flagged at consultation"
 order: 30
 image: "/img/t-chemical-peel.jpg"
-imageAlt: "A clinician treating a client's underarm with a handheld applicator"
+imageAlt: "A clinician in blue gloves brushing a white peel onto a client's skin at the hairline, holding the jar of peel"
 video: "https://youtube.com/shorts/PGiW0ovcAZc"
 gallery:
   - "/img/chemical-peel-experience-1.jpg"
   - "/img/chemical-peel-experience-2.jpg"
 photos:
   - src: "/img/chemical-peel-1.jpg"
-    alt: "A clinician in blue gloves treating a client's underarm with a metal handheld applicator"
-    caption: "Underarm treatment"
+    alt: "A gloved hand raising a gold-handled brush loaded with peel above a client's hairline, the jar of peel in the other hand"
+    caption: "Applying the peel"
   - src: "/img/chemical-peel-2.jpg"
-    alt: "A white handheld device held against a client's underarm, the skin prepared with gel"
-    caption: "Prepared with gel"
+    alt: "Close-up of a gold-handled brush dipping into a jar of white peel"
+    caption: "The peel"
   - src: "/img/chemical-peel-3.jpg"
-    alt: "Close-up of a handheld device with a gold tip working across the skin of the underarm"
-    caption: "Close-up"
+    alt: "An amber bottle of peel solution with a gold-handled application brush behind it"
+    caption: "Prepared for you"
 ---
 
 ## What it actually does

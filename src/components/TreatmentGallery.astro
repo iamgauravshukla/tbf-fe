@@ -130,6 +130,7 @@ const pad = (n: number) => String(n).padStart(2, '0');
   }
   .tg__grid::-webkit-scrollbar{display:none}
   .tg__tile{scroll-snap-align:start;aspect-ratio:4/5;min-width:0}
+  .tg__grid--3 .tg__tile{aspect-ratio:1}
   @media (min-width:700px){
     .tg__grid{
       grid-auto-flow:row dense;grid-auto-columns:auto;overflow:visible;margin-inline:0;padding-inline:0;
@@ -142,8 +143,11 @@ const pad = (n: number) => String(n).padStart(2, '0');
     .tg__grid--1 .tg__tile--lead{grid-column:auto;grid-row:auto}
     .tg__grid--2{grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-rows:clamp(240px,34vw,440px)}
     .tg__grid--2 .tg__tile--lead{grid-column:auto;grid-row:auto}
-    .tg__grid--3{grid-template-columns:2fr 1fr}
-    .tg__grid--3 .tg__tile--lead{grid-column:auto}
+    /* Treatment photos are square: square side tiles stacked beside a lead that
+       stretches to their combined height, so nothing is cropped. */
+    .tg__grid--3{grid-template-columns:2fr 1fr;grid-auto-rows:auto}
+    .tg__grid--3 .tg__tile{aspect-ratio:1}
+    .tg__grid--3 .tg__tile--lead{grid-column:auto;aspect-ratio:auto}
     .tg__grid--4 .tg__tile:last-child{grid-column:span 2}
   }
 

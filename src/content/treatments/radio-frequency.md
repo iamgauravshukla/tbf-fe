@@ -22,21 +22,21 @@ notSuitableFor:
   - "Pregnancy"
 order: 105
 image: "/img/rf-1.jpg"
-imageAlt: "A two-pole radio frequency handpiece on a client's cheek, just below the closed eye, over a layer of gel"
+imageAlt: "A gloved hand holding a radio frequency handpiece against a client's cheek beside the nose, its tip glowing red"
 video: "https://youtube.com/shorts/6q-gY5Vl13I"
 gallery:
   - "/img/rf-2.jpg"
   - "/img/rf-3.jpg"
 photos:
   - src: "/img/rf-1.jpg"
-    alt: "A two-pole radio frequency handpiece on a client's cheek, just below the closed eye, over a layer of gel"
-    caption: "Beneath the eye"
+    alt: "A gloved hand holding a radio frequency handpiece against a client's cheek beside the nose, its tip glowing red"
+    caption: "Beside the nose"
   - src: "/img/rf-2.jpg"
-    alt: "Close-up of the radio frequency handpiece's two metal poles on a client's cheek"
-    caption: "Close-up"
-  - src: "/img/rf-3.jpg"
-    alt: "Side view of a client lying back while the radio frequency handpiece works along the cheekbone"
+    alt: "The glowing radio frequency handpiece working beneath a client's eye, along the cheekbone"
     caption: "Along the cheekbone"
+  - src: "/img/rf-3.jpg"
+    alt: "A gloved hand holding the radio frequency handpiece, its controls and treatment head visible, above a client lying back"
+    caption: "The handpiece"
 ---
 
 ## What it actually does

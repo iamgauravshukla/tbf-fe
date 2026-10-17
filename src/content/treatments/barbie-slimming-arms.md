@@ -22,21 +22,21 @@ notSuitableFor:
   - "Anyone expecting a single-session transformation"
 order: 110
 image: "/img/t-barbie-arms.jpg"
-imageAlt: "A clinician in gloves applying clear gel to a client's upper arm before an arm-contouring session"
+imageAlt: "A gloved hand holding a four-pole contouring handpiece over a client lying back, near the upper arm"
 video: "https://youtube.com/shorts/ITpHY4RsaLU"
 gallery:
   - "/img/barbie-arms-experience-1.jpg"
   - "/img/barbie-arms-experience-2.jpg"
 photos:
   - src: "/img/barbie-arms-1.jpg"
-    alt: "A contouring handpiece with metal rollers gliding over gel on a client's upper arm"
-    caption: "Contouring the upper arm"
+    alt: "A gloved hand holding the four-pole contouring handpiece, its metal poles facing down, above a client"
+    caption: "The contouring handpiece"
   - src: "/img/barbie-arms-2.jpg"
-    alt: "A clinician in blue gloves spreading clear gel over a client's upper arm with a spatula"
-    caption: "Prepared with gel"
+    alt: "A gloved hand supporting a client's upper arm as a fine needle is brought to the skin"
+    caption: "Targeted to the upper arm"
   - src: "/img/barbie-arms-3.jpg"
-    alt: "Close-up of the roller handpiece pressed to the arm, guided by a gloved hand"
-    caption: "Close-up"
+    alt: "A gloved hand holding up a small syringe of yellow solution, ready for the session"
+    caption: "Prepared for the session"
 ---
 
 ## What it actually does

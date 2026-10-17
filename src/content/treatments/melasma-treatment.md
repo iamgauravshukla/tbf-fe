@@ -22,21 +22,21 @@ notSuitableFor:
   - "Anyone unwilling to wear daily SPF, which is half the treatment"
 order: 40
 image: "/img/t-melasma.jpg"
-imageAlt: "A client in protective eyewear having their face treated with a laser handpiece"
+imageAlt: "A pico laser handpiece above a client's forehead, its red aiming dot on the skin, the client wearing a protective eye shield"
 video: "https://youtube.com/shorts/nxtOOAjnA-I"
 gallery:
   - "/img/melasma-experience-1.jpg"
   - "/img/melasma-experience-2.jpg"
 photos:
   - src: "/img/melasma-1.jpg"
-    alt: "A clinician in blue gloves positioning a laser handpiece over a client wearing protective eye shields"
+    alt: "A clinician in blue gloves holding the laser handpiece above a client lying back in protective eye shields"
     caption: "Eyes protected first"
   - src: "/img/melasma-2.jpg"
     alt: "Side view of a laser handpiece above a client's cheek, a red aiming dot on the skin"
     caption: "Targeting the pigment"
   - src: "/img/melasma-3.jpg"
-    alt: "Close-up of a laser pulse on a client's cheek beside the protective eyewear"
-    caption: "Close-up"
+    alt: "Close-up of a gloved hand holding the pico laser handpiece, its metal spacer tip pointing down"
+    caption: "The handpiece"
 ---
 
 ## What it actually does
