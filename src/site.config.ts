@@ -106,7 +106,7 @@ export const site = {
   // Clinic walkaround video for the homepage. A YouTube/Vimeo link or a
   // self-hosted "/video/walkaround.mp4" path. Leave empty and the homepage
   // shows a "filming soon" placeholder in its place, ready for the footage.
-  clinicVideo: "https://youtu.be/ZSaaLSrcjOI",
+  clinicVideo: "https://www.youtube.com/watch?v=FGrvdsgUTyg",
   clinicVideoPoster: "/img/clinic-video-poster.jpg",
 } as const;
 
