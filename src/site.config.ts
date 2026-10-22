@@ -71,7 +71,7 @@ export const site = {
 
   social: {
     facebook: "https://facebook.com/thebetterface",   // TODO confirm
-    instagram: "https://instagram.com/thebetterface", // TODO confirm
+    instagram: "https://www.instagram.com/thebetterface.ph",
   },
 
   // --- tracking -----------------------------------------------------------
