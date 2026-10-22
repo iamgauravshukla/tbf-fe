@@ -4,64 +4,169 @@ import { site } from '../site.config';
 ---
 <Legal
   title="Privacy Policy | The Better Face"
-  description="How The Better Face collects, uses, stores and protects your personal and health information, and the rights you hold under RA 10173."
+  description="How The Better Face collects, uses, stores, shares and protects your personal and health information, how payments work, and the rights you hold under the Philippine Data Privacy Act (RA 10173)."
   path="/privacy/"
   heading="Privacy policy"
-  updated="TODO — date of counsel sign-off"
+  updated="22 October 2026 — draft, pending counsel review"
 >
   <h2>Who we are</h2>
   <p>
-    {site.legalName} ("we", "us") operates {site.url}. We are the personal
-    information controller for the data described here. Our Data Protection
-    Officer can be reached at <a href={`mailto:${site.email}`}>{site.email}</a>.
-    <strong> TODO — name the DPO. RA 10173 requires a named individual.</strong>
+    {site.legalName} ("we", "us", "The Better Face") operates {site.url} and the clinic at
+    {site.address.street}, {site.address.locality}. We are the <strong>personal information
+    controller</strong> for the data described in this policy, which we handle under the
+    Philippine Data Privacy Act of 2012 (RA 10173), its Implementing Rules, and the issuances
+    of the National Privacy Commission (NPC).
+  </p>
+  <p>
+    Our Data Protection Officer (DPO) can be reached at
+    <a href={`mailto:${site.email}`}>{site.email}</a> or {site.phoneDisplay}.
+    <strong> TODO — name the DPO. RA 10173 requires a specific, named individual, not just an address.</strong>
   </p>
 
-  <h2>What we collect</h2>
+  <h2>What this policy covers</h2>
+  <p>
+    This policy covers the information we collect through this website, through the ways you
+    contact us (calls, Facebook and Instagram messages, email), and in person when you visit
+    the clinic for an assessment or treatment. By enquiring with us or attending the clinic,
+    you acknowledge the practices described here.
+  </p>
+
+  <h2>The information we collect</h2>
   <ul>
-    <li><strong>Enquiry data.</strong> Name, mobile number, treatment of interest and anything you write in the message field of our forms.</li>
-    <li><strong>Clinical data.</strong> Collected in person at consultation, not through this website. Health information is sensitive personal information and is held under stricter controls.</li>
-    <li><strong>Usage data.</strong> If analytics are enabled, pages viewed, approximate location, device and referral source — in aggregate, through Google Analytics 4 and the Meta pixel.</li>
+    <li><strong>Enquiry and booking data.</strong> Your name, mobile number, email where you give it, the treatment you are interested in, your preferred time, and anything you write in the message field of our forms or send us in a message.</li>
+    <li><strong>Assessment and clinical data.</strong> Collected in person at your consultation — your concerns, relevant medical history, medicines and allergies, skin or scalp assessment, photographs where you consent to them, the treatment plan, and records of the care you receive. Health information is <strong>sensitive personal information</strong> and is held under stricter controls (see <em>Health information</em> below).</li>
+    <li><strong>Payment data.</strong> The deposit or treatment fee you pay, the date and amount, and a payment reference (for example a GCash reference number). Card and e-wallet details are entered with, and held by, the payment provider — <strong>we do not see or store your full card number</strong>.</li>
+    <li><strong>Communications.</strong> The content of your messages and emails to us, and brief notes of calls, so we can follow up accurately.</li>
+    <li><strong>Website and device data.</strong> If analytics and advertising tools are enabled, the pages you view, approximate location, device and browser, referral source, and identifiers set by cookies and similar technologies — collected through Google Analytics 4 and the Meta pixel.</li>
   </ul>
 
-  <h2>Why we collect it</h2>
+  <h2>How we collect it</h2>
   <ul>
-    <li>To reply to your enquiry and arrange a consultation — the purpose you gave it to us for.</li>
-    <li>To deliver and record your care, where you become a client.</li>
-    <li>To understand which pages and campaigns lead to enquiries, so we spend advertising money sensibly.</li>
+    <li><strong>Directly from you</strong> — when you submit a form, message or call us, attend an assessment, or make a payment.</li>
+    <li><strong>Automatically</strong> — through cookies, the Meta pixel and analytics when you browse the site.</li>
+    <li><strong>From the platforms you reach us through</strong> — for example, when you message us or click one of our ads, Facebook, Instagram or Google may pass us limited information such as your profile name and the ad you responded to.</li>
+  </ul>
+
+  <h2>Why we use it, and our lawful basis</h2>
+  <p>Under RA 10173 we rely on one or more of these grounds:</p>
+  <ul>
+    <li><strong>To answer your enquiry and arrange your assessment</strong> — the purpose you gave the information to us for (your consent / steps taken at your request).</li>
+    <li><strong>To provide, schedule and record your care</strong>, and to administer payments for it — necessary to perform our service to you.</li>
+    <li><strong>To keep clinical, financial and tax records</strong> — to comply with a legal obligation (DOH / PRC and BIR record-keeping rules).</li>
+    <li><strong>To understand which pages and campaigns lead to enquiries</strong>, so we spend advertising money sensibly — our legitimate interest, balanced against your rights.</li>
+    <li><strong>In an emergency</strong> — to protect your life or health, where you are unable to give consent.</li>
   </ul>
   <p>
-    We do not sell your data. We do not add you to a marketing list without asking
-    you separately and explicitly.
+    We do <strong>not</strong> sell your data. We do not add you to a marketing list without asking
+    you separately and explicitly, and you can withdraw that consent at any time.
+  </p>
+
+  <h2>Payments and starting treatment</h2>
+  <p>
+    Your initial assessment is <strong>complimentary and carries no obligation</strong> — it is where
+    our doctor confirms what is suitable for you and quotes the price that applies to your plan.
+  </p>
+  <p>
+    If you decide to go ahead, <strong>treatment is scheduled and begins only after the required
+    payment has been received and confirmed</strong>. Depending on the treatment, this is either a
+    booking deposit or the quoted treatment fee, as set out to you in writing at your assessment.
+    A reservation deposit is deducted from your total bill. We will not start a procedure before
+    payment is settled.
+  </p>
+  <ul>
+    <li><strong>TODO — confirm the amount or percentage required to initiate treatment (e.g. the ₱300 reservation deposit vs. a treatment-specific deposit or the full fee).</strong></li>
+    <li><strong>TODO — confirm whether the initiation payment / deposit is refundable, and the cancellation and reschedule terms (keep consistent with the Terms of Use page).</strong></li>
+  </ul>
+  <p>
+    We collect payment information only to take and record that payment and to meet our tax and
+    accounting obligations. Payments are processed through our payment provider (for example GCash);
+    their handling of your details is governed by their own privacy policy.
+  </p>
+
+  <h2>Health information</h2>
+  <p>
+    Information about your health, skin, scalp or body is sensitive personal information. We collect
+    it only at your assessment, use it only to plan and deliver your care, limit access to the staff
+    involved in that care, and keep it under additional safeguards. Clinical photographs are taken
+    and used only with your separate, written and revocable consent, and are never published without it.
   </p>
 
   <h2>Cookies and tracking</h2>
   <p>
-    This site loads Google Analytics 4 and the Meta pixel only when those tools
-    are configured. Both set cookies. You can refuse them in your browser
-    settings without losing access to any part of the site.
-    <strong> TODO — if you serve EU visitors, add a consent banner; RA 10173 alone does not require one.</strong>
-  </p>
-
-  <h2>How long we keep it</h2>
-  <p>
-    Enquiries that do not become bookings are deleted after twelve months.
-    Clinical records are retained for the period required by DOH and PRC record
-    keeping rules. <strong>TODO — confirm the applicable retention period with counsel.</strong>
+    This site loads Google Analytics 4 and the Meta pixel only when those tools are configured. Both
+    set cookies and similar identifiers to measure traffic and the performance of our ads. You can
+    refuse or delete them in your browser settings without losing access to any part of the site, and
+    you can opt out of Google Analytics using Google's browser add-on.
+    <strong> TODO — if you serve EU/EEA or UK visitors, add a prior-consent cookie banner; RA 10173 alone does not require one, but GDPR/PECR do.</strong>
   </p>
 
   <h2>Who we share it with</h2>
   <p>
-    Our form provider, our analytics providers, and our booking or clinic
-    management system, each acting on our instructions. We do not share your
-    information with anyone else unless you ask us to, or the law requires it.
-    <strong> TODO — list each processor by name once the stack is final.</strong>
+    We share your information only with service providers who act on our instructions, and only as far
+    as they need it to do their job for us:
+  </p>
+  <ul>
+    <li><strong>Google LLC</strong> — Google Analytics 4, for website measurement.</li>
+    <li><strong>Meta Platforms, Inc.</strong> — the Meta pixel, and Facebook/Instagram messaging when you enquire through those channels.</li>
+    <li><strong>Our payment provider</strong> (for example GCash / G-Xchange, Inc.) — to take and confirm deposits and treatment payments.</li>
+    <li><strong>Our website host and our secure database and clinic-management systems</strong> — to run the site and to store enquiry and client records.</li>
+  </ul>
+  <p>
+    We do not share your information with anyone else unless you ask us to, or the law requires it (for
+    example a lawful order from a government authority).
+    <strong> TODO — confirm the final list of processors and that a data-sharing / processing agreement is signed with each, as RA 10173 requires.</strong>
+  </p>
+
+  <h2>Sending data outside the Philippines</h2>
+  <p>
+    Some of these providers (such as Google and Meta) process data on servers outside the Philippines.
+    Where that happens, your information remains protected by this policy and by RA 10173, and we use
+    providers that commit to appropriate safeguards for the data they handle on our behalf.
+  </p>
+
+  <h2>How long we keep it</h2>
+  <ul>
+    <li><strong>Enquiries that do not become bookings</strong> — deleted after twelve (12) months.</li>
+    <li><strong>Clinical records</strong> — retained for the period required by DOH and PRC record-keeping rules. <strong>TODO — confirm the exact retention period with counsel.</strong></li>
+    <li><strong>Payment and accounting records</strong> — retained for the period required by the BIR and other tax rules. <strong>TODO — confirm (commonly up to 10 years).</strong></li>
+  </ul>
+  <p>When a retention period ends, we securely delete or anonymise the information.</p>
+
+  <h2>How we protect it</h2>
+  <p>
+    We keep your information on access-controlled systems, limit who can see it to the people who need
+    it, encrypt data in transit, and take organisational measures to prevent loss or misuse. No system
+    is perfectly secure, but we take reasonable and appropriate steps as RA 10173 requires, and we will
+    notify you and the NPC of a breach where the law requires it.
+  </p>
+
+  <h2>Minors</h2>
+  <p>
+    This website is intended for adults. We assess or treat a patient under 18 only with the consent and
+    presence of a parent or legal guardian, and we collect a minor's information only on that basis.
   </p>
 
   <h2>Your rights</h2>
-  <p>Under RA 10173 you have the right to be informed, to object, to access, to correct, to erasure or blocking, to damages, and to data portability. To exercise any of these, email <a href={`mailto:${site.email}`}>{site.email}</a>. We will respond within the statutory period.</p>
-  <p>You may also lodge a complaint with the National Privacy Commission.</p>
+  <p>
+    Under RA 10173 you have the right to be informed, to object, to access, to correct, to erasure or
+    blocking, to damages, to data portability, and to withdraw a consent you have given. To exercise any
+    of these, email <a href={`mailto:${site.email}`}>{site.email}</a> or call {site.phoneDisplay}. We may
+    need to verify your identity first, and we will respond within the period the law allows.
+  </p>
+  <p>
+    If you are not satisfied with how we have handled your information, you may lodge a complaint with the
+    <strong> National Privacy Commission</strong> (privacy.gov.ph).
+  </p>
 
   <h2>Changes</h2>
-  <p>We will update this page when our practices change, and will change the date at the top when we do.</p>
+  <p>
+    We will update this page when our practices change, and will change the date at the top when we do.
+    Material changes will be made clear on this page.
+  </p>
+
+  <h2>Contact us</h2>
+  <p>
+    Questions about this policy or your information: <a href={`mailto:${site.email}`}>{site.email}</a>,
+    {site.phoneDisplay}, or {site.legalName}, {site.address.street}, {site.address.locality}.
+  </p>
 </Legal>
