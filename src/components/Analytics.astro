@@ -23,6 +23,13 @@
 // SPA double-count). ViewContent + Lead carry content_name so Events Manager
 // and dynamic-ads audiences can break down by treatment.
 //
+// BOOKING FORM (/book/…): a completed booking fires GA4 `generate_lead`
+// (method:'booking') and Meta `Schedule` — the standard event for a booked
+// appointment — directly from BookingForm.astro. It is a separate funnel from
+// the enquiry Lead below (it never passes through /thank-you/), so the two
+// never double-count. First-touch utm_* / fbclid (captured by the script just
+// below) are stamped onto the booking so the dashboard shows its campaign.
+//
 // In the GA4 UI: mark generate_lead as the key event; in Meta Events Manager
 // mark Lead as a conversion (and optionally Contact). Leave GA4 Enhanced
 // Measurement on for scroll + outbound. Do NOT make form_submit a conversion
@@ -31,6 +38,27 @@
 import { site } from '../site.config';
 const { ga4, metaPixel } = site;
 ---
+<!-- First-touch attribution — captured on every page, independent of GA4/Pixel,
+     so the booking form can record which campaign the visitor came from even
+     when the pixels are off (e.g. on localhost). Stored once per visit, so the
+     ORIGINAL landing campaign survives later param-less navigation. -->
+<script is:inline>
+  (function () {
+    try {
+      var KEY = 'tbf_attr';
+      if (sessionStorage.getItem(KEY)) return; // first touch only
+      var p = new URLSearchParams(location.search);
+      var keys = ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','fbclid','gclid'];
+      var attr = {}, got = false;
+      keys.forEach(function (k) { var v = p.get(k); if (v) { attr[k] = v.slice(0, 200); got = true; } });
+      if (got) {
+        attr.landing = location.pathname;
+        if (document.referrer) attr.ref = document.referrer.slice(0, 200);
+        sessionStorage.setItem(KEY, JSON.stringify(attr));
+      }
+    } catch (e) {}
+  })();
+</script>
 {ga4 && (
   <>
     <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${ga4}`}></script>
@@ -47,12 +75,23 @@ const { ga4, metaPixel } = site;
 {metaPixel && (
   <>
     <script is:inline define:vars={{ metaPixel }}>
-      !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-      n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
-      n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
-      t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
-      (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
-      fbq('init', metaPixel); fbq('track','PageView');
+      // The Pixel never loads on localhost / dev / LAN hosts, so test traffic
+      // and test bookings never reach the real Meta dataset. Every fbq call on
+      // the site is guarded by `if (window.fbq)`, so not initialising here
+      // disables them all (PageView, Schedule, Contact, ViewContent) in dev.
+      (function () {
+        var h = location.hostname;
+        var local = !h || h === 'localhost' || h === '127.0.0.1' || h === '::1' || h === '[::1]'
+          || /\.(localhost|local|test)$/.test(h) || h.startsWith('192.168.') || h.startsWith('10.')
+          || /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(h);
+        if (local) return;
+        !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+        n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
+        (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', metaPixel); fbq('track','PageView');
+      })();
     </script>
     <noscript set:html={`<img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=${metaPixel}&ev=PageView&noscript=1" />`} />
   </>

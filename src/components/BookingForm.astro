@@ -231,6 +231,19 @@ const ready = Boolean(site.apiBase);
       const extra = (fd.get('preMedicalText') || '').toString().trim();
       const preMedical = [meds.join('; '), extra].filter(Boolean).join(meds.length && extra ? ' — ' : '');
 
+      // Marketing attribution: prefer the first-touch value captured on landing
+      // (Analytics.astro), fall back to this page's own URL params.
+      let attribution = null;
+      try { const raw = sessionStorage.getItem('tbf_attr'); if (raw) attribution = JSON.parse(raw); } catch (_) {}
+      if (!attribution) {
+        const ap = new URLSearchParams(location.search);
+        const a = {};
+        ['utm_source','utm_medium','utm_campaign','utm_content','utm_term','utm_id','fbclid','gclid'].forEach((k) => {
+          const v = ap.get(k); if (v) a[k] = v.slice(0, 200);
+        });
+        if (Object.keys(a).length) { a.landing = location.pathname; attribution = a; }
+      }
+
       const payload = {
         name: (fd.get('name') || '').toString().trim(),
         email: (fd.get('email') || '').toString().trim(),
@@ -241,6 +254,7 @@ const ready = Boolean(site.apiBase);
         preMedical,
         consent: form.querySelector('input[name="consent"]').checked,
         source: form.dataset.source || 'booking',
+        attribution,
         _gotcha: '',
       };
 
@@ -265,7 +279,14 @@ const ready = Boolean(site.apiBase);
         form.hidden = true;
         document.getElementById('bfDone').hidden = false;
         document.getElementById('bfDone').scrollIntoView({ behavior: 'smooth', block: 'center' });
-        if (window.gtag) window.gtag('event', 'book_request', { treatment: payload.treatment });
+        // Conversion signals — a booking was completed. GA4 `generate_lead`
+        // (the key event) and Meta `Schedule` (the standard event for a booked
+        // appointment). This funnel never passes through /thank-you/, so it does
+        // not double-count the enquiry Lead fired there. fbq is absent on
+        // localhost (the Pixel is not initialised in dev), so Meta stays clean.
+        const camp = attribution && attribution.utm_campaign ? attribution.utm_campaign : undefined;
+        if (window.gtag) window.gtag('event', 'generate_lead', { method: 'booking', treatment: payload.treatment, campaign: camp });
+        if (window.fbq) window.fbq('track', 'Schedule', { content_name: payload.treatment, content_category: 'booking' });
 
         // Auto-return to the homepage after 10 seconds (visible countdown).
         let secs = 10;
