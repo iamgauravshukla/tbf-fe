@@ -110,6 +110,7 @@ const ready = Boolean(site.apiBase);
   <h2 class="bf__doneh">Booking received</h2>
   <p class="bf__donep" id="bfDoneMsg"></p>
   <a href="/" class="btn btn--ghost bf__doneback">Back to the site</a>
+  <p class="bf__doneredir" id="bfRedirect" aria-live="polite"></p>
 </div>
 
 <script define:vars={{ apiBase: site.apiBase, treatments }}>
@@ -265,6 +266,16 @@ const ready = Boolean(site.apiBase);
         document.getElementById('bfDone').hidden = false;
         document.getElementById('bfDone').scrollIntoView({ behavior: 'smooth', block: 'center' });
         if (window.gtag) window.gtag('event', 'book_request', { treatment: payload.treatment });
+
+        // Auto-return to the homepage after 10 seconds (visible countdown).
+        let secs = 10;
+        const redirEl = document.getElementById('bfRedirect');
+        redirEl.textContent = `Taking you back to the homepage in ${secs}s…`;
+        const timer = setInterval(() => {
+          secs -= 1;
+          if (secs > 0) { redirEl.textContent = `Taking you back to the homepage in ${secs}s…`; }
+          else { clearInterval(timer); redirEl.textContent = 'Redirecting…'; window.location.href = '/'; }
+        }, 1000);
       } catch (_) {
         showErr('Could not reach the server. Please try again, or message us.');
       } finally {
@@ -279,7 +290,9 @@ const ready = Boolean(site.apiBase);
   .bf { display: grid; gap: var(--s3); max-width: 560px; }
   /* `hidden` must win over display:grid when the form is swapped for the card. */
   .bf[hidden], .bf__done[hidden] { display: none !important; }
-  .bf__row { display: grid; gap: var(--s3); }
+  /* align-items:start keeps paired inputs the same height and top-aligned even
+     when one field has a hint below it (e.g. Age) and the other doesn't. */
+  .bf__row { display: grid; gap: var(--s3); align-items: start; }
   @media (min-width: 540px) { .bf__row { grid-template-columns: 1fr 1fr; } }
   .bf__field { display: grid; gap: .4rem; min-width: 0; }
   .bf__label { font-size: .6875rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--deep-teal); }
@@ -345,4 +358,5 @@ const ready = Boolean(site.apiBase);
   .bf__doneh { font-family: 'Playfair Display', serif; font-weight: 500; color: var(--deep-teal); font-size: 1.6rem; }
   .bf__donep { font-size: .9375rem; line-height: 1.7; color: var(--text-muted); margin: var(--s2) auto var(--s3); max-width: 44ch; }
   .bf__doneback { }
+  .bf__doneredir { font-size: .75rem; color: var(--text-muted); margin: var(--s2) auto 0; }
 </style>
