@@ -4,7 +4,9 @@
 //
 // EVENT MAP — one GA4 event per interaction, mapped to a Meta standard event
 // where a meaningful one exists. GA4 name → Meta event:
-//   book_click      → Schedule        header | hero | mobile_bar | treatment | …
+//   book_click      → InitiateCheckout header | hero | mobile_bar | treatment | …
+//                     (Schedule is NOT fired on a click — only on a completed
+//                      booking, from BookingForm.astro on the saved response.)
 //   call_click      → Contact         header | footer | mobile_bar | landing | auto
 //   whatsapp_click  → Contact         mobile_bar | landing | treatment | auto
 //   email_click     → Contact         contact | auto
@@ -75,23 +77,19 @@ const { ga4, metaPixel } = site;
 {metaPixel && (
   <>
     <script is:inline define:vars={{ metaPixel }}>
-      // The Pixel never loads on localhost / dev / LAN hosts, so test traffic
-      // and test bookings never reach the real Meta dataset. Every fbq call on
+      // STRICT ALLOWLIST: the Pixel loads on the canonical production host ONLY.
+      // localhost, LAN, staging, previews and the apex (pre-redirect) never load
+      // it, so no test traffic can ever reach the live dataset. Every fbq call on
       // the site is guarded by `if (window.fbq)`, so not initialising here
-      // disables them all (PageView, Schedule, Contact, ViewContent) in dev.
-      (function () {
-        var h = location.hostname;
-        var local = !h || h === 'localhost' || h === '127.0.0.1' || h === '::1' || h === '[::1]'
-          || /\.(localhost|local|test)$/.test(h) || h.startsWith('192.168.') || h.startsWith('10.')
-          || /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(h);
-        if (local) return;
+      // disables them all (PageView, Schedule, Contact, ViewContent) off-prod.
+      if (location.hostname === 'www.thebetterface.com') {
         !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
         n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
         n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
         t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}
         (window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
         fbq('init', metaPixel); fbq('track','PageView');
-      })();
+      }
     </script>
     <noscript set:html={`<img height="1" width="1" style="display:none" alt="" src="https://www.facebook.com/tr?id=${metaPixel}&ev=PageView&noscript=1" />`} />
   </>
@@ -108,7 +106,10 @@ const { ga4, metaPixel } = site;
           if (name === 'call_click' || name === 'whatsapp_click' || name === 'email_click')
             window.fbq('track', 'Contact', { method: name, content_name: params.location });
           else if (name === 'book_click')
-            window.fbq('track', 'Schedule', { content_name: params.location });
+            // A "Book" CTA click is the START of the booking journey, NOT a
+            // booking. It must never fire Schedule — that is reserved for a
+            // completed booking (fired from BookingForm on the saved response).
+            window.fbq('track', 'InitiateCheckout', { content_name: params.location });
           // form_submit / form_start / video_play stay GA-only on purpose —
           // Lead on /thank-you/ is the one conversion (see header note).
         }
