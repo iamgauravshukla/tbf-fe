@@ -1,0 +1,70 @@
+---
+import Base from '../../layouts/Base.astro';
+import BookingForm from '../../components/BookingForm.astro';
+import { site, telLink } from '../../site.config';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const all = (await getCollection('treatments', ({ data }) => !data.draft))
+    .sort((a, b) => a.data.order - b.data.order);
+  const list = all.map((t) => ({ slug: t.id, title: t.data.title }));
+  return all.map((t) => ({
+    params: { treatment: t.id },
+    props: { title: t.data.title, summary: t.data.summary || '', treatments: list },
+  }));
+}
+
+const { title, summary, treatments } = Astro.props;
+---
+<Base
+  title={`Book ${title} | The Better Face — Alabang`}
+  description={`Book ${title} at The Better Face, Alabang. Pick a date and time and we'll confirm your slot. Every treatment begins with a complimentary assessment.`}
+  path={`/book/${Astro.params.treatment}/`}
+  noindex={true}
+>
+  <section class="bk">
+    <div class="wrap bk__grid">
+      <div class="bk__intro">
+        <span class="eyebrow">Book online</span>
+        <h1>Book {title}</h1>
+        <hr class="rule" />
+        {summary && <p class="lede">{summary}</p>}
+
+        <ul class="bk__points">
+          <li><strong>Complimentary assessment.</strong> Your doctor confirms {title} is right for you — no obligation.</li>
+          <li><strong>We confirm your slot.</strong> This is a request; we'll message you to confirm the time.</li>
+          <li><strong>Private suites in Alabang.</strong> Inside Vivere Hotel, with easy parking.</li>
+        </ul>
+
+        <p class="bk__call small">
+          Prefer to talk first? Call <a href={telLink}>{site.phoneDisplay}</a>.
+        </p>
+      </div>
+
+      <div class="bk__formcard">
+        <BookingForm treatments={treatments} presetTitle={title} source="booking" />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .bk { padding-block: clamp(var(--s5), 6vw, var(--s7)); }
+  .bk__grid { display: grid; gap: var(--s5); align-items: start; }
+  @media (min-width: 900px) { .bk__grid { grid-template-columns: 1fr 1.1fr; gap: var(--s7); } }
+  .bk__intro { max-width: 34rem; }
+  .bk__points { list-style: none; padding: 0; margin: var(--s3) 0 0; display: grid; gap: var(--s2); }
+  .bk__points li { position: relative; padding-left: 1.4rem; font-size: .875rem; line-height: 1.6; color: var(--text-muted); }
+  .bk__points li::before { content: ''; position: absolute; left: 0; top: .55em; width: 7px; height: 7px; background: var(--accent); }
+  .bk__points strong { color: var(--deep-teal); font-weight: 600; }
+  .bk__call { margin-top: var(--s3); }
+  .bk__formcard {
+    background: var(--surface-raised); border: 1px solid var(--line);
+    padding: clamp(var(--s3), 4vw, var(--s5));
+  }
+  @media (max-width: 899px) {
+    .bk__grid { grid-template-columns: 1fr; }
+    .bk__intro { order: 2; }
+    .bk__formcard { order: 1; }
+  }
+</style>

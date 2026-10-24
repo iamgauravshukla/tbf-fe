@@ -50,11 +50,19 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
       <!-- BOARD (kanban) -->
       <section class="kb" id="board" aria-label="Lead board"></section>
 
+      <!-- bulk actions (admin only) -->
+      <div class="db-bulk" id="bulk" hidden>
+        <span class="db-bulk__n" id="bulkCount">0 selected</span>
+        <button class="db-btn db-btn--danger" id="bulkDelete" type="button">Delete</button>
+        <button class="db-btn db-btn--ghostdark" id="bulkClear" type="button">Clear</button>
+      </div>
+
       <!-- TABLE -->
       <section class="db-tablewrap" id="tableWrap" hidden>
         <table class="db-table">
           <thead>
             <tr>
+              <th class="db-checkcol" id="thCheck" hidden><input type="checkbox" id="checkAll" aria-label="Select all" /></th>
               <th>Received</th><th>Name</th><th>Phone</th><th>Treatment</th>
               <th>Owner</th><th>Source</th><th>Status</th><th aria-label="Details"></th>
             </tr>
@@ -89,6 +97,8 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
     if (!TOKEN) location.replace('/admin/login/');
     let ME = {};
     try { ME = JSON.parse(localStorage.getItem('tbf_user') || '{}'); } catch (_) {}
+    const isAdmin = ME.role === 'admin';
+    const picked = new Set();
 
     const STATUS_LABEL = { new:'New', contacted:'Contacted', booked:'Booked', completed:'Completed', cancelled:'Cancelled', lost:'Lost' };
     const FLOW = ['new', 'contacted', 'booked', 'completed'];
@@ -209,6 +219,7 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
       $('empty').hidden = true;
       tb.innerHTML = leads.map((l) => `
         <tr data-id="${esc(l.id)}">
+          ${isAdmin ? `<td class="db-checkcol"><input type="checkbox" class="db-check" data-pick="${esc(l.id)}" ${picked.has(l.id) ? 'checked' : ''} aria-label="Select ${esc(l.name)}" /></td>` : ''}
           <td class="db-nowrap">${fmtDate(l.receivedAt)}</td>
           <td><strong>${esc(l.name)}</strong>${l.appointmentAt?`<span class="db-appt">appt ${fmtDay(l.appointmentAt)}</span>`:''}${l.email?`<span class="db-sub"><a href="mailto:${esc(l.email)}">${esc(l.email)}</a></span>`:''}</td>
           <td><a href="tel:${esc(l.phone)}">${esc(l.phone)}</a></td>
@@ -224,6 +235,35 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
         sel.addEventListener('change', (e) => { e.stopPropagation(); setLead(sel.dataset.assign, { assignedTo: sel.value }); }));
       tb.querySelectorAll('[data-detail]').forEach((b) =>
         b.addEventListener('click', () => openDetail(b.dataset.detail)));
+      wireChecks();
+      updateBulk();
+    }
+
+    // ── bulk select + delete (admin only) ──
+    function updateBulk() {
+      if (!isAdmin) return;
+      const bar = $('bulk');
+      if (bar) bar.hidden = !(state.view === 'table' && picked.size > 0);
+      if ($('bulkCount')) $('bulkCount').textContent = picked.size + ' selected';
+      const all = $('checkAll');
+      if (all) { const boxes = [...document.querySelectorAll('.db-check')]; all.checked = boxes.length > 0 && boxes.every((b) => b.checked); }
+    }
+    function wireChecks() {
+      if (!isAdmin) return;
+      document.querySelectorAll('.db-check').forEach((c) =>
+        c.addEventListener('change', (e) => {
+          e.stopPropagation();
+          c.checked ? picked.add(c.dataset.pick) : picked.delete(c.dataset.pick);
+          updateBulk();
+        }));
+    }
+    async function bulkDelete() {
+      if (!picked.size) return;
+      if (!confirm(`Permanently delete ${picked.size} record(s)? This removes the lead/booking and its full history. This cannot be undone.`)) return;
+      const ids = [...picked];
+      const j = await api('/api/admin/leads/delete', { method: 'POST', body: JSON.stringify({ ids }) });
+      if (j.ok) { leads = leads.filter((l) => !picked.has(l.id)); picked.clear(); renderActive(); loadStats(); updateBulk(); }
+      else { alert(j.error === 'forbidden' ? 'Only an admin can delete records.' : 'Could not delete.'); }
     }
 
     const renderActive = () => (state.view === 'board' ? renderBoard() : renderRows());
@@ -264,8 +304,10 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
           <div><dt>Phone</dt><dd><a href="tel:${esc(l.phone)}">${esc(l.phone)}</a></dd></div>
           ${l.email?`<div><dt>Email</dt><dd><a href="mailto:${esc(l.email)}">${esc(l.email)}</a></dd></div>`:''}
           <div><dt>Treatment</dt><dd>${esc(l.treatment)}</dd></div>
+          ${l.age?`<div><dt>Age</dt><dd>${esc(l.age)}</dd></div>`:''}
           <div><dt>Source</dt><dd>${esc(l.source)}</dd></div>
           <div><dt>Received</dt><dd>${fmtDate(l.receivedAt)}</dd></div>
+          ${l.preMedical?`<div class="db-dl__wide"><dt>Pre-medical</dt><dd>${esc(l.preMedical)}</dd></div>`:''}
           ${l.message?`<div class="db-dl__wide"><dt>Message</dt><dd>${esc(l.message)}</dd></div>`:''}
         </dl>
 
@@ -347,7 +389,9 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
       const j = await api('/api/admin/leads?' + p.toString());
       if (!j.ok) return;
       leads = j.leads;
+      picked.clear();
       renderBoard();
+      updateBulk();
     }
 
     async function loadLeads() {
@@ -357,6 +401,7 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
       const j = await api('/api/admin/leads?' + p.toString());
       if (!j.ok) return;
       leads = j.leads; state.total = j.total;
+      picked.clear();
       renderRows();
       const start = state.total ? state.offset + 1 : 0;
       const end = Math.min(state.offset + state.limit, state.total);
@@ -378,6 +423,7 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
       $('pager').hidden = v !== 'table';
       $('fStatus').hidden = v !== 'table';
       reloadView();
+      updateBulk();
     }
 
     async function loadAgents() {
@@ -409,6 +455,18 @@ const STATUSES = ['new', 'contacted', 'booked', 'completed', 'cancelled', 'lost'
 
     if ($('userInfo')) $('userInfo').textContent = ME.name ? `${ME.name} · ${ME.role}` : (ME.email || '');
     if ((ME.role === 'admin' || ME.role === 'manager') && $('navUsers')) $('navUsers').hidden = false;
+
+    // Admin-only bulk delete of spam / test records.
+    if (isAdmin) {
+      if ($('thCheck')) $('thCheck').hidden = false;
+      if ($('checkAll')) $('checkAll').addEventListener('change', (e) => {
+        const on = e.target.checked;
+        document.querySelectorAll('.db-check').forEach((c) => { c.checked = on; on ? picked.add(c.dataset.pick) : picked.delete(c.dataset.pick); });
+        updateBulk();
+      });
+      if ($('bulkDelete')) $('bulkDelete').addEventListener('click', bulkDelete);
+      if ($('bulkClear')) $('bulkClear').addEventListener('click', () => { picked.clear(); document.querySelectorAll('.db-check').forEach((c) => (c.checked = false)); updateBulk(); });
+    }
 
     // go
     (async () => {

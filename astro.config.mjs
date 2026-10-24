@@ -23,6 +23,7 @@ export default defineConfig({
         !page.includes('/lp/') &&
         !page.includes('/thank-you/') &&
         !page.includes('/admin') &&
+        !page.includes('/book') &&
         !page.includes('/price-list') &&
         !page.includes('/404') &&
         new URL(page).pathname !== '/journal/',

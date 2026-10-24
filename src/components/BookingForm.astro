@@ -1,0 +1,348 @@
+---
+import { site } from '../site.config';
+
+interface Props {
+  /** Full treatment list for the dropdown: [{ slug, title }]. */
+  treatments: { slug: string; title: string }[];
+  /** Pre-selected treatment title (from a /book/<slug>/ page). */
+  presetTitle?: string;
+  /** Hidden source tag so bookings can be told apart in the dashboard. */
+  source?: string;
+}
+const { treatments, presetTitle = '', source = 'booking' } = Astro.props;
+const ready = Boolean(site.apiBase);
+---
+<form class="bf" id="bookForm" novalidate data-source={source}>
+  <!-- honeypot: bots fill it, humans never see it -->
+  <p class="bf__hp"><label>Leave this empty<input type="text" name="_gotcha" tabindex="-1" autocomplete="off" /></label></p>
+
+  <div class="bf__row">
+    <label class="bf__field">
+      <span class="bf__label">Full name</span>
+      <input type="text" name="name" required autocomplete="name" placeholder="Your name" />
+    </label>
+    <label class="bf__field">
+      <span class="bf__label">Mobile</span>
+      <input type="tel" name="phone" required autocomplete="tel" inputmode="tel" placeholder="09XX XXX XXXX" />
+    </label>
+  </div>
+
+  <div class="bf__row">
+    <label class="bf__field">
+      <span class="bf__label">Email</span>
+      <input type="email" name="email" required autocomplete="email" placeholder="you@email.com" />
+    </label>
+    <label class="bf__field">
+      <span class="bf__label">Age</span>
+      <input type="number" name="age" required inputmode="numeric" min="25" max="120" step="1" placeholder="25+" />
+      <span class="bf__hint">You must be 25 or older to book.</span>
+    </label>
+  </div>
+
+  <label class="bf__field">
+    <span class="bf__label">Treatment</span>
+    <select name="treatment" required>
+      <option value="" disabled selected={!presetTitle}>Choose a treatment</option>
+      {treatments.map((t) => (
+        <option value={t.title} selected={t.title === presetTitle}>{t.title}</option>
+      ))}
+      <option value="Not sure yet — advise me" selected={presetTitle === 'Not sure yet — advise me'}>Not sure yet — advise me</option>
+    </select>
+  </label>
+
+  <label class="bf__field">
+    <span class="bf__label">Preferred date</span>
+    <input type="date" name="date" required />
+  </label>
+
+  <div class="bf__field bf__slots-field">
+    <span class="bf__label">Preferred time <span class="bf__opt">· 45-min slots, Manila</span></span>
+    <p class="bf__slotshint" id="slotsHint">Choose a date, then pick a time. Clinic hours 10:00 AM – 6:00 PM.</p>
+    <div class="bf__slots" id="slots" role="radiogroup" aria-label="Available times" hidden></div>
+    <p class="bf__slotbadge" id="slotBadge" hidden role="status"></p>
+    <input type="hidden" name="slot" id="slotInput" />
+  </div>
+
+  <details class="bf__med">
+    <summary class="bf__medsum">
+      <span class="bf__medsum-t">Pre-medical information <span class="bf__opt">· optional</span></span>
+      <svg class="bf__medchev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+    </summary>
+    <div class="bf__medbody">
+      <p class="bf__medintro">
+        Tell us if any of these apply, so our doctor can plan safely — we'll go over the details at your assessment.
+      </p>
+      <div class="bf__checks">
+        <label class="bf__check"><input type="checkbox" name="med" value="Pregnant or breastfeeding" /><span>Pregnant or breastfeeding</span></label>
+        <label class="bf__check"><input type="checkbox" name="med" value="Taking medication (e.g. blood thinners, isotretinoin/Accutane, steroids)" /><span>Taking medication (blood thinners, Accutane, steroids…)</span></label>
+        <label class="bf__check"><input type="checkbox" name="med" value="Known allergies (e.g. anaesthetic, latex)" /><span>Known allergies (anaesthetic, latex…)</span></label>
+        <label class="bf__check"><input type="checkbox" name="med" value="Skin condition, active infection or recent procedure in the area" /><span>Skin condition, infection or recent procedure in the area</span></label>
+        <label class="bf__check"><input type="checkbox" name="med" value="Pacemaker, metal implants or recent surgery" /><span>Pacemaker, metal implants or recent surgery</span></label>
+        <label class="bf__check"><input type="checkbox" name="med" value="History of keloid or abnormal scarring" /><span>History of keloid / abnormal scarring</span></label>
+      </div>
+      <label class="bf__field">
+        <span class="bf__label bf__label--sm">Anything else we should know <span class="bf__opt">(optional)</span></span>
+        <textarea name="preMedicalText" rows="2" placeholder="Medications, conditions, past reactions, or questions"></textarea>
+      </label>
+    </div>
+  </details>
+
+  <label class="bf__consent">
+    <input type="checkbox" name="consent" required />
+    <span>I agree to be contacted about my booking and have read the <a href="/privacy/">privacy policy</a>.</span>
+  </label>
+
+  <p class="disclaimer">
+    This is a booking request. Every treatment begins with a complimentary assessment,
+    and your slot is confirmed by our team. Results vary between individuals.
+  </p>
+
+  <p class="bf__err" id="bfErr" role="alert" hidden></p>
+
+  <button type="submit" class="btn btn--primary bf__submit" id="bfSubmit" disabled={!ready}>
+    {ready ? 'Request booking' : 'Booking not configured'}
+  </button>
+</form>
+
+<!-- Success state, revealed after a booking is accepted -->
+<div class="bf__done" id="bfDone" hidden>
+  <div class="bf__donemark" aria-hidden="true">✓</div>
+  <h2 class="bf__doneh">Booking received</h2>
+  <p class="bf__donep" id="bfDoneMsg"></p>
+  <a href="/" class="btn btn--ghost bf__doneback">Back to the site</a>
+</div>
+
+<script define:vars={{ apiBase: site.apiBase, treatments }}>
+  const form = document.getElementById('bookForm');
+  if (form) {
+    const err = document.getElementById('bfErr');
+    const submit = document.getElementById('bfSubmit');
+    const showErr = (m) => { err.textContent = m; err.hidden = false; err.scrollIntoView({ behavior: 'smooth', block: 'center' }); };
+
+    // Minimum date = today (local).
+    const dateInput = form.querySelector('input[name="date"]');
+    const pad = (n) => String(n).padStart(2, '0');
+    const now = new Date();
+    if (dateInput) dateInput.min = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+
+    // Pre-select the treatment from the URL (?t=<slug> or ?treatment=<name>).
+    const params = new URLSearchParams(location.search);
+    const wantSlug = (params.get('t') || params.get('treatment') || '').toLowerCase().trim();
+    if (wantSlug) {
+      const match = treatments.find((t) => t.slug === wantSlug || t.title.toLowerCase() === wantSlug);
+      if (match) {
+        const sel = form.querySelector('select[name="treatment"]');
+        if (sel) sel.value = match.title;
+      }
+    }
+
+    // ── 45-minute slot picker with REAL availability (10:00 AM–6:00 PM Manila) ──
+    const slotsEl = document.getElementById('slots');
+    const slotsHint = document.getElementById('slotsHint');
+    const slotInput = document.getElementById('slotInput');
+    const slotBadge = document.getElementById('slotBadge');
+
+    const to12h = (hhmm) => {
+      const [h, m] = hhmm.split(':').map(Number);
+      const ap = h < 12 ? 'AM' : 'PM';
+      const h12 = ((h + 11) % 12) + 1;
+      return `${h12}:${String(m).padStart(2, '0')} ${ap}`;
+    };
+
+    // Availability shown only once a time is picked — as a badge, not on every button.
+    function showBadge(time, remaining, full) {
+      let cls = 'bf__slotbadge';
+      let txt;
+      if (full) { cls += ' is-wait'; txt = `${to12h(time)} is fully booked — we'll confirm your spot or add you to the waitlist.`; }
+      else if (remaining <= 1) { cls += ' is-low'; txt = `Only ${remaining} slot left at ${to12h(time)} — book now to secure it.`; }
+      else { cls += ' is-ok'; txt = `${remaining} slots left at ${to12h(time)}.`; }
+      slotBadge.className = cls;
+      slotBadge.textContent = txt;
+      slotBadge.hidden = false;
+    }
+
+    function renderSlots(data) {
+      slotInput.value = '';
+      slotBadge.hidden = true;
+      const all = data.slots || [];
+      slotsEl.innerHTML = all.map((s) => {
+        // Only PAST slots are disabled — full slots stay bookable (pending/waitlist).
+        return `<button type="button" class="bf__slot${s.past ? ' is-past' : ''}" data-time="${s.time}" data-remaining="${s.remaining}" data-full="${s.full && !s.past ? '1' : ''}" ${s.past ? 'disabled aria-disabled="true"' : ''} aria-pressed="false">
+          <span class="bf__slot-t">${to12h(s.time)}</span>
+        </button>`;
+      }).join('');
+      slotsEl.hidden = false;
+      slotsHint.textContent = 'Pick a time below.';
+      slotsEl.querySelectorAll('.bf__slot:not([disabled])').forEach((b) =>
+        b.addEventListener('click', () => {
+          slotInput.value = b.dataset.time;
+          slotsEl.querySelectorAll('.bf__slot').forEach((x) => { x.classList.remove('is-sel'); x.setAttribute('aria-pressed', 'false'); });
+          b.classList.add('is-sel'); b.setAttribute('aria-pressed', 'true');
+          showBadge(b.dataset.time, Number(b.dataset.remaining), b.dataset.full === '1');
+          err.hidden = true;
+        }));
+    }
+
+    async function loadSlots(date) {
+      slotInput.value = '';
+      slotBadge.hidden = true;
+      slotsEl.hidden = true;
+      slotsHint.textContent = 'Checking availability…';
+      try {
+        const res = await fetch(apiBase + '/api/bookings/availability?date=' + encodeURIComponent(date), { cache: 'no-store' });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) { slotsHint.textContent = 'Could not load times — please try another date.'; return; }
+        renderSlots(data);
+      } catch (_) { slotsHint.textContent = 'Could not reach the server — please try again.'; }
+    }
+
+    if (dateInput) dateInput.addEventListener('change', () => { if (dateInput.value) loadSlots(dateInput.value); });
+
+    const FIELD_MSG = {
+      name: 'Please enter your full name.',
+      email: 'Please enter a valid email address.',
+      phone: 'Please enter a valid mobile number.',
+      age: 'You must be 25 or older to book.',
+      treatment: 'Please choose a treatment.',
+      appointmentAt: 'Please choose an available time slot.',
+      appointmentPast: 'Please choose a time in the future.',
+      preMedical: 'Your note is too long.',
+      consent: 'Please agree to the privacy policy to continue.',
+    };
+
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      err.hidden = true;
+
+      const fd = new FormData(form);
+      if ((fd.get('_gotcha') || '').toString().trim() !== '') return; // bot
+
+      const date = (fd.get('date') || '').toString();
+      const time = (fd.get('slot') || '').toString();
+      if (!date) { showErr('Please choose a preferred date.'); return; }
+      if (!time) { showErr('Please choose an available time slot.'); return; }
+      // Slots are defined in Manila time (UTC+8) regardless of the visitor's device.
+      const when = new Date(`${date}T${time}:00+08:00`);
+      if (Number.isNaN(when.getTime())) { showErr('That time is not valid.'); return; }
+      if (when.getTime() < Date.now()) { showErr('That slot has passed — please choose another.'); return; }
+
+      const meds = fd.getAll('med');
+      const extra = (fd.get('preMedicalText') || '').toString().trim();
+      const preMedical = [meds.join('; '), extra].filter(Boolean).join(meds.length && extra ? ' — ' : '');
+
+      const payload = {
+        name: (fd.get('name') || '').toString().trim(),
+        email: (fd.get('email') || '').toString().trim(),
+        phone: (fd.get('phone') || '').toString().trim(),
+        age: (fd.get('age') || '').toString().trim(),
+        treatment: (fd.get('treatment') || '').toString(),
+        appointmentAt: when.toISOString(),
+        preMedical,
+        consent: form.querySelector('input[name="consent"]').checked,
+        source: form.dataset.source || 'booking',
+        _gotcha: '',
+      };
+
+      submit.disabled = true;
+      submit.textContent = 'Sending…';
+      try {
+        const res = await fetch(apiBase + '/api/bookings', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || !data.ok) {
+          const first = Array.isArray(data.errors) && data.errors.length ? data.errors[0] : null;
+          showErr(first && FIELD_MSG[first] ? FIELD_MSG[first] : 'Please check your details and try again.');
+          return;
+        }
+        // Success → swap the form for the confirmation card.
+        const whenNice = when.toLocaleString('en-PH', { timeZone: 'Asia/Manila', weekday: 'long', day: 'numeric', month: 'long', hour: 'numeric', minute: '2-digit' });
+        document.getElementById('bfDoneMsg').textContent =
+          `Thank you, ${payload.name.split(' ')[0] || ''}. We've received your request for ${payload.treatment} on ${whenNice}. A confirmation has been sent to ${payload.email}, and our team will confirm your slot shortly.`;
+        form.hidden = true;
+        document.getElementById('bfDone').hidden = false;
+        document.getElementById('bfDone').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (window.gtag) window.gtag('event', 'book_request', { treatment: payload.treatment });
+      } catch (_) {
+        showErr('Could not reach the server. Please try again, or message us.');
+      } finally {
+        submit.disabled = false;
+        submit.textContent = 'Request booking';
+      }
+    });
+  }
+</script>
+
+<style>
+  .bf { display: grid; gap: var(--s3); max-width: 560px; }
+  /* `hidden` must win over display:grid when the form is swapped for the card. */
+  .bf[hidden], .bf__done[hidden] { display: none !important; }
+  .bf__row { display: grid; gap: var(--s3); }
+  @media (min-width: 540px) { .bf__row { grid-template-columns: 1fr 1fr; } }
+  .bf__field { display: grid; gap: .4rem; min-width: 0; }
+  .bf__label { font-size: .6875rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--deep-teal); }
+  .bf__label--sm { font-size: .625rem; }
+  .bf__opt { font-weight: 400; letter-spacing: .04em; text-transform: none; color: var(--text-muted); }
+  .bf__hint { font-size: .6875rem; color: var(--text-muted); }
+  .bf input[type=text], .bf input[type=tel], .bf input[type=email], .bf input[type=number],
+  .bf input[type=date], .bf input[type=time], .bf select, .bf textarea {
+    font-family: inherit; font-size: .9375rem; color: var(--charcoal);
+    background: var(--surface-raised); border: 1px solid var(--line); border-radius: 0;
+    padding: .85rem .9rem; width: 100%; min-height: 48px;
+  }
+  .bf textarea { min-height: 56px; resize: vertical; }
+  .bf :is(input, select, textarea):focus-visible { border-color: var(--ocean-teal); outline: 2px solid rgba(22,124,136,.28); outline-offset: 0; }
+
+  /* ── slot picker (time-only buttons; availability shown in a badge on select) ── */
+  .bf__slots-field { gap: .55rem; }
+  .bf__slotshint { font-size: .75rem; color: var(--text-muted); line-height: 1.5; margin: 0; max-width: none; }
+  .bf__slots { display: grid; grid-template-columns: repeat(auto-fill, minmax(6rem, 1fr)); gap: .5rem; }
+  .bf__slot {
+    display: flex; align-items: center; justify-content: center;
+    font-family: inherit; text-align: center; cursor: pointer;
+    background: var(--surface-raised); border: 1px solid var(--line); border-radius: 0;
+    padding: .7rem .5rem; min-height: 48px; transition: border-color .15s, background-color .15s, box-shadow .15s;
+  }
+  .bf__slot:hover { border-color: var(--ocean-teal); }
+  .bf__slot-t { font-size: .875rem; font-weight: 600; color: var(--charcoal); white-space: nowrap; }
+  .bf__slot.is-sel { border-color: var(--deep-teal); background: var(--surface-sunken); box-shadow: inset 0 0 0 1px var(--deep-teal); }
+  .bf__slot.is-sel .bf__slot-t { color: var(--deep-teal); }
+  .bf__slot.is-past { opacity: .4; cursor: not-allowed; }
+  .bf__slot.is-past .bf__slot-t { text-decoration: line-through; }
+  .bf__slot.is-past:hover { border-color: var(--line); }
+  .bf__slot:focus-visible { outline: 2px solid rgba(22,124,136,.28); outline-offset: 1px; }
+
+  /* availability badge — appears only after a time is chosen */
+  .bf__slotbadge { font-size: .8125rem; line-height: 1.5; margin: 0; max-width: none; padding: .55rem .7rem; border-left: 2px solid var(--ocean-teal); background: var(--surface-sunken); color: var(--deep-teal); }
+  .bf__slotbadge.is-low { border-left-color: #C9892F; background: #FBF3E7; color: #8A5A2B; font-weight: 600; }
+  .bf__slotbadge.is-wait { border-left-color: var(--champagne); background: var(--surface-raised); color: var(--text-muted); }
+
+  /* collapsible pre-medical section (shorter form = better mobile retention) */
+  .bf__med { border: 1px solid var(--line); border-top: 2px solid var(--accent); background: var(--surface-raised); margin: 0; }
+  .bf__medsum { list-style: none; display: flex; align-items: center; justify-content: space-between; gap: .6rem; cursor: pointer; padding: .95rem; }
+  .bf__medsum::-webkit-details-marker { display: none; }
+  .bf__medsum-t { font-size: .6875rem; font-weight: 600; letter-spacing: .14em; text-transform: uppercase; color: var(--deep-teal); }
+  .bf__medchev { width: 18px; height: 18px; color: var(--text-muted); transition: transform .2s; flex: none; }
+  .bf__med[open] .bf__medchev { transform: rotate(180deg); }
+  .bf__medbody { padding: 0 .95rem .95rem; display: grid; gap: var(--s2); }
+  .bf__medintro { font-size: .8125rem; line-height: 1.6; color: var(--text-muted); max-width: none; }
+  .bf__checks { display: grid; gap: .55rem; }
+  @media (min-width: 540px) { .bf__checks { grid-template-columns: 1fr 1fr; } }
+  .bf__check { display: flex; gap: .55rem; align-items: flex-start; font-size: .8125rem; line-height: 1.5; color: var(--charcoal); cursor: pointer; }
+  .bf__check input { margin-top: .15rem; width: 16px; height: 16px; flex: none; accent-color: var(--deep-teal); }
+
+  .bf__consent { display: flex; gap: .65rem; align-items: flex-start; font-size: .75rem; line-height: 1.7; color: var(--text-muted); }
+  .bf__consent input { margin-top: .25rem; width: 16px; height: 16px; flex: none; accent-color: var(--deep-teal); }
+  .bf__err { font-size: .8125rem; color: #A0392E; background: #FBECEA; border-left: 2px solid #A0392E; padding: .6rem .8rem; }
+  .bf__submit { width: 100%; margin-top: .2rem; }
+  .bf__submit[disabled] { opacity: .5; cursor: not-allowed; }
+  .bf__hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+
+  .bf__done { max-width: 560px; text-align: center; padding: var(--s5) var(--s3); border: 1px solid var(--line); border-top: 2px solid var(--accent); background: var(--surface-raised); }
+  .bf__donemark { width: 48px; height: 48px; margin: 0 auto var(--s2); display: grid; place-items: center; border-radius: 50%; background: var(--surface-sunken); color: var(--ocean-teal); font-size: 1.4rem; font-weight: 700; }
+  .bf__doneh { font-family: 'Playfair Display', serif; font-weight: 500; color: var(--deep-teal); font-size: 1.6rem; }
+  .bf__donep { font-size: .9375rem; line-height: 1.7; color: var(--text-muted); margin: var(--s2) auto var(--s3); max-width: 44ch; }
+  .bf__doneback { }
+</style>
