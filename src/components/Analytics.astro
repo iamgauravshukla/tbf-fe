@@ -11,6 +11,10 @@
 //   whatsapp_click  → Contact         mobile_bar | landing | treatment | auto
 //   email_click     → Contact         contact | auto
 //   view_item       → ViewContent     treatment + landing pages (from a meta tag)
+//   book_page_view  → —               every /book/ page load, tagged with the
+//                     first-touch campaign/source/medium/ad-creative (GA only) —
+//                     the ad-funnel entry: count Meta visits to /book/ and break
+//                     the funnel down by campaign + utm_content creative.
 //   video_play      → —               treatment (GA only)
 //   form_start      → —               first interaction with a lead form (GA only)
 //   form_submit     → —               real submit event, carries the treatment (GA only)
@@ -38,7 +42,7 @@
 // on either platform: it fires before the API accepts the lead, so Lead on
 // /thank-you/ is the single source of truth and avoids over-reporting spend.
 import { site } from '../site.config';
-const { ga4, metaPixel } = site;
+const { ga4, metaPixel, apiBase } = site;
 ---
 <!-- First-touch attribution — captured on every page, independent of GA4/Pixel,
      so the booking form can record which campaign the visitor came from even
@@ -61,17 +65,75 @@ const { ga4, metaPixel } = site;
     } catch (e) {}
   })();
 </script>
+
+<!-- First-party, cookieless page-view beacon → our own /api/track, so the
+     dashboard's Visitors view counts every visitor, including the Meta ad clicks
+     that ad blockers / cookie refusals hide from GA4 and the Pixel. Production
+     host only (same gate as GA4/Pixel). No cookie, no IP, no PII: a per-tab
+     session id in sessionStorage, the path, the referring host, the first-touch
+     campaign and a coarse device class. sendBeacon = fire-and-forget, survives
+     the page being closed, and (text/plain) needs no CORS preflight. -->
+<script is:inline define:vars={{ apiBase }}>
+  (function () {
+    try {
+      if (location.hostname !== 'www.thebetterface.com') return;
+      if (!apiBase) return;
+      var sid = sessionStorage.getItem('tbf_sid');
+      var entry = false;
+      if (!sid) {
+        sid = (crypto.randomUUID ? crypto.randomUUID()
+          : String(Date.now()) + Math.random().toString(16).slice(2));
+        sessionStorage.setItem('tbf_sid', sid);
+        entry = true; // the session's first page = its landing page
+      }
+      var attr = {};
+      try { attr = JSON.parse(sessionStorage.getItem('tbf_attr') || '{}') || {}; } catch (e) {}
+      var refHost = '';
+      try {
+        if (document.referrer) {
+          var rh = new URL(document.referrer).hostname;
+          if (rh && rh !== location.hostname) refHost = rh;
+        }
+      } catch (e) {}
+      var ua = navigator.userAgent || '';
+      var device = /iPad|Tablet|PlayBook|Silk|Android(?!.*Mobile)/i.test(ua) ? 'tablet'
+        : /Mobi|Android|iPhone|iPod|Windows Phone/i.test(ua) ? 'mobile' : 'desktop';
+      var payload = JSON.stringify({
+        sid: sid,
+        path: location.pathname,
+        ref: refHost || undefined,
+        source: attr.utm_source,
+        medium: attr.utm_medium,
+        campaign: attr.utm_campaign,
+        content: attr.utm_content,
+        device: device,
+        entry: entry,
+      });
+      var url = apiBase + '/api/track';
+      if (navigator.sendBeacon) navigator.sendBeacon(url, payload);
+      else fetch(url, { method: 'POST', body: payload, keepalive: true, mode: 'cors' });
+    } catch (e) {}
+  })();
+</script>
 {ga4 && (
-  <>
-    <script is:inline async src={`https://www.googletagmanager.com/gtag/js?id=${ga4}`}></script>
-    <script is:inline define:vars={{ ga4 }}>
+  <script is:inline define:vars={{ ga4 }}>
+    // STRICT ALLOWLIST (same host gate as the Pixel below): GA4 loads on the
+    // canonical production host ONLY. localhost, LAN, staging, previews and the
+    // apex (pre-redirect) never load it, so dev / QA traffic can't pollute the
+    // numbers you actually report on — /book/ visit counts, bounce / engagement
+    // rate and the campaign breakdowns. Off-prod, window.gtag stays undefined,
+    // which turns every send() below into a no-op (each is guarded by it).
+    if (location.hostname === 'www.thebetterface.com') {
+      var s = document.createElement('script');
+      s.async = true;
+      s.src = 'https://www.googletagmanager.com/gtag/js?id=' + ga4;
+      document.head.appendChild(s);
       window.dataLayer = window.dataLayer || [];
-      function gtag(){ dataLayer.push(arguments); }
-      window.gtag = gtag;
+      window.gtag = function () { dataLayer.push(arguments); };
       gtag('js', new Date());
       gtag('config', ga4);
-    </script>
-  </>
+    }
+  </script>
 )}
 
 {metaPixel && (
@@ -133,8 +195,31 @@ const { ga4, metaPixel } = site;
           content_type: 'product',
         });
       }
-      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fireView);
-      else fireView();
+      // Book-funnel entry — a dedicated GA4 event on every /book/ page load,
+      // stamped with the first-touch campaign (utm_*) from tbf_attr. It lets GA4
+      // count ad-driven booking-page visits and break the funnel
+      // (book_page_view → book_click → generate_lead) down by campaign AND by ad
+      // creative (utm_content) in a single Exploration — which the raw page_view
+      // + session attribution can't do cleanly. Fired on load with no
+      // engagement_time, so it never flips a session to "engaged": bounce rate
+      // stays honest. GA-only (Meta already gets its PageView).
+      function fireBookView() {
+        if (!window.gtag) return;
+        if (!/^\/book(\/|$)/.test(location.pathname)) return;
+        var a = {};
+        try { a = JSON.parse(sessionStorage.getItem('tbf_attr') || '{}') || {}; } catch (e) {}
+        window.gtag('event', 'book_page_view', {
+          page: location.pathname,
+          campaign: a.utm_campaign,
+          source: a.utm_source,
+          medium: a.utm_medium,
+          content: a.utm_content,
+        });
+      }
+
+      function onReady() { fireView(); fireBookView(); }
+      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', onReady);
+      else onReady();
 
       // One delegated listener for every CTA — annotated first, then the
       // automatic fallback for contact links that carry no data-ev.

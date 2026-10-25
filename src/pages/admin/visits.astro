@@ -1,0 +1,159 @@
+---
+import Admin from '../../layouts/Admin.astro';
+import AdminNav from '../../components/admin/AdminNav.astro';
+import AdminSkeleton from '../../components/admin/AdminSkeleton.astro';
+import { site } from '../../site.config';
+---
+<Admin title="Visitors">
+  <div class="dash" hidden id="dash">
+    <AdminNav active="visitors" heading="Visitors" />
+
+    <main class="db-main">
+      <section class="db-tools">
+        <span class="db-user" id="rangeLabel" style="text-transform:none"></span>
+        <div class="an-range" role="group" aria-label="Date range">
+          <button class="an-range__b" data-days="7" type="button">7 days</button>
+          <button class="an-range__b is-on" data-days="30" type="button">30 days</button>
+          <button class="an-range__b" data-days="90" type="button">90 days</button>
+        </div>
+      </section>
+
+      <p class="an-empty" id="forbidden" hidden>Visitor analytics is available to managers and admins.</p>
+
+      <!-- headline KPIs -->
+      <section class="kpi" id="kpi" aria-label="Summary"></section>
+
+      <div class="an-grid">
+        <!-- visitors over time -->
+        <section class="an-card an-card--wide">
+          <h2 class="an-card__h">Visitors over time</h2>
+          <div id="chart"></div>
+        </section>
+
+        <!-- top pages -->
+        <section class="an-card">
+          <h2 class="an-card__h">Top pages</h2>
+          <div id="topPages"></div>
+        </section>
+
+        <!-- traffic sources -->
+        <section class="an-card">
+          <h2 class="an-card__h">Traffic sources</h2>
+          <div id="bySource"></div>
+        </section>
+
+        <!-- campaigns -->
+        <section class="an-card">
+          <h2 class="an-card__h">Campaigns</h2>
+          <div id="byCampaign"></div>
+        </section>
+
+        <!-- devices -->
+        <section class="an-card">
+          <h2 class="an-card__h">Devices</h2>
+          <div id="byDevice"></div>
+        </section>
+
+        <!-- landing pages -->
+        <section class="an-card an-card--wide">
+          <h2 class="an-card__h">Top landing pages <span class="an-sub">where visitors arrive — your ad entry points</span></h2>
+          <div id="topLanding"></div>
+        </section>
+      </div>
+    </main>
+  </div>
+  <AdminSkeleton />
+
+  <script define:vars={{ apiBase: site.apiBase }}>
+    const TOKEN = localStorage.getItem('tbf_token');
+    if (!TOKEN) location.replace('/admin/login/');
+    let ME = {}; try { ME = JSON.parse(localStorage.getItem('tbf_user') || '{}'); } catch (_) {}
+
+    const $ = (id) => document.getElementById(id);
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+    const fmtD = (iso) => new Date(iso).toLocaleDateString('en-GB', { day:'2-digit', month:'short' });
+    // Friendly labels for the source/campaign placeholders the API emits.
+    const SRC_LABEL = { direct: 'Direct / none', meta: 'Meta (Facebook / IG)', google: 'Google' };
+    const srcLabel = (k) => SRC_LABEL[k] || k;
+    const campLabel = (k) => (k === '(none)' ? 'No campaign' : k);
+    const DEVICE_LABEL = { mobile: 'Mobile', tablet: 'Tablet', desktop: 'Desktop' };
+    let days = 30;
+
+    async function api(path) {
+      const res = await fetch(apiBase + path, { headers: { authorization: 'Bearer ' + TOKEN } });
+      if (res.status === 401) { localStorage.removeItem('tbf_token'); location.replace('/admin/login/'); throw new Error('unauth'); }
+      if (window.tbfSynced) window.tbfSynced();
+      return res.json();
+    }
+
+    function renderKpis(a) {
+      const tiles = [
+        { k:'Visitors', v:a.visitors }, { k:'Page views', v:a.pageviews },
+        { k:'/book/ views', v:a.bookViews }, { k:'Bounce rate', v:a.bounceRate + '%' },
+        { k:'Pages / visit', v:a.pagesPerVisit },
+      ];
+      $('kpi').innerHTML = tiles.map((t) => `<div class="kpi__i"><span class="kpi__v">${t.v}</span><span class="kpi__k">${t.k}</span></div>`).join('');
+    }
+
+    function renderChart(series) {
+      if (!series.length) { $('chart').innerHTML = '<p class="an-empty">No data.</p>'; return; }
+      const max = Math.max(1, ...series.map((d) => d.count));
+      const bars = series.map((d) => `<div class="chart__bar" title="${d.date}: ${d.count}"><div class="chart__fill" style="height:${Math.round((d.count / max) * 100)}%"></div></div>`).join('');
+      $('chart').innerHTML = `<div class="chart">${bars}</div>
+        <div class="chart-x"><span>${fmtD(series[0].date)}</span><span>${max} max/day</span><span>${fmtD(series[series.length-1].date)}</span></div>`;
+    }
+
+    function renderBList(elId, items, labelFn) {
+      const el = $(elId);
+      if (!items || !items.length) { el.innerHTML = '<p class="an-empty">No data.</p>'; return; }
+      const max = Math.max(1, ...items.map((i) => i.count));
+      el.innerHTML = '<div class="blist">' + items.map((i) => `
+        <div class="blist__row">
+          <div class="blist__top"><span class="blist__label">${esc(labelFn ? labelFn(i.key) : i.key)}</span><span class="blist__val">${i.count}</span></div>
+          <div class="blist__track"><div class="blist__fill" style="width:${Math.round((i.count / max) * 100)}%"></div></div>
+        </div>`).join('') + '</div>';
+    }
+
+    async function load() {
+      const to = new Date();
+      const from = new Date(Date.now() - (days - 1) * 86400000);
+      const iso = (d) => d.toISOString().slice(0, 10);
+      const j = await api(`/api/admin/visits?from=${iso(from)}&to=${iso(to)}`);
+      if (!j.ok) {
+        // Agents don't get traffic analytics — show a clear note, hide the grid.
+        if (j.error === 'forbidden') {
+          $('forbidden').hidden = false;
+          document.querySelector('.an-grid').hidden = true;
+          $('kpi').hidden = true;
+          document.querySelector('.db-tools').hidden = true;
+        }
+        return;
+      }
+      $('rangeLabel').textContent = `${fmtD(j.range.from)} – ${fmtD(j.range.to)}`;
+      renderKpis(j);
+      renderChart(j.overTime);
+      renderBList('topPages', j.topPages);
+      renderBList('bySource', j.bySource, srcLabel);
+      renderBList('byCampaign', j.byCampaign, campLabel);
+      renderBList('byDevice', j.byDevice, (k) => DEVICE_LABEL[k] || k);
+      renderBList('topLanding', j.topLanding);
+    }
+
+    // range buttons
+    document.querySelectorAll('[data-days]').forEach((b) => b.addEventListener('click', () => {
+      days = Number(b.dataset.days);
+      document.querySelectorAll('[data-days]').forEach((x) => x.classList.toggle('is-on', x === b));
+      load();
+    }));
+
+    // shared header
+    if ($('userInfo')) $('userInfo').textContent = ME.name ? `${ME.name} · ${ME.role}` : (ME.email || '');
+    $('refreshBtn').addEventListener('click', load);
+    $('logoutBtn').addEventListener('click', () => { localStorage.removeItem('tbf_token'); localStorage.removeItem('tbf_user'); location.replace('/admin/login/'); });
+
+    (async () => {
+      try { await load(); $('loading').hidden = true; $('dash').hidden = false; }
+      catch (e) { if (e.message !== 'unauth') $('loading').textContent = 'Could not reach the API.'; }
+    })();
+  </script>
+</Admin>

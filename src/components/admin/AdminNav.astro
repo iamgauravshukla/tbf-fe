@@ -5,13 +5,14 @@
 // are toggled here so every page gets them. Pages report a successful API
 // roundtrip via window.tbfSynced() and the freshness line keeps itself current.
 import { site } from '../../site.config';
-interface Props { active: 'leads' | 'bookings' | 'analytics' | 'blog' | 'tasks' | 'team'; heading: string }
+interface Props { active: 'leads' | 'bookings' | 'analytics' | 'visitors' | 'blog' | 'tasks' | 'team'; heading: string }
 const { active, heading } = Astro.props;
 
 const ICONS: Record<string, string> = {
   leads: '<path d="M16 11a4 4 0 1 0-4-4 4 4 0 0 0 4 4Zm-8 1a3 3 0 1 0-3-3 3 3 0 0 0 3 3Zm0 2c-2.7 0-5 1.3-5 3.5V20h6"/><path d="M16 13c-3 0-6 1.5-6 4v3h12v-3c0-2.5-3-4-6-4Z"/>',
   bookings: '<rect x="3" y="4" width="18" height="17" rx="2"/><path d="M3 9h18M8 2v4M16 2v4"/>',
   analytics: '<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+  visitors: '<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7Z"/><circle cx="12" cy="12" r="3"/>',
   tasks: '<path d="M4 6h16M4 12h16M4 18h10"/><path d="M19 15l2 2 3-4" transform="translate(-4 0)"/>',
   blog: '<path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/>',
   team: '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13A4 4 0 0 1 16 11"/>',
@@ -21,6 +22,7 @@ const links = [
   { key: 'leads', href: '/admin/', label: 'Leads' },
   { key: 'bookings', href: '/admin/bookings/', label: 'Bookings' },
   { key: 'analytics', href: '/admin/analytics/', label: 'Analytics' },
+  { key: 'visitors', href: '/admin/visits/', label: 'Visitors', id: 'navVisitors', gated: true },
   { key: 'tasks', href: '/admin/tasks/', label: 'Tasks' },
   { key: 'blog', href: '/admin/blog/', label: 'Blog', id: 'navBlog', gated: true },
   { key: 'team', href: '/admin/users/', label: 'Team', id: 'navUsers', gated: true },
@@ -83,6 +85,7 @@ const links = [
       if (u.role === 'admin' || u.role === 'manager') {
         var b = document.getElementById('navBlog'); if (b) b.hidden = false;
         var t = document.getElementById('navUsers'); if (t) t.hidden = false;
+        var v = document.getElementById('navVisitors'); if (v) v.hidden = false;
       }
       // Avatar initials from the signed-in user.
       var av = document.getElementById('userAvatar');
