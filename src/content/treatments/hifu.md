@@ -1,13 +1,11 @@
 ---
-title: "7D & 12D HIFU Lift"
-seoTitle: "7D & 12D HIFU Lift | Non-Surgical Skin Tightening | The Better Face"
-metaDescription: "7D and 12D HIFU at The Better Face: focused ultrasound to firm the jawline, V-line and full face without surgery. We advise which tier at consultation."
+title: "HIFU Lift"
+seoTitle: "HIFU Lift | Non-Surgical Skin Tightening | The Better Face"
+metaDescription: "HIFU at The Better Face: focused ultrasound to firm the jawline, V-line and full face without surgery. Delivered by a licensed clinician."
 group: "Skin"
 category: "Aesthetics"
-summary: "Focused ultrasound delivered beneath the skin to support collagen and improve firmness, lift and facial contour — without surgery or injectables. Choose 7D, our entry lift, or 12D, which works at more depths in one session."
+summary: "Focused ultrasound delivered beneath the skin to support collagen and improve firmness, lift and facial contour — without surgery or injectables. For the jawline and V-line, or the full face."
 priceFrom: 10000
-promoPrice: 1499
-promoScope: "Jawline / V-line · 7D"
 priceUnit: session
 duration: "60–90 minutes"
 course: "Usually one session, reviewed at 12 weeks"
@@ -49,14 +47,12 @@ the months that follow.
 It remodels collagen slowly, so the result builds rather than appears. Anyone
 promising an instant facelift from a machine is overselling it.
 
-## 7D or 12D?
+## Jawline or full face?
 
-Both are HIFU — the number is how many depths the device treats. **7D** is our
-entry lift for the jawline and V-line, at ₱10,000 per session (first-visit promo
-₱1,499). **12D** works at more depths in one session: jawline and V-line at
-₱14,000 (first-visit promo ₱1,999), or the full face and jawline at ₱20,000
-(first-visit promo ₱3,999). Which tier suits your skin is a clinical call — we
-advise at your free consultation, not at the till.
+HIFU can be focused on the **jawline and V-line** to sharpen definition and soften
+early jowling, or run across the **full face and jawline** when you want an all-over
+lift. Which suits your skin — and the depth and energy the device is set to — is a
+clinical call your clinician makes at your free consultation, not a fixed setting.
 
 ## What to expect
 

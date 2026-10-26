@@ -6,8 +6,6 @@ group: "Skin"
 category: "Aesthetics"
 summary: "A multi-step deep-cleansing facial — cleanse, exfoliate, extract and hydrate — that leaves skin fresh, plump and glowing, with no downtime."
 priceFrom: 12000
-promoPrice: 999
-promoScope: "First visit"
 priceUnit: session
 duration: "45–60 minutes"
 course: "Monthly for maintenance, or before an event"

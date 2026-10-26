@@ -9,7 +9,9 @@
 // from the sitemap filter, and link it from Header/Footer.
 //
 // >>> SINGLE SOURCE OF PRICES <<<  Update the arrays below and rebuild.
-// Figures ported from "TBF Price List Client – New Combo" (Vivere Hotel Alabang, 17 Oct 2026).
+// Figures ported from "TBF Price List Client" (Vivere Hotel Alabang, 26 Oct 2026):
+// regular single-treatment rates and multi-session packages only. No first-visit
+// promos or combo offers on the site, by request.
 // All prices in PHP.
 // ============================================================================
 import Base from '../layouts/Base.astro';
@@ -18,67 +20,51 @@ import { site, messengerLink, telLink } from '../site.config';
 const peso = (n: number) => '₱' + n.toLocaleString('en-PH');
 
 // ── Single treatments ─────────────────────────────────────────────────────
-// regular = standard rate per session/area · promo = first-visit promo price
+// regular = standard rate per session/area
 const singles: {
   group: string;
-  items: { name: string; desc: string; regular: number; promo: number; promoNote: string }[];
+  items: { name: string; desc: string; regular: number }[];
 }[] = [
   {
     group: 'Hair & Scalp',
     items: [
-      { name: 'Scalp Detox for Dandruff', desc: 'Deep-cleanse, de-flake & soothe · per session', regular: 12000, promo: 799, promoNote: 'First session' },
-      { name: 'PDRN Hair Regrowth (Salmon DNA)', desc: 'Salmon DNA follicle-stimulation therapy · per session', regular: 18500, promo: 1499, promoNote: 'First session' },
-      { name: 'Exosome Hair Regrowth (Needle-Free)', desc: 'Topical exosome scalp care · no needles · per session', regular: 20000, promo: 1299, promoNote: 'First session' },
-      { name: 'PRP · Scalp Hair Regrowth or PRP Facial', desc: "Client's own plasma · face or scalp · per session", regular: 22000, promo: 1999, promoNote: 'One area' },
+      { name: 'Scalp Detox for Dandruff', desc: 'Deep-cleanse, de-flake & soothe · per session', regular: 12000 },
+      { name: 'PDRN Hair Regrowth (Salmon DNA)', desc: 'Salmon DNA follicle-stimulation therapy · per session', regular: 18500 },
+      { name: 'Exosome Hair Regrowth (Needle-Free)', desc: 'Topical exosome scalp care · no needles · per session', regular: 20000 },
+      { name: 'PRP · Scalp Hair Regrowth or PRP Facial', desc: "Client's own plasma · face or scalp · per session", regular: 22000 },
     ],
   },
   {
     group: 'Facials & Skin Correction',
     items: [
-      { name: 'Hydra Glow Facial', desc: 'Cleanse, exfoliate, extract & hydrate · per session', regular: 12000, promo: 999, promoNote: 'First visit' },
-      { name: 'Acne Clear Facial', desc: 'Deep cleanse, extraction & calming care · per session', regular: 4500, promo: 799, promoNote: 'First visit' },
-      { name: 'Chemical Peel', desc: 'Brightening / acne / texture peel · per session', regular: 4000, promo: 899, promoNote: 'First visit' },
-      { name: 'CO₂ Fractional Laser', desc: 'Scars, pores, texture · full face · per session', regular: 25000, promo: 1499, promoNote: 'First session · full face' },
-      { name: 'Pico Laser · Non-Invasive Melasma Treatment', desc: 'Melasma, dark spots, uneven tone · customised pigment program · per session', regular: 18000, promo: 1299, promoNote: 'First session' },
-      { name: 'Warts Removal', desc: 'Superficial growths, after assessment · per area', regular: 8000, promo: 1499, promoNote: 'Unlimited suitable warts · face or neck' },
-      { name: 'Pimple Injection', desc: 'Flattens stubborn pimples fast · per injection', regular: 900, promo: 200, promoNote: 'Per pimple · first visit' },
+      { name: 'Hydra Glow Facial', desc: 'Cleanse, exfoliate, extract & hydrate · per session', regular: 12000 },
+      { name: 'Acne Clear Facial', desc: 'Deep cleanse, extraction & calming care · per session', regular: 4500 },
+      { name: 'Chemical Peel', desc: 'Brightening / acne / texture peel · per session', regular: 4000 },
+      { name: 'CO₂ Fractional Laser', desc: 'Scars, pores, texture · full face · per session', regular: 25000 },
+      { name: 'Pico Laser · Non-Invasive Melasma Treatment', desc: 'Melasma, dark spots, uneven tone · customised pigment program · per session', regular: 18000 },
+      { name: 'Warts Removal', desc: 'Superficial growths, after assessment · per area', regular: 8000 },
+      { name: 'Pimple Injection', desc: 'Flattens stubborn pimples fast · per injection', regular: 900 },
     ],
   },
   {
     group: 'Lift, Contour & Body',
     items: [
-      { name: '12D HIFU Lift · Jawline & V-line', desc: '12-depth focused ultrasound · lift & firm · per session', regular: 14000, promo: 1999, promoNote: 'Jawline / V-line' },
-      { name: '12D HIFU Lift · Full Face', desc: 'Full face & jawline · per session', regular: 20000, promo: 3999, promoNote: 'Full face' },
-      { name: '7D HIFU Lift · Jawline & V-line', desc: '7-depth focused ultrasound · per session', regular: 10000, promo: 1499, promoNote: 'Jawline / V-line' },
-      { name: 'Exilis Treatment', desc: 'Tightening / contouring · per area', regular: 18000, promo: 1499, promoNote: 'One area' },
-      { name: 'Radio Frequency (RF)', desc: 'Skin tightening & contour · face or body · per area', regular: 6000, promo: 499, promoNote: 'One area' },
-      { name: 'Barbie Slimming Arms', desc: 'Customised upper-arm contour · per session', regular: 15000, promo: 999, promoNote: 'First session' },
+      { name: 'HIFU Lift · Jawline & V-line', desc: 'Focused ultrasound · lift & firm · per session', regular: 10000 },
+      { name: 'HIFU Lift · Full Face', desc: 'Full face & jawline · per session', regular: 15000 },
+      { name: 'Exilis Treatment', desc: 'Tightening / contouring · per area', regular: 18000 },
+      { name: 'Radio Frequency (RF)', desc: 'Skin tightening & contour · face or body · per area', regular: 6000 },
+      { name: 'Barbie Slimming Arms', desc: 'Customised upper-arm contour · per session', regular: 15000 },
     ],
   },
   {
     group: 'Wellness',
     items: [
-      { name: 'Glutathione IV Drip', desc: 'Antioxidant drip, after screening · per session', regular: 6500, promo: 799, promoNote: 'First drip' },
+      { name: 'Glutathione IV Drip', desc: 'Antioxidant drip, after screening · per session', regular: 6500 },
     ],
   },
 ];
 
-// ── Combo offers (first-visit price for two+ treatments in one visit) ───────
-const combos: {
-  name: string; tag: string; parts: [string, number][]; value: number; price: number; bestFor: string;
-}[] = [
-  { name: 'Head-to-Face Reset', tag: 'Scalp detox, regrowth, then a glow', parts: [['Scalp Detox for Dandruff', 12000], ['Needle-free Exosome', 20000], ['Hydra Glow Facial', 12000]], value: 44000, price: 1999, bestFor: 'Dandruff, thinning hair, tired skin' },
-  { name: 'Hair Regrowth Power Trio', tag: 'Clean scalp, PRP roots, exosome boost', parts: [['Scalp Detox for Dandruff', 12000], ['PRP · Scalp', 22000], ['Needle-free Exosome', 20000]], value: 54000, price: 2499, bestFor: 'Hair fall, thinning, dandruff' },
-  { name: 'Lift & Glow Trio', tag: '12D lift, hydra glow, RF firming', parts: [['12D HIFU · Jawline & V-line', 14000], ['Hydra Glow Facial', 12000], ['Radio Frequency (RF) · face', 6000]], value: 32000, price: 2499, bestFor: 'Jawline lift plus fresh, firm skin' },
-  { name: 'Melasma & Glow Trio', tag: 'Pico for pigment, hydra, glow drip', parts: [['Pico Laser · Melasma', 18000], ['Hydra Glow Facial', 12000], ['Glutathione IV Drip', 6500]], value: 36500, price: 1999, bestFor: 'Melasma, dark spots, dull skin' },
-  { name: 'Acne Rescue Trio', tag: 'Clear breakouts, flatten pimples, hydrate', parts: [['Acne Clear Facial', 4500], ['3 × Pimple Injection', 2700], ['Hydra Glow Facial', 12000]], value: 19200, price: 1499, bestFor: 'Active breakouts, clogged pores' },
-  { name: '12D Lift & Resurface', tag: '12D lift, then laser renewal', parts: [['12D HIFU · Jawline & V-line', 14000], ['CO₂ Fractional Laser', 25000]], value: 39000, price: 2999, bestFor: 'Acne scars, pores, loose skin' },
-  { name: 'Arms, Tummy & Jaw Sculpt', tag: 'Three areas in one visit', parts: [['Barbie Slimming Arms', 15000], ['Exilis · tummy', 18000], ['7D HIFU · Jawline & V-line', 10000]], value: 43000, price: 2499, bestFor: 'Upper arms, tummy, soft jawline' },
-  { name: 'First-Visit Glow Pass', tag: 'Four treatments to try us out', parts: [['Chemical Peel', 4000], ['Glutathione IV Drip', 6500], ['Radio Frequency (RF)', 6000], ['Pimple Injection', 900]], value: 17400, price: 1299, bestFor: 'First-timers, quick refresh' },
-  { name: 'The Better Face', tag: 'Signature 4-in-1 experience', parts: [['12D HIFU · Full Face', 20000], ['Hydra Glow Facial', 12000], ['Glutathione IV Drip', 6500], ['Hyaluronic Skin Booster', 25000]], value: 63500, price: 5499, bestFor: 'Special occasions · book 4+ weeks ahead' },
-];
-
-// ── Session packages (available any time, not only first visit) ─────────────
+// ── Session packages (available any time) ───────────────────────────────────
 const packages: {
   group: string;
   items: { name: string; desc: string; sessions: number; value: number; price: number; per: number }[];
@@ -105,7 +91,7 @@ const packages: {
   {
     group: 'Lift & Body',
     items: [
-      { name: '12D HIFU Year Plan', desc: '2 × 12D HIFU full face (6 mos apart)', sessions: 2, value: 40000, price: 29999, per: 15000 },
+      { name: 'HIFU Year Plan', desc: '2 × HIFU full face (6 mos apart)', sessions: 2, value: 30000, price: 21999, per: 11000 },
       { name: 'Exilis 6', desc: '6 × Exilis, per area', sessions: 6, value: 108000, price: 69999, per: 11666 },
       { name: 'Barbie Arms 6', desc: '6 × Barbie Slimming Arms', sessions: 6, value: 90000, price: 57999, per: 9666 },
       { name: 'Body Contour Program', desc: '6 × Barbie Arms + 6 × Exilis + 6 × RF · scheduled by your clinician', sessions: 18, value: 234000, price: 116999, per: 6500 },
@@ -123,7 +109,7 @@ const packages: {
 ---
 <Base
   title="Price List | The Better Face — Alabang"
-  description="Treatment menu and prices for The Better Face, Alabang: single treatments, first-visit promos, combo offers and multi-session packages. Prices in PHP."
+  description="Treatment menu and prices for The Better Face, Alabang: regular single-treatment rates and multi-session packages. Prices in PHP."
   path="/price-list/"
   noindex={true}
 >
@@ -133,7 +119,6 @@ const packages: {
   <nav class="jump" aria-label="Price list sections">
     <div class="wrap jump__in">
       <a href="#single">Treatments</a>
-      <a href="#combos">Combos</a>
       <a href="#packages">Packages</a>
     </div>
   </nav>
@@ -143,7 +128,7 @@ const packages: {
     <div class="wrap">
       <div class="cat-head">
         <h2>Single Treatments</h2>
-        <p class="small">Per session or area. The teal price is your first-visit promo — one promo per treatment, first visit only — with the regular rate beneath it. Packages save 25–50% on regular prices.</p>
+        <p class="small">Our standard rate per session or area. Every treatment starts with a free consultation. Session packages save 25–50% on these regular prices.</p>
       </div>
 
       {singles.map((grp) => (
@@ -155,12 +140,9 @@ const packages: {
                 <div class="item__info">
                   <span class="item__name">{it.name}</span>
                   <span class="item__desc">{it.desc}</span>
-                  <span class="item__note">{it.promoNote}</span>
                 </div>
                 <div class="item__price">
-                  <span class="item__plabel">first visit</span>
-                  <span class="item__promo">{peso(it.promo)}</span>
-                  <span class="item__reg">{peso(it.regular)}</span>
+                  <span class="item__reg-now">{peso(it.regular)}</span>
                 </div>
               </li>
             ))}
@@ -171,55 +153,14 @@ const packages: {
       <div class="notes">
         <div class="notes__item"><strong>Consultation first.</strong> Every treatment follows a free consultation. Our clinician assesses suitability for IV drips, PRP, PDRN, lasers and wart removal.</div>
         <div class="notes__item"><strong>Results vary.</strong> Treatments help improve the appearance of skin, scalp and body concerns. Individual results and the number of sessions needed vary.</div>
-        <div class="notes__item"><strong>7D or 12D HIFU?</strong> 12D works at more depths in one session; 7D is our entry lift. We'll advise which suits you at your consultation.</div>
+        <div class="notes__item"><strong>Needle-free exosomes.</strong> Our exosome scalp treatment is topical and needle-free.</div>
         <div class="notes__item"><strong>Booking.</strong> Message us your name and mobile number. No deposit needed — we'll send a booking card and reminders.</div>
       </div>
     </div>
   </section>
 
-  <!-- ░░ Combo offers ░░ -->
-  <section class="section sunken" id="combos">
-    <div class="wrap">
-      <div class="cat-head">
-        <h2>Combo Offers</h2>
-        <p class="small">
-          Two or more treatments, one visit, one price. Combo prices are for your
-          first visit; “value” is what the same treatments cost separately.
-        </p>
-      </div>
-
-      <div class="grid g-2 g-3 combos">
-        {combos.map((c) => (
-          <article class="combo" data-reveal>
-            <header class="combo__head">
-              <h3 class="combo__name">{c.name}</h3>
-              <p class="combo__tag">{c.tag}</p>
-            </header>
-            <ul class="combo__parts">
-              {c.parts.map((p) => (
-                <li><span>{p[0]}</span><span class="combo__partp">{peso(p[1])}</span></li>
-              ))}
-              <li class="combo__value"><span>Value</span><span class="combo__partp">{peso(c.value)}</span></li>
-            </ul>
-            <div class="combo__price">
-              <span class="combo__plabel">Combo price</span>
-              <span class="combo__pval">{peso(c.price)}</span>
-            </div>
-            <p class="combo__best"><span>Best for</span> {c.bestFor}</p>
-          </article>
-        ))}
-      </div>
-
-      <div class="notes">
-        <div class="notes__item"><strong>One promo per treatment.</strong> If you have availed a single-treatment promo, any combo that includes that same treatment is no longer available to you, and vice versa.</div>
-        <div class="notes__item"><strong>Clinician-planned.</strong> Treatments are scheduled in a safe order on the same day, or within 14 days where your clinician advises.</div>
-        <div class="notes__item"><strong>First visit only.</strong> One combo per client. Combos cannot be used together with other promos or discounts.</div>
-      </div>
-    </div>
-  </section>
-
   <!-- ░░ Session packages ░░ -->
-  <section class="section" id="packages">
+  <section class="section sunken" id="packages">
     <div class="wrap">
       <div class="cat-head">
         <h2>Session Packages</h2>
@@ -265,7 +206,6 @@ const packages: {
       <div class="notes">
         <div class="notes__item"><strong>Easy payment.</strong> 0% instalment via credit card on packages ₱5,000 and up (3 months) and ₱15,000 and up (6 months).</div>
         <div class="notes__item"><strong>Validity.</strong> Sessions are valid for 12 months from purchase. Packages are non-transferable and non-refundable once started.</div>
-        <div class="notes__item"><strong>Credit from first visit.</strong> Any first-visit offer or combo paid is deducted when you buy a package within 7 days.</div>
       </div>
     </div>
   </section>
@@ -296,7 +236,7 @@ const packages: {
 
 <style>
   /* anchors clear the sticky site header + sticky jump index */
-  #single, #combos, #packages { scroll-margin-top: 120px; }
+  #single, #packages { scroll-margin-top: 120px; }
 
   /* ── Slim sticky section index ───────────────────────────────── */
   .jump {
@@ -335,44 +275,11 @@ const packages: {
   .item__info { min-width: 0; }
   .item__name { display: block; font-weight: 600; font-size: 1rem; color: var(--charcoal); line-height: 1.4; }
   .item__desc { display: block; font-size: var(--f-small); color: var(--text-muted); line-height: 1.6; margin-top: .25rem; max-width: 46ch; }
-  .item__note {
-    display: inline-block; margin-top: .5rem; font-size: var(--f-micro); letter-spacing: .08em; text-transform: uppercase;
-    color: var(--ocean-teal); background: var(--surface-sunken); padding: .2rem .5rem; border-radius: 2px; line-height: 1.5;
-  }
   .item__price { flex: none; text-align: right; display: flex; flex-direction: column; align-items: flex-end; min-width: 6rem; }
-  .item__plabel { font-size: var(--f-micro); letter-spacing: .16em; text-transform: uppercase; color: var(--text-muted); line-height: 1; }
-  .item__promo {
-    font-family: 'Playfair Display', serif; font-weight: 500; font-size: 1.55rem; color: var(--ocean-teal);
-    line-height: 1.15; white-space: nowrap; margin-top: .15rem;
+  .item__reg-now {
+    font-family: 'Playfair Display', serif; font-weight: 500; font-size: 1.55rem; color: var(--deep-teal);
+    line-height: 1.15; white-space: nowrap;
   }
-  .item__reg {
-    font-size: var(--f-small); color: var(--text-muted); white-space: nowrap; margin-top: .1rem;
-    text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--text-muted) 55%, transparent);
-  }
-
-  /* ── Combo cards ──────────────────────────────────────────────── */
-  .combos { align-items: stretch; }
-  .combo {
-    background: var(--surface-raised); border: 1px solid var(--line);
-    padding: clamp(var(--s3), 4vw, var(--s4)); display: flex; flex-direction: column;
-    transition: transform .3s cubic-bezier(.22,.61,.36,1), box-shadow .3s;
-  }
-  .combo:hover { transform: translateY(-3px); box-shadow: 0 34px 60px -46px rgba(11,79,89,.5); }
-  .combo__name { font-family: 'Playfair Display', serif; font-weight: 500; font-size: 1.35rem; color: var(--deep-teal); line-height: 1.15; }
-  .combo__tag { font-size: var(--f-small); color: var(--text-muted); margin-top: .3rem; }
-  .combo__parts { list-style: none; padding: 0; margin: var(--s3) 0 0; display: grid; gap: .5rem; }
-  .combo__parts li { display: flex; justify-content: space-between; gap: var(--s2); font-size: var(--f-small); color: var(--charcoal); line-height: 1.5; }
-  .combo__partp { color: var(--text-muted); white-space: nowrap; }
-  .combo__value { border-top: 1px solid var(--line-soft); padding-top: .55rem; margin-top: .25rem; font-weight: 600; }
-  .combo__value .combo__partp { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--text-muted) 55%, transparent); }
-  .combo__price {
-    display: flex; align-items: baseline; justify-content: space-between; gap: var(--s2);
-    margin-top: var(--s3); padding-top: var(--s3); border-top: 1px solid rgba(201,166,107,.5);
-  }
-  .combo__plabel { font-size: var(--f-micro); letter-spacing: .16em; text-transform: uppercase; color: var(--text-muted); }
-  .combo__pval { font-family: 'Playfair Display', serif; font-weight: 600; font-size: 1.85rem; color: var(--ocean-teal); line-height: 1; }
-  .combo__best { font-size: var(--f-small); color: var(--text-muted); margin-top: var(--s3); line-height: 1.6; }
-  .combo__best span { display: inline-block; font-weight: 700; color: var(--deep-teal); text-transform: uppercase; letter-spacing: .14em; font-size: var(--f-micro); margin-right: .45rem; }
 
   /* ── Package tables ───────────────────────────────────────────── */
   .pgroup { margin-bottom: var(--s5); }
@@ -422,8 +329,7 @@ const packages: {
     .book p, .book .lede, .book .disclaimer { color: var(--charcoal) !important; }
     .section, .section--tight { padding-block: var(--s3); }
     .sunken { background: #fff !important; }
-    .combo:hover { transform: none; box-shadow: none; }
-    .tgroup, .pgroup, .combo, .ptable tbody tr { break-inside: avoid; }
+    .tgroup, .pgroup, .ptable tbody tr { break-inside: avoid; }
     a[href]::after { content: ''; }
   }
 </style>

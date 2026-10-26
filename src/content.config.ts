@@ -16,14 +16,9 @@ const treatments = defineCollection({
     category: z.enum(['Aesthetics', 'Dermatology', 'Laser', 'Body', 'Wellness', 'Hair Removal', 'Hair Restoration', 'Scalp']),
     summary: z.string(),
     /** Regular (standing) price per session or area, from the Treatment Menu.
-     *  Shown struck through beside the promo, and used for the schema.org offer.
-     *  Null → "Price on consultation". */
+     *  The headline price on cards and the treatment page, and the schema.org
+     *  offer. Null → "Price on consultation". */
     priceFrom: z.number().nullable(),
-    /** First-visit promo (one per client, first visit only). The headline price
-     *  on cards and the treatment page. */
-    promoPrice: z.number().nullable().default(null),
-    /** What the first-visit offer covers, e.g. "Jawline / V-line", "One area". */
-    promoScope: z.string().optional(),
     /** Unit shown after prices on the page: per session, area or pimple. */
     priceUnit: z.enum(['session', 'area', 'pimple']).default('session'),
     duration: z.string(),

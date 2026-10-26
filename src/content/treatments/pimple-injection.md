@@ -6,8 +6,6 @@ group: "Skin"
 category: "Dermatology"
 summary: "A doctor-administered micro-injection that calms a single stubborn, painful cystic pimple — bringing down the swelling and redness, often within a day or two."
 priceFrom: 900
-promoPrice: 200
-promoScope: "Per pimple · first visit"
 priceUnit: pimple
 duration: "A few minutes"
 course: "As needed, for the occasional deep breakout"

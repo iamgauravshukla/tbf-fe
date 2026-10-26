@@ -6,8 +6,6 @@ group: "Skin"
 category: "Laser"
 summary: "A resurfacing laser that makes controlled micro-injuries to trigger skin renewal and collagen, softening scars, pores, texture and fine lines."
 priceFrom: 25000
-promoPrice: 1499
-promoScope: "First session · full face"
 priceUnit: session
 duration: "45–60 minutes, plus numbing time"
 course: "Often 1–3 sessions, several weeks apart"

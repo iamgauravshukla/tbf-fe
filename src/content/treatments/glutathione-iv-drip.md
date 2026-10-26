@@ -6,8 +6,6 @@ group: "Wellness"
 category: "Wellness"
 summary: "An intravenous wellness drip containing glutathione, an antioxidant involved in the body's natural antioxidant processes. Assessed before administration."
 priceFrom: 6500
-promoPrice: 799
-promoScope: "First drip"
 priceUnit: session
 duration: "30–60 minutes"
 course: "By plan, after assessment"

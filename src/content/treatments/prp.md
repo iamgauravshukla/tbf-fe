@@ -6,8 +6,6 @@ group: "Skin"
 category: "Aesthetics"
 summary: "Uses platelet-rich plasma prepared from your own blood to support skin renewal, and to complement scalp and hair-restoration programs."
 priceFrom: 22000
-promoPrice: 1999
-promoScope: "One area"
 priceUnit: session
 duration: "45–60 minutes"
 course: "Usually a short course, spaced weeks apart"

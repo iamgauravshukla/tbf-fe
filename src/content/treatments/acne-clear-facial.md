@@ -6,8 +6,6 @@ group: "Skin"
 category: "Dermatology"
 summary: "A deep-cleansing facial for breakout-prone skin — gentle, professional extractions and calming care that clear congestion without aggravating it."
 priceFrom: 4500
-promoPrice: 799
-promoScope: "First visit"
 priceUnit: session
 duration: "45–60 minutes"
 course: "Often every 2–4 weeks while the skin settles"

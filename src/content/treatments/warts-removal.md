@@ -6,8 +6,6 @@ group: "Skin"
 category: "Dermatology"
 summary: "Targeted removal of suitable superficial skin growths within a defined area, with the method chosen for the type, size and location."
 priceFrom: 8000
-promoPrice: 1499
-promoScope: "Unlimited suitable warts · face or neck"
 priceUnit: area
 duration: "15–30 minutes per area"
 course: "Often one visit; some lesions need review"

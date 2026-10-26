@@ -6,8 +6,6 @@ group: "Wellness"
 category: "Body"
 summary: "A targeted arm-contouring program designed for a slimmer, more defined upper arm, with the method customised to your body goals."
 priceFrom: 15000
-promoPrice: 999
-promoScope: "First session"
 priceUnit: session
 duration: "45–60 minutes per session"
 course: "A program over several sessions"

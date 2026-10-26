@@ -6,8 +6,6 @@ group: "Hair"
 category: "Hair Restoration"
 summary: "A regenerative scalp therapy powered by PDRN — polynucleotides purified from salmon DNA — to support a healthier scalp and the appearance of thinning hair, as part of a considered regrowth plan."
 priceFrom: 18500
-promoPrice: 1499
-promoScope: "First session"
 priceUnit: session
 duration: "45–60 minutes"
 course: "Typically a course over several months, as part of a plan"
